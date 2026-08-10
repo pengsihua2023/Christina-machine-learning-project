@@ -14,4 +14,5 @@ Thumbs.db
 
 # 幻灯片渲染产物（QA 用，可由 make_slides.js 重新生成）
 slides/png/
+slides/png_zh/
 slides/*.pdf
