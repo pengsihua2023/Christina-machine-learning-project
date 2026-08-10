@@ -184,24 +184,29 @@ const rowHi = { fill: { color: "E4F0F0" }, bold: true };
 // ================================================================ 2 EXEC SUMMARY
 {
   const s = slide("核心结论一览", "执行摘要");
-  stat(s, { x: 0.6, y: 1.55, w: 2.85, value: "0.839", label: "ROC-AUC", sub: "SVM-RBF，嵌套 CV" });
-  stat(s, { x: 3.6, y: 1.55, w: 2.85, value: "0.531", label: "MCC", sub: "基线 = 0", color: DARK2 });
-  stat(s, { x: 6.6, y: 1.55, w: 2.85, value: "p=0.0099", label: "置换检验", sub: "信号真实", valueSize: 32, color: DARK2 });
-  stat(s, { x: 9.6, y: 1.55, w: 3.1, value: "9", label: "个 Biomarker", sub: "三方法一致", color: MOSS });
+  stat(s, { x: 0.6, y: 1.5, w: 2.85, value: "p=0.0099", label: "信号是真实的", sub: "置换检验，100 次打乱", valueSize: 32 });
+  stat(s, { x: 3.6, y: 1.5, w: 2.85, value: "+0.043", label: "独立贡献", sub: "相对仅协变量的 AUC 增量", color: DARK2 });
+  stat(s, { x: 6.6, y: 1.5, w: 2.85, value: "0.86–0.96", label: "经得起混杂", sub: "同一月份内部的 AUC", valueSize: 30, color: DARK2 });
+  stat(s, { x: 9.6, y: 1.5, w: 3.1, value: "9", label: "个 Biomarker", sub: "三套独立方法一致", color: MOSS });
+
+  s.addText("这里刻意不把模型分数放在头条：17 个模型中最好的四个在统计上无法区分（AUC 0.834–0.859），因此任何单一分数都不是这项发现的属性。", {
+    x: 0.6, y: 2.92, w: 12.1, h: 0.4, margin: 0,
+    fontFace: BODY, fontSize: 11.5, color: MUTED, italic: true, valign: "top",
+  });
 
   card(s, {
-    x: 0.6, y: 3.15, w: 6.0, h: 1.75, accent: TEAL,
+    x: 0.6, y: 3.38, w: 6.0, h: 1.62, accent: TEAL,
     title: "我们确立了什么",
     body: "野鸭肠道菌群携带真实且可复现的流感感染信号。该关联通过了置换检验与月份分层分析的考验，且部分来自菌群之间的非线性交互。",
   });
   card(s, {
-    x: 6.9, y: 3.15, w: 5.8, h: 1.75, accent: MOSS,
+    x: 6.9, y: 3.38, w: 5.8, h: 1.62, accent: MOSS,
     title: "我们如何确立它",
     body: "嵌套交叉验证，所有预处理均在训练折内拟合；十七种模型在完全相同的折划分上比较；三套独立的特征排序方法相互交叉验证。",
   });
 
   caveat(s, {
-    x: 0.6, y: 5.15, w: 12.1, h: 1.1,
+    x: 0.6, y: 5.25, w: 12.1, h: 0.95,
     text: "本报告所有结论都受两条边界约束：（1）仅用采样季节等协变量即可达到 AUC 0.881，因此菌群的价值必须相对这一混杂基线来陈述；（2）结论仅在 UC Davis 野鸭队列内成立——跨研究泛化失败（AUC 0.54 ± 0.29）。",
   });
 }
@@ -395,40 +400,42 @@ divider("02", "数据处理", "剔除会泄漏的，变换属于成分数据的�
 // ================================================================ 12 DIVIDER 3
 divider("03", "建模与评估", "一套嵌套协议，十七种模型，一次诚实的比较");
 
-// ================================================================ 13 PROTOCOL
+// ================================================================ 13 PROTOCOL + METRICS
 {
-  const s = slide("评估协议", "建模 · 协议");
+  const s = slide("这一章应该怎么读", "建模 · 协议");
 
-  card(s, {
-    x: 0.6, y: 1.55, w: 3.9, h: 1.95, accent: DARK2,
-    title: "外层循环",
-    body: "RepeatedStratifiedKFold\n5 折 × 5 次重复 = 25 折\n\n用途：性能评估",
+  const proto = [
+    ["外层循环", "RepeatedStratifiedKFold\n5 折 × 5 次重复 = 25 折\n用途：性能评估", DARK2],
+    ["内层循环", "StratifiedKFold，4 折\n以 ROC-AUC 为目标做网格搜索\n用途：超参数搜索", TEAL],
+    ["共用折划分", "所有模型看到完全相同的\n折划分\n用途：保证可比性", MOSS],
+  ];
+  proto.forEach((p, i) => {
+    card(s, { x: 0.6 + i * 4.1, y: 1.45, w: 3.9, h: 1.5, accent: p[2],
+              title: p[0], titleSize: 14, body: p[1], bodySize: 11 });
   });
-  card(s, {
-    x: 4.7, y: 1.55, w: 3.9, h: 1.95, accent: TEAL,
-    title: "内层循环",
-    body: "StratifiedKFold，4 折\n以 ROC-AUC 为目标做 GridSearchCV\n\n用途：超参数搜索",
-  });
-  card(s, {
-    x: 8.8, y: 1.55, w: 3.9, h: 1.95, accent: MOSS,
-    title: "共用折划分",
-    body: "所有模型看到完全相同的\n折划分\n\n用途：保证可比性",
+  s.addText("嵌套把调参与评估隔离开，因此报出的 AUC 不含调参偏倚。", {
+    x: 0.6, y: 3.05, w: 12.1, h: 0.3, margin: 0,
+    fontFace: BODY, fontSize: 11, color: MUTED, italic: true,
   });
 
-  card(s, {
-    x: 0.6, y: 3.75, w: 6.0, h: 1.5, accent: TEAL,
-    title: "为何要嵌套",
-    body: "在同一批折上既调参又评估会让结果虚高。嵌套把两者隔离，因此报出的 AUC 不含调参偏倚。",
+  s.addText("指标会以三种方式误导你", {
+    x: 0.6, y: 3.5, w: 12.1, h: 0.35, margin: 0,
+    fontFace: HEAD, fontSize: 17, bold: true, color: INK,
   });
-  card(s, {
-    x: 6.9, y: 3.75, w: 5.8, h: 1.5, accent: TEAL,
-    title: "报告的指标",
-    body: "ROC-AUC · PR-AUC · 准确率 · 平衡准确率 · 灵敏度 · 特异度 · 精确率 · F1 · MCC",
+  const pit = [
+    ["准确率的基线是 0.581", "58% 的样本为阳性，全猜阳性已有 0.581。报告准确率时绝不能不给这条基线。"],
+    ["F1 不能用来给模型排名", "全猜阳性的基线 F1 = 0.735，高于 L2-LR 的 0.725。阳性占多数时 F1 严重虚高。"],
+    ["MCC 的基线是 0", "平衡准确率同样如此。它们能立刻暴露类别不对称——随机森林准确率 0.725，却只识别出 55% 的阴性样本。"],
+  ];
+  pit.forEach((p, i) => {
+    card(s, { x: 0.6 + i * 4.1, y: 3.95, w: 3.9, h: 1.5, accent: CORAL, fill: "FBEDE7",
+              title: `${i + 1}.  ${p[0]}`, titleSize: 12.5, body: p[1], bodySize: 11, bodyColor: "7A2E14" });
   });
 
   caveat(s, {
-    x: 0.6, y: 5.5, w: 12.1, h: 0.95,
+    x: 0.6, y: 5.65, w: 12.1, h: 0.85,
     text: "所有准确率均在固定阈值 0.5 下计算。阈值 0.55 表现更好，但那是看着测试数据挑出来的——若要采用，必须把阈值选择也放进内层循环。",
+    size: 11,
   });
 }
 
@@ -484,15 +491,20 @@ divider("03", "建模与评估", "一套嵌套协议，十七种模型，一次�
   s.addText("青色 = 可以区分", { x: 5.2, y: 4.78, w: 4.0, h: 0.3, margin: 0, fontFace: BODY, fontSize: 10, color: MUTED });
 
   card(s, {
-    x: 0.6, y: 5.15, w: 5.9, h: 1.68, accent: CORAL, fill: "FBEDE7",
+    x: 0.6, y: 5.05, w: 5.9, h: 1.42, accent: CORAL, fill: "FBEDE7",
     title: "前四名是统计意义上的平局", titleSize: 14, bodySize: 11,
     body: "ExtraTrees、SVM-RBF、集成模型与 SVM-poly 在这份数据上彼此无法区分。它们的 AUC 落在 0.834–0.859，完全处在 ±0.04–0.06 的折间波动之内。\n\n给它们排名等于在读噪声。",
     bodyColor: "7A2E14",
   });
   card(s, {
-    x: 6.8, y: 5.15, w: 5.9, h: 1.68, accent: MOSS,
+    x: 6.8, y: 5.05, w: 5.9, h: 1.42, accent: MOSS,
     title: "所以取舍必须依据别的东西", titleSize: 14, bodySize: 11,
     body: "剩下两条依据：判决阈值处的错误结构（SVM-RBF 特异度 0.703，ExtraTrees 0.620），以及信号微弱处的稳健性。\n\n真正决定取舍的检验在下一页。",
+  });
+
+  s.addText("超参稳健性：SVM-RBF 网格已扩展至 C ∈ [0.01, 500]、gamma ∈ [1e-4, 0.1] + scale。15 折中 0 折选中边界值，AUC 未变（0.838 对 0.839），整个曲面跨度仅 0.73–0.81。完整曲面见 results/svm_hyperparam_surface.csv。", {
+    x: 0.6, y: 6.58, w: 12.1, h: 0.35, margin: 0,
+    fontFace: BODY, fontSize: 9.5, color: MUTED, italic: true,
   });
 }
 
@@ -528,60 +540,6 @@ divider("03", "建模与评估", "一套嵌套协议，十七种模型，一次�
 
   s.addText("ExtraTrees 自身的置换检验同样通过（实测 0.856，零分布 0.496 ± 0.046，p = 0.0099）。", {
     x: 0.6, y: 6.45, w: 12.1, h: 0.3, margin: 0, fontFace: BODY, fontSize: 11, color: MUTED, italic: true,
-  });
-}
-
-// ================================================================ 16 PITFALLS
-{
-  const s = slide("这些指标会以三种方式误导你", "建模 · 指标解读");
-  const items = [
-    ["准确率的基线是 0.581，不是 0.5",
-     "58% 的样本为阳性，因此一个永远预测阳性的模型已经能拿 0.581。SVM-RBF 的 0.771 对应的真实增益是 19 个百分点，不是 27。报告准确率时必须同时给出这条基线。"],
-    ["F1 不能用于模型选择",
-     "全猜阳性的基线模型 F1 = 0.735，比 L2-LR 的 0.725 还高。阳性占多数时 F1 会严重虚高——在这里它把一个毫无用处的模型排在了一个可用模型之上。"],
-    ["准确率掩盖了两类之间的不对称",
-     "随机森林准确率 0.725，却只识别出 55% 的阴性样本。MCC 与平衡准确率的基线均为 0，能立刻暴露这一点——它们才是应该用来比较的指标。"],
-  ];
-  items.forEach((it, i) => {
-    const y = 1.6 + i * 1.72;
-    s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y, w: 12.1, h: 1.5, fill: { color: W }, shadow: shadow() });
-    s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y, w: 0.075, h: 1.5, fill: { color: CORAL } });
-    s.addShape(pres.shapes.OVAL, { x: 0.95, y: y + 0.34, w: 0.62, h: 0.62, fill: { color: DARK } });
-    s.addText(String(i + 1), { x: 0.95, y: y + 0.45, w: 0.62, h: 0.4, margin: 0, fontFace: HEAD, fontSize: 18, bold: true, color: W, align: "center" });
-    s.addText(it[0], { x: 1.85, y: y + 0.2, w: 10.5, h: 0.36, margin: 0, fontFace: HEAD, fontSize: 15, bold: true, color: INK });
-    s.addText(it[1], { x: 1.85, y: y + 0.6, w: 10.5, h: 0.8, margin: 0, fontFace: BODY, fontSize: 12, color: MUTED, lineSpacingMultiple: 1.1 });
-  });
-}
-
-// ================================================================ 17 HYPERPARAM
-{
-  const s = slide("SVM-RBF 是不是调参调出来的？", "建模 · 稳健性");
-  s.addText("我们把网格远远扩展出原范围——C 从 [0.1…10] 扩到 [0.01…500]，gamma 扩到 [1e-4…0.1] 外加 'scale'——然后重跑嵌套 CV。", {
-    x: 0.6, y: 1.48, w: 12.1, h: 0.4, margin: 0, fontFace: BODY, fontSize: 13, color: MUTED,
-  });
-  table(s, [
-    [th("C  \\  gamma"), th("1e-4"), th("1e-3"), th("0.01"), th("0.1"), th("scale")],
-    ["1.0", "0.745", "0.752", "0.793", "0.727", "0.803"],
-    [{ text: "5.0", options: rowHi }, { text: "0.747", options: rowHi }, { text: "0.752", options: rowHi }, { text: "0.800", options: rowHi }, { text: "0.738", options: rowHi }, { text: "0.808", options: rowHi }],
-    ["10.0", "0.747", "0.762", "0.793", "0.738", "0.808"],
-    ["50.0", "0.741", "0.765", "0.779", "0.738", "0.798"],
-    ["500.0", "0.768", "0.735", "0.779", "0.738", "0.798"],
-  ], { y: 2.05, colW: [2.5, 1.92, 1.92, 1.92, 1.92, 1.92], rowH: 0.44 });
-
-  card(s, {
-    x: 0.6, y: 5.0, w: 3.85, h: 1.6, accent: MOSS,
-    title: "未触及边界",
-    body: "15 折中有 0 折选中网格边缘值。C = 5 是内部最优解。",
-  });
-  card(s, {
-    x: 4.65, y: 5.0, w: 3.85, h: 1.6, accent: MOSS,
-    title: "性能未变",
-    body: "扩展网格下 AUC 0.838 ± 0.052，原网格为 0.839。",
-  });
-  card(s, {
-    x: 8.7, y: 5.0, w: 4.0, h: 1.6, accent: TEAL,
-    title: "曲面平坦",
-    body: "整个曲面跨度仅 0.73–0.81——性能并不依赖精细调参。",
   });
 }
 

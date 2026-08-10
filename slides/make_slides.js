@@ -184,24 +184,29 @@ const rowHi = { fill: { color: "E4F0F0" }, bold: true };
 // ================================================================ 2 EXEC SUMMARY
 {
   const s = slide("At a Glance", "Executive summary");
-  stat(s, { x: 0.6, y: 1.55, w: 2.85, value: "0.839", label: "ROC-AUC", sub: "SVM-RBF, nested CV" });
-  stat(s, { x: 3.6, y: 1.55, w: 2.85, value: "0.531", label: "MCC", sub: "baseline = 0", color: DARK2 });
-  stat(s, { x: 6.6, y: 1.55, w: 2.85, value: "p=0.0099", label: "Permutation test", sub: "signal is real", valueSize: 32, color: DARK2 });
-  stat(s, { x: 9.6, y: 1.55, w: 3.1, value: "9", label: "Biomarkers", sub: "3 methods agree", color: MOSS });
+  stat(s, { x: 0.6, y: 1.5, w: 2.85, value: "p=0.0099", label: "The signal is real", sub: "permutation test, 100 shuffles", valueSize: 32 });
+  stat(s, { x: 3.6, y: 1.5, w: 2.85, value: "+0.043", label: "Independent contribution", sub: "AUC over covariates alone", color: DARK2 });
+  stat(s, { x: 6.6, y: 1.5, w: 2.85, value: "0.86–0.96", label: "Survives the confounder", sub: "AUC within a single month", valueSize: 30, color: DARK2 });
+  stat(s, { x: 9.6, y: 1.5, w: 3.1, value: "9", label: "Biomarkers", sub: "3 independent methods agree", color: MOSS });
+
+  s.addText("Model performance is deliberately not the headline: the four best of 17 models are statistically indistinguishable (AUC 0.834–0.859), so no single score is a property of the finding.", {
+    x: 0.6, y: 2.92, w: 12.1, h: 0.4, margin: 0,
+    fontFace: BODY, fontSize: 11.5, color: MUTED, italic: true, valign: "top",
+  });
 
   card(s, {
-    x: 0.6, y: 3.15, w: 6.0, h: 1.75, accent: TEAL,
+    x: 0.6, y: 3.38, w: 6.0, h: 1.62, accent: TEAL,
     title: "What we established",
     body: "Duck gut microbiota carry a genuine, reproducible signal for influenza infection status. The association survives permutation testing and month-stratified analysis, and is driven partly by nonlinear interactions between taxa.",
   });
   card(s, {
-    x: 6.9, y: 3.15, w: 5.8, h: 1.75, accent: MOSS,
+    x: 6.9, y: 3.38, w: 5.8, h: 1.62, accent: MOSS,
     title: "How we established it",
     body: "Nested cross-validation with all preprocessing fitted inside training folds; seventeen models compared on identical splits; three independent feature-ranking methods cross-checked against each other.",
   });
 
   caveat(s, {
-    x: 0.6, y: 5.15, w: 12.1, h: 1.1,
+    x: 0.6, y: 5.25, w: 12.1, h: 0.95,
     text: "Two boundaries on every claim in this deck:  (1) sampling season alone reaches AUC 0.881, so microbiome value must always be quoted relative to that confounder baseline;  (2) results hold only within the UC Davis wild-duck cohort — cross-study generalization fails (AUC 0.54 ± 0.29).",
   });
 }
@@ -395,40 +400,42 @@ divider("02", "Data Processing", "Removing what leaks, transforming what is comp
 // ================================================================ 12 DIVIDER 3
 divider("03", "Modeling & Evaluation", "A nested protocol, seventeen models, one honest comparison");
 
-// ================================================================ 13 PROTOCOL
+// ================================================================ 13 PROTOCOL + METRICS
 {
-  const s = slide("Evaluation Protocol", "Modeling · protocol");
+  const s = slide("How This Section Should Be Read", "Modeling · protocol");
 
-  card(s, {
-    x: 0.6, y: 1.55, w: 3.9, h: 1.95, accent: DARK2,
-    title: "Outer loop",
-    body: "RepeatedStratifiedKFold\n5 folds × 5 repeats = 25 folds\n\nPurpose: performance estimation",
+  const proto = [
+    ["Outer loop", "RepeatedStratifiedKFold\n5 folds × 5 repeats = 25\nPurpose: performance estimate", DARK2],
+    ["Inner loop", "StratifiedKFold, 4 folds\nGridSearchCV on ROC-AUC\nPurpose: hyperparameter search", TEAL],
+    ["Shared splits", "Every model sees the identical\nfold partition\nPurpose: fair comparison", MOSS],
+  ];
+  proto.forEach((p, i) => {
+    card(s, { x: 0.6 + i * 4.1, y: 1.45, w: 3.9, h: 1.5, accent: p[2],
+              title: p[0], titleSize: 14, body: p[1], bodySize: 11 });
   });
-  card(s, {
-    x: 4.7, y: 1.55, w: 3.9, h: 1.95, accent: TEAL,
-    title: "Inner loop",
-    body: "StratifiedKFold, 4 folds\nGridSearchCV on ROC-AUC\n\nPurpose: hyperparameter search",
-  });
-  card(s, {
-    x: 8.8, y: 1.55, w: 3.9, h: 1.95, accent: MOSS,
-    title: "Shared splits",
-    body: "Every model sees the identical\nfold partition\n\nPurpose: fair comparison",
+  s.addText("Nesting isolates tuning from evaluation, so the reported AUC carries no tuning bias.", {
+    x: 0.6, y: 3.05, w: 12.1, h: 0.3, margin: 0,
+    fontFace: BODY, fontSize: 11, color: MUTED, italic: true,
   });
 
-  card(s, {
-    x: 0.6, y: 3.75, w: 6.0, h: 1.5, accent: TEAL,
-    title: "Why nested",
-    body: "Tuning and evaluating on the same folds inflates results. Nesting isolates the two, so the reported AUC contains no tuning bias.",
+  s.addText("Three ways the metrics mislead", {
+    x: 0.6, y: 3.5, w: 12.1, h: 0.35, margin: 0,
+    fontFace: HEAD, fontSize: 17, bold: true, color: INK,
   });
-  card(s, {
-    x: 6.9, y: 3.75, w: 5.8, h: 1.5, accent: TEAL,
-    title: "Metrics reported",
-    body: "ROC-AUC · PR-AUC · Accuracy · Balanced Accuracy · Sensitivity · Specificity · Precision · F1 · MCC",
+  const pit = [
+    ["Accuracy's baseline is 0.581", "58% of samples are positive, so always-Pos already scores 0.581. Never report accuracy without that number beside it."],
+    ["F1 cannot rank models", "The always-Pos baseline scores F1 = 0.735 — above L2-LR's 0.725. F1 inflates when positives dominate."],
+    ["MCC has a zero baseline", "So does balanced accuracy. They expose class asymmetry at once: RF reaches 0.725 accuracy while catching 55% of negatives."],
+  ];
+  pit.forEach((p, i) => {
+    card(s, { x: 0.6 + i * 4.1, y: 3.95, w: 3.9, h: 1.5, accent: CORAL, fill: "FBEDE7",
+              title: `${i + 1}.  ${p[0]}`, titleSize: 12.5, body: p[1], bodySize: 11, bodyColor: "7A2E14" });
   });
 
   caveat(s, {
-    x: 0.6, y: 5.5, w: 12.1, h: 0.95,
+    x: 0.6, y: 5.65, w: 12.1, h: 0.85,
     text: "All accuracy figures use a fixed 0.5 threshold. A 0.55 threshold performs better, but was chosen by looking at test data — using it would require folding threshold selection into the inner loop.",
+    size: 11,
   });
 }
 
@@ -484,15 +491,20 @@ divider("03", "Modeling & Evaluation", "A nested protocol, seventeen models, one
   s.addText("teal = distinguishable", { x: 5.2, y: 4.78, w: 4.0, h: 0.3, margin: 0, fontFace: BODY, fontSize: 10, color: MUTED });
 
   card(s, {
-    x: 0.6, y: 5.15, w: 5.9, h: 1.68, accent: CORAL, fill: "FBEDE7",
+    x: 0.6, y: 5.05, w: 5.9, h: 1.42, accent: CORAL, fill: "FBEDE7",
     title: "The top four are a statistical tie", titleSize: 14, bodySize: 11,
     body: "ExtraTrees, SVM-RBF, the ensemble and SVM-poly cannot be separated from one another on this data. Their AUCs span 0.834–0.859, well inside the ±0.04–0.06 fold-to-fold spread.\n\nRanking them is reading noise.",
     bodyColor: "7A2E14",
   });
   card(s, {
-    x: 6.8, y: 5.15, w: 5.9, h: 1.68, accent: MOSS,
+    x: 6.8, y: 5.05, w: 5.9, h: 1.42, accent: MOSS,
     title: "So the choice must rest on something else", titleSize: 14, bodySize: 11,
     body: "Two grounds remain: error structure at the operating threshold (specificity 0.703 for SVM-RBF vs 0.620 for ExtraTrees) and robustness where the signal is weak.\n\nThe next slide is the test that actually decides.",
+  });
+
+  s.addText("Hyperparameter robustness: the SVM-RBF grid was expanded to C ∈ [0.01, 500] and gamma ∈ [1e-4, 0.1] + scale. 0 of 15 folds selected a boundary value and AUC was unchanged (0.838 vs 0.839); the whole surface spans only 0.73–0.81. Full surface in results/svm_hyperparam_surface.csv.", {
+    x: 0.6, y: 6.58, w: 12.1, h: 0.35, margin: 0,
+    fontFace: BODY, fontSize: 9.5, color: MUTED, italic: true,
   });
 }
 
@@ -528,60 +540,6 @@ divider("03", "Modeling & Evaluation", "A nested protocol, seventeen models, one
 
   s.addText("ExtraTrees also passes its own permutation test (observed 0.856, null 0.496 ± 0.046, p = 0.0099).", {
     x: 0.6, y: 6.45, w: 12.1, h: 0.3, margin: 0, fontFace: BODY, fontSize: 11, color: MUTED, italic: true,
-  });
-}
-
-// ================================================================ 16 PITFALLS
-{
-  const s = slide("Three Ways These Metrics Mislead", "Modeling · interpretation");
-  const items = [
-    ["The accuracy baseline is 0.581, not 0.5",
-     "58% of samples are positive, so a model that always predicts Pos already scores 0.581. SVM-RBF's 0.771 is a gain of 19 points, not 27. Accuracy must never be reported without this baseline beside it."],
-    ["F1 cannot be used for model selection",
-     "The always-Pos baseline scores F1 = 0.735 — higher than L2-LR's 0.725. F1 inflates whenever the positive class dominates, and here it ranks a useless model above a working one."],
-    ["Accuracy hides the asymmetry between classes",
-     "Random Forest reaches 0.725 accuracy while detecting only 55% of negatives. MCC and balanced accuracy have a baseline of zero and expose this immediately; they are the metrics to compare on."],
-  ];
-  items.forEach((it, i) => {
-    const y = 1.6 + i * 1.72;
-    s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y, w: 12.1, h: 1.5, fill: { color: W }, shadow: shadow() });
-    s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y, w: 0.075, h: 1.5, fill: { color: CORAL } });
-    s.addShape(pres.shapes.OVAL, { x: 0.95, y: y + 0.34, w: 0.62, h: 0.62, fill: { color: DARK } });
-    s.addText(String(i + 1), { x: 0.95, y: y + 0.45, w: 0.62, h: 0.4, margin: 0, fontFace: HEAD, fontSize: 18, bold: true, color: W, align: "center" });
-    s.addText(it[0], { x: 1.85, y: y + 0.2, w: 10.5, h: 0.36, margin: 0, fontFace: HEAD, fontSize: 15, bold: true, color: INK });
-    s.addText(it[1], { x: 1.85, y: y + 0.6, w: 10.5, h: 0.8, margin: 0, fontFace: BODY, fontSize: 12, color: MUTED, lineSpacingMultiple: 1.1 });
-  });
-}
-
-// ================================================================ 17 HYPERPARAM
-{
-  const s = slide("Is SVM-RBF Just Over-Tuned?", "Modeling · robustness");
-  s.addText("We expanded the grid far past the original range — C from [0.1…10] to [0.01…500], gamma from [1e-4…0.1] plus 'scale' — and re-ran the nested CV.", {
-    x: 0.6, y: 1.48, w: 12.1, h: 0.4, margin: 0, fontFace: BODY, fontSize: 13, color: MUTED,
-  });
-  table(s, [
-    [th("C  \\  gamma"), th("1e-4"), th("1e-3"), th("0.01"), th("0.1"), th("scale")],
-    ["1.0", "0.745", "0.752", "0.793", "0.727", "0.803"],
-    [{ text: "5.0", options: rowHi }, { text: "0.747", options: rowHi }, { text: "0.752", options: rowHi }, { text: "0.800", options: rowHi }, { text: "0.738", options: rowHi }, { text: "0.808", options: rowHi }],
-    ["10.0", "0.747", "0.762", "0.793", "0.738", "0.808"],
-    ["50.0", "0.741", "0.765", "0.779", "0.738", "0.798"],
-    ["500.0", "0.768", "0.735", "0.779", "0.738", "0.798"],
-  ], { y: 2.05, colW: [2.5, 1.92, 1.92, 1.92, 1.92, 1.92], rowH: 0.44 });
-
-  card(s, {
-    x: 0.6, y: 5.0, w: 3.85, h: 1.6, accent: MOSS,
-    title: "No edge effects",
-    body: "0 of 15 folds selected a value at the grid boundary. C = 5 is an interior optimum.",
-  });
-  card(s, {
-    x: 4.65, y: 5.0, w: 3.85, h: 1.6, accent: MOSS,
-    title: "Unchanged performance",
-    body: "Expanded-grid AUC 0.838 ± 0.052, versus 0.839 originally.",
-  });
-  card(s, {
-    x: 8.7, y: 5.0, w: 4.0, h: 1.6, accent: TEAL,
-    title: "Flat surface",
-    body: "The whole surface spans only 0.73–0.81 — performance does not hinge on fine tuning.",
   });
 }
 
