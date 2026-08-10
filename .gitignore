@@ -11,3 +11,7 @@ results/full_run.log
 # 系统文件
 .DS_Store
 Thumbs.db
+
+# 幻灯片渲染产物（QA 用，可由 make_slides.js 重新生成）
+slides/png/
+slides/*.pdf
