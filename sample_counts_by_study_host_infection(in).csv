@@ -1,0 +1,9 @@
+BioProject,HostGroup,HostSpecies,Infection,n_samples
+PRJNA347583,Swan,WhooperSwan,Neg,5
+PRJNA347583,Swan,WhooperSwan,Pos,10
+PRJNA379944,Poultry,Chicken,Neg,3
+PRJNA379944,Poultry,Chicken,Pos,3
+PRJNA464410,Duck,Duck,Neg,109
+PRJNA464410,Duck,Duck,Pos,151
+PRJNA644054,Poultry,Turkey,Neg,13
+PRJNA644054,Poultry,Turkey,Pos,32

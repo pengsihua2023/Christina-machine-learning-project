@@ -1,0 +1,17 @@
+{
+  "cohort": "PRJNA464410",
+  "level": "featureID",
+  "n": 260,
+  "n_features_raw": 275,
+  "n_pos": 151,
+  "prevalence": 0.1,
+  "permutation": {
+    "model": "L2-LR",
+    "observed": 0.7433563748079878,
+    "null_mean": 0.5013540427314621,
+    "null_sd": 0.04917802643766537,
+    "null_max": 0.6136614997905321,
+    "p_value": 0.009900990099009901,
+    "n_perm": 100
+  }
+}
