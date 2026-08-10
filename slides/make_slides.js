@@ -166,7 +166,7 @@ const rowHi = { fill: { color: "E4F0F0" }, bold: true };
   });
 
   s.addShape(pres.shapes.RECTANGLE, { x: 1.0, y: 5.0, w: 3.6, h: 0.04, fill: { color: MOSS } });
-  s.addText("260 wild ducks  ·  70 microbial features  ·  6 models compared", {
+  s.addText("260 wild ducks  ·  70 microbial features  ·  17 models compared", {
     x: 1.0, y: 5.2, w: 11.3, h: 0.4, margin: 0,
     fontFace: BODY, fontSize: 13, color: MOSS,
   });
@@ -197,7 +197,7 @@ const rowHi = { fill: { color: "E4F0F0" }, bold: true };
   card(s, {
     x: 6.9, y: 3.15, w: 5.8, h: 1.75, accent: MOSS,
     title: "How we established it",
-    body: "Nested cross-validation with all preprocessing fitted inside training folds; six models compared on identical splits; three independent feature-ranking methods cross-checked against each other.",
+    body: "Nested cross-validation with all preprocessing fitted inside training folds; seventeen models compared on identical splits; three independent feature-ranking methods cross-checked against each other.",
   });
 
   caveat(s, {

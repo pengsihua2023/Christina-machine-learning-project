@@ -166,7 +166,7 @@ const rowHi = { fill: { color: "E4F0F0" }, bold: true };
   });
 
   s.addShape(pres.shapes.RECTANGLE, { x: 1.0, y: 5.0, w: 3.6, h: 0.04, fill: { color: MOSS } });
-  s.addText("260 只野鸭  ·  70 个菌群特征  ·  6 种模型横向比较", {
+  s.addText("260 只野鸭  ·  70 个菌群特征  ·  17 种模型横向比较", {
     x: 1.0, y: 5.2, w: 11.3, h: 0.4, margin: 0,
     fontFace: BODY, fontSize: 13, color: MOSS,
   });
@@ -197,7 +197,7 @@ const rowHi = { fill: { color: "E4F0F0" }, bold: true };
   card(s, {
     x: 6.9, y: 3.15, w: 5.8, h: 1.75, accent: MOSS,
     title: "我们如何确立它",
-    body: "嵌套交叉验证，所有预处理均在训练折内拟合；六种模型在完全相同的折划分上比较；三套独立的特征排序方法相互交叉验证。",
+    body: "嵌套交叉验证，所有预处理均在训练折内拟合；十七种模型在完全相同的折划分上比较；三套独立的特征排序方法相互交叉验证。",
   });
 
   caveat(s, {
