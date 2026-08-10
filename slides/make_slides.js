@@ -212,10 +212,10 @@ const rowHi = { fill: { color: "E4F0F0" }, bold: true };
   const items = [
     ["01", "Data", "Three input files, four studies, and why we model only one of them"],
     ["02", "Processing", "Label leakage, compositional transformation, and leak-free pipelines"],
-    ["03", "Modeling", "Nested CV protocol and a six-model comparison"],
+    ["03", "Modeling", "Nested CV protocol and a seventeen-model comparison"],
     ["04", "Validity", "Permutation testing, confounders, and stratified re-analysis"],
     ["05", "Findings", "Biomarkers from three independent methods; evidence of nonlinearity"],
-    ["06", "Limits", "Six known limitations, stated plainly"],
+    ["06", "Limits", "Seven known limitations, stated plainly"],
   ];
   items.forEach((it, i) => {
     const col = i % 2, row = Math.floor(i / 2);
@@ -393,7 +393,7 @@ divider("02", "Data Processing", "Removing what leaks, transforming what is comp
 }
 
 // ================================================================ 12 DIVIDER 3
-divider("03", "Modeling & Evaluation", "A nested protocol, six models, one honest comparison");
+divider("03", "Modeling & Evaluation", "A nested protocol, seventeen models, one honest comparison");
 
 // ================================================================ 13 PROTOCOL
 {
@@ -434,26 +434,32 @@ divider("03", "Modeling & Evaluation", "A nested protocol, six models, one hones
 
 // ================================================================ 14 MODEL TABLE
 {
-  const s = slide("Six Models on Identical Folds", "Modeling · comparison");
+  const s = slide("Seventeen Models on Identical Folds", "Modeling · comparison");
   table(s, [
     [th("Model"), th("Accuracy"), th("Bal. Acc"), th("ROC-AUC"), th("PR-AUC"), th("Sens."), th("Spec."), th("F1"), th("MCC")],
+    [{ text: "ExtraTrees", options: rowHi }, { text: "0.777", options: rowHi }, { text: "0.755", options: rowHi }, { text: "0.859", options: rowHi }, { text: "0.893", options: rowHi }, { text: "0.890", options: rowHi }, { text: "0.620", options: rowHi }, { text: "0.822", options: rowHi }, { text: "0.542", options: rowHi }],
     [{ text: "SVM-RBF", options: rowHi }, { text: "0.771", options: rowHi }, { text: "0.761", options: rowHi }, { text: "0.839", options: rowHi }, { text: "0.872", options: rowHi }, { text: "0.820", options: rowHi }, { text: "0.703", options: rowHi }, { text: "0.805", options: rowHi }, { text: "0.531", options: rowHi }],
+    ["Ensemble (soft-vote)", "0.766", "0.756", "0.836", "0.873", "0.818", "0.694", "0.802", "0.521"],
+    ["SVM-poly", "0.748", "0.728", "0.834", "0.861", "0.853", "0.604", "0.797", "0.481"],
+    ["GP-RBF", "0.757", "0.741", "0.822", "0.866", "0.841", "0.641", "0.801", "0.498"],
+    ["GP-Matérn", "0.755", "0.738", "0.819", "0.865", "0.844", "0.632", "0.800", "0.493"],
     ["RandomForest", "0.725", "0.701", "0.810", "0.851", "0.850", "0.553", "0.782", "0.433"],
+    ["XGBoost", "0.730", "0.720", "0.801", "0.845", "0.784", "0.656", "0.770", "0.449"],
     ["HistGB", "0.722", "0.705", "0.796", "0.841", "0.809", "0.600", "0.771", "0.423"],
-    ["L1-LR", "0.709", "0.707", "0.787", "0.842", "0.722", "0.692", "0.742", "0.414"],
-    ["L2-LR", "0.690", "0.686", "0.782", "0.844", "0.710", "0.662", "0.725", "0.373"],
-    ["SVM-linear", "0.692", "0.672", "0.766", "0.830", "0.796", "0.549", "0.749", "0.362"],
+    ["kNN-Aitchison", "0.719", "0.687", "0.795", "0.838", "0.885", "0.490", "0.786", "0.422"],
     [{ text: "Baseline (always Pos)", options: { italic: true, color: MUTED } },
-     { text: "0.581", options: { italic: true, color: MUTED } }, { text: "0.500", options: { italic: true, color: MUTED } },
-     { text: "0.500", options: { italic: true, color: MUTED } }, { text: "0.581", options: { italic: true, color: MUTED } },
-     { text: "1.000", options: { italic: true, color: MUTED } }, { text: "0.000", options: { italic: true, color: MUTED } },
-     { text: "0.735", options: { italic: true, color: MUTED } }, { text: "0.000", options: { italic: true, color: MUTED } }],
-  ], { y: 1.65, colW: [3.0, 1.18, 1.18, 1.18, 1.18, 1.09, 1.09, 1.1, 1.1], rowH: 0.42, fontSize: 11 });
+     { text: "0.581", options: { italic: true, color: MUTED } }, { text: "0.500", options: { italic: true, color: MUTED } }, { text: "0.500", options: { italic: true, color: MUTED } }, { text: "0.581", options: { italic: true, color: MUTED } }, { text: "1.000", options: { italic: true, color: MUTED } }, { text: "0.000", options: { italic: true, color: MUTED } }, { text: "0.735", options: { italic: true, color: MUTED } }, { text: "0.000", options: { italic: true, color: MUTED } }],
+  ], { y: 1.5, colW: [2.9, 1.15, 1.25, 1.15, 1.15, 1.05, 1.05, 1.0, 1.0], rowH: 0.33, fontSize: 10 });
+
+  s.addText("Top 10 of 17 models by ROC-AUC · full table in results/model_comparison_all16.csv", {
+    x: 0.6, y: 5.52, w: 12.1, h: 0.3, margin: 0,
+    fontFace: BODY, fontSize: 9.5, color: MUTED, italic: true,
+  });
 
   card(s, {
-    x: 0.6, y: 5.2, w: 12.1, h: 1.5, accent: TEAL,
-    title: "SVM-RBF wins on eight of nine metrics",
-    body: "Random Forest edges it out on sensitivity alone (0.850 vs 0.820) — but at the cost of specificity 0.553, meaning it is barely better than a coin flip on negative samples. SVM-RBF is the only model with MCC above 0.5.",
+    x: 0.6, y: 5.85, w: 12.1, h: 0.95, accent: TEAL,
+    title: "ExtraTrees scores highest — but does not become the primary model", titleSize: 14,
+    body: "ExtraTrees leads on AUC, PR-AUC and MCC, but the lead is not significant (p=0.085) and it is a best-of-17 score. The next two slides settle the choice.", bodySize: 11,
   });
 }
 
@@ -478,13 +484,48 @@ divider("03", "Modeling & Evaluation", "A nested protocol, six models, one hones
   card(s, {
     x: 0.6, y: 3.7, w: 7.0, h: 1.5, accent: MOSS,
     title: "Verdict", titleSize: 14,
-    body: "SVM-RBF is significantly better than every other model tested — not merely numerically ahead. An earlier comparison that omitted SVM found no significant differences among four models; adding the RBF kernel changed that conclusion.",
+    body: "SVM-RBF significantly beats every model except ExtraTrees, whose +0.020 lead reaches only p=0.085 on 14/25 folds. That alone would not settle the choice — the stratified test on the next slide does.",
     bodySize: 11.5,
   });
 
   s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: 5.9, w: 12.1, h: 0.9, fill: { color: DARK } });
   s.addText("SVM-linear reaches only 0.766 — the kernel is what wins, not the SVM. This is the first hint of real nonlinear structure.", {
     x: 0.95, y: 6.12, w: 11.5, h: 0.5, margin: 0, fontFace: BODY, fontSize: 14, color: MOSS, italic: true,
+  });
+}
+
+// ================================================================ 15b WHY NOT EXTRATREES
+{
+  const s = slide("Why ExtraTrees Does Not Take Over", "Modeling · model choice");
+  s.addText("A 0.020 AUC lead at p=0.085 does not settle a model choice. The decisive test is where each model stands when the signal is weak — so we re-ran both inside every sampling-month stratum.", {
+    x: 0.6, y: 1.42, w: 12.1, h: 0.5, margin: 0, fontFace: BODY, fontSize: 12.5, color: MUTED, valign: "top",
+  });
+  table(s, [
+    [th("Stratum"), th("n"), th("Pos"), th("ExtraTrees"), th("SVM-RBF"), th("Δ")],
+    ["July", "86", "52", "0.988", "0.975", { text: "+0.013", options: { color: MOSS } }],
+    ["Jul + Aug", "123", "77", "0.970", "0.961", { text: "+0.008", options: { color: MOSS } }],
+    ["October", "42", "24", "0.827", "0.819", { text: "+0.008", options: { color: MOSS } }],
+    [{ text: "Jan + Oct  (weakest)", options: { fill: { color: "FBEDE7" }, bold: true } },
+     { text: "92", options: { fill: { color: "FBEDE7" } } }, { text: "29", options: { fill: { color: "FBEDE7" } } },
+     { text: "0.715", options: { fill: { color: "FBEDE7" }, bold: true, color: CORAL } },
+     { text: "0.774", options: { fill: { color: "FBEDE7" }, bold: true } },
+     { text: "−0.060", options: { fill: { color: "FBEDE7" }, bold: true, color: CORAL } }],
+  ], { y: 2.0, colW: [3.3, 1.4, 1.4, 2.2, 2.0, 1.8], rowH: 0.46 });
+
+  card(s, {
+    x: 0.6, y: 4.4, w: 5.9, h: 1.9, accent: CORAL, fill: "FBEDE7",
+    title: "The lead comes only from the easy strata",
+    body: "ExtraTrees gains +0.008 to +0.013 where the task is already easy, and loses 0.060 on the hardest stratum.\n\nThat is the signature of heavy regularisation: harmless when signal is strong, destructive when it is weak.",
+    bodyColor: "7A2E14",
+  });
+  card(s, {
+    x: 6.8, y: 4.4, w: 5.9, h: 1.9, accent: MOSS,
+    title: "What we keep from it",
+    body: "Permutation-importance ranks agree between the two models: Spearman ρ = 0.738 (p = 3.3e-13), top-15 overlap 10/15.\n\nThe biomarker panel therefore does not depend on which model is chosen — this strengthens the findings section.",
+  });
+
+  s.addText("ExtraTrees also passes its own permutation test (observed 0.856, null 0.496 ± 0.046, p = 0.0099).", {
+    x: 0.6, y: 6.45, w: 12.1, h: 0.3, margin: 0, fontFace: BODY, fontSize: 11, color: MUTED, italic: true,
   });
 }
 
@@ -736,7 +777,7 @@ divider("05", "Biological Findings", "Which taxa carry the signal — and what t
 
 // ================================================================ 27 LIMITATIONS
 {
-  const s = slide("Six Known Limitations", "Limitations");
+  const s = slide("Seven Known Limitations", "Limitations");
   const lims = [
     ["Cross-study generalization fails", "GroupKFold by BioProject: AUC 0.54 ± 0.29. Four studies differ in host, tissue, geography."],
     ["Upstream filtering rule unknown", "275 features is far too few for avian 16S. If filtering used labels, every number here is inflated."],
@@ -744,17 +785,19 @@ divider("05", "Biological Findings", "Which taxa carry the signal — and what t
     ["Threshold not optimized", "All accuracies use a fixed 0.5. Tuning it would require nesting the choice inside CV."],
     ["Taxonomic resolution is capped", "Species level entirely empty; 55 features lack a genus. Interpretation stops at genus/family."],
     ["Confounder baseline is high", "Covariates alone reach 0.881. Microbiome claims must always be framed relative to that."],
+    ["Multiple comparison inflates the winner", "17 models compared; the reported best is a best-of-17. Bonferroni over 17 tests would demand p < 0.003."],
   ];
   lims.forEach((l, i) => {
     const col = i % 2, row = Math.floor(i / 2);
-    const x = 0.6 + col * 6.25, y = 1.6 + row * 1.66;
+    const x = 0.6 + col * 6.25, y = 1.5 + row * 1.33;
     card(s, {
-      x, y, w: 5.9, h: 1.45, accent: CORAL, fill: "FBEDE7",
-      title: `${i + 1}.  ${l[0]}`, titleSize: 13.5, body: l[1], bodySize: 11.5, bodyColor: "7A2E14",
+      x, y, w: 5.9, h: 1.18, accent: CORAL, fill: "FBEDE7",
+      title: `${i + 1}.  ${l[0]}`, titleSize: 12.5, body: l[1], bodySize: 10.5, bodyColor: "7A2E14",
     });
   });
-  s.addText("Stated in the README as written here — not softened for presentation.", {
-    x: 0.6, y: 6.65, w: 12.1, h: 0.3, margin: 0, fontFace: BODY, fontSize: 11, color: MUTED, italic: true,
+  s.addText("Stated in the README as written here — not softened for presentation.\nItem 7 is why ExtraTrees, despite the highest AUC, is not the primary model.", {
+    x: 6.85, y: 5.5, w: 5.8, h: 1.0, margin: 0,
+    fontFace: BODY, fontSize: 11, color: MUTED, italic: true, valign: "top",
   });
 }
 
@@ -763,17 +806,18 @@ divider("05", "Biological Findings", "Which taxa carry the signal — and what t
   const s = slide("Conclusions", "Summary");
   const cs = [
     "Duck gut microbiota carry a real, reproducible signal for influenza infection status (permutation p = 0.0099).",
-    "SVM-RBF is the best model — AUC 0.839, MCC 0.531 — and significantly beats Random Forest (p = 0.021) and L1-LR (p < 0.001).",
+    "SVM-RBF is the primary model — AUC 0.839, MCC 0.531 — significantly beating Random Forest (p = 0.021), XGBoost (p = 0.0016) and L1-LR (p < 0.001) among 17 models compared.",
     "The signal is partly nonlinear: the RBF kernel gains 0.073 AUC over a linear one, and several taxa act only in combination.",
     "Nine taxa survive three independent selection methods; Candidatus Arthromitus (SFB) has independent immunological support.",
     "Sampling season is a serious confounder (covariates alone: AUC 0.881), but stratified analysis shows it does not explain the signal away.",
+    "ExtraTrees scores higher (AUC 0.859) but is worse on the weakest stratum (0.715 vs 0.774); its lead comes only from strata that were already easy.",
     "Conclusions apply to the UC Davis wild-duck cohort only; they do not transfer across hosts or studies.",
   ];
   cs.forEach((c, i) => {
-    const y = 1.5 + i * 0.86;
+    const y = 1.35 + i * 0.79;
     s.addShape(pres.shapes.OVAL, { x: 0.6, y: y + 0.06, w: 0.5, h: 0.5, fill: { color: i < 5 ? TEAL : CORAL } });
     s.addText(String(i + 1), { x: 0.6, y: y + 0.14, w: 0.5, h: 0.34, margin: 0, fontFace: HEAD, fontSize: 14, bold: true, color: W, align: "center" });
-    s.addText(c, { x: 1.3, y: y + 0.02, w: 11.4, h: 0.65, margin: 0, fontFace: BODY, fontSize: 13.5, color: INK, lineSpacingMultiple: 1.1 });
+    s.addText(c, { x: 1.3, y: y + 0.02, w: 11.4, h: 0.62, margin: 0, fontFace: BODY, fontSize: 12.5, color: INK, lineSpacingMultiple: 1.08, valign: "top" });
   });
 }
 
@@ -785,7 +829,7 @@ divider("05", "Biological Findings", "Which taxa carry the signal — and what t
     ["build_features.py", "Feature matrix + QC report (depth, sparsity, leakage audit)"],
     ["export_ml_dataset.py", "Ready-to-model datasets with metadata and covariates"],
     ["train_eval.py", "Nested CV, permutation test, confounder checks, stratification, stability selection"],
-    ["compare_models.py", "Six-model comparison across nine metrics"],
+    ["compare_models.py + explore_models.py", "17-model comparison across nine metrics"],
     ["svm_analysis.py", "Grid expansion + permutation importance"],
   ], { y: 1.7, colW: [3.6, 8.5], rowH: 0.46, align: "left" });
 

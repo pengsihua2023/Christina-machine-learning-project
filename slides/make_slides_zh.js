@@ -212,10 +212,10 @@ const rowHi = { fill: { color: "E4F0F0" }, bold: true };
   const items = [
     ["01", "数据", "三个输入文件、四个研究，以及为何只对其中一个建模"],
     ["02", "数据处理", "标签泄漏、成分数据变换，以及无泄漏的 pipeline"],
-    ["03", "建模评估", "嵌套 CV 协议与六模型横向比较"],
+    ["03", "建模评估", "嵌套 CV 协议与十七模型横向比较"],
     ["04", "有效性", "置换检验、混杂因子与分层再分析"],
     ["05", "生物学发现", "三方法交集的 Biomarker；非线性结构的证据"],
-    ["06", "已知局限", "六项局限，如实陈述"],
+    ["06", "已知局限", "七项局限，如实陈述"],
   ];
   items.forEach((it, i) => {
     const col = i % 2, row = Math.floor(i / 2);
@@ -393,7 +393,7 @@ divider("02", "数据处理", "剔除会泄漏的，变换属于成分数据的�
 }
 
 // ================================================================ 12 DIVIDER 3
-divider("03", "建模与评估", "一套嵌套协议，六种模型，一次诚实的比较");
+divider("03", "建模与评估", "一套嵌套协议，十七种模型，一次诚实的比较");
 
 // ================================================================ 13 PROTOCOL
 {
@@ -434,26 +434,32 @@ divider("03", "建模与评估", "一套嵌套协议，六种模型，一次诚�
 
 // ================================================================ 14 MODEL TABLE
 {
-  const s = slide("六种模型，相同折划分", "建模 · 比较");
+  const s = slide("十七种模型，相同折划分", "建模 · 比较");
   table(s, [
     [th("模型"), th("准确率"), th("平衡准确率"), th("ROC-AUC"), th("PR-AUC"), th("灵敏度"), th("特异度"), th("F1"), th("MCC")],
+    [{ text: "ExtraTrees", options: rowHi }, { text: "0.777", options: rowHi }, { text: "0.755", options: rowHi }, { text: "0.859", options: rowHi }, { text: "0.893", options: rowHi }, { text: "0.890", options: rowHi }, { text: "0.620", options: rowHi }, { text: "0.822", options: rowHi }, { text: "0.542", options: rowHi }],
     [{ text: "SVM-RBF", options: rowHi }, { text: "0.771", options: rowHi }, { text: "0.761", options: rowHi }, { text: "0.839", options: rowHi }, { text: "0.872", options: rowHi }, { text: "0.820", options: rowHi }, { text: "0.703", options: rowHi }, { text: "0.805", options: rowHi }, { text: "0.531", options: rowHi }],
+    ["Ensemble（软投票）", "0.766", "0.756", "0.836", "0.873", "0.818", "0.694", "0.802", "0.521"],
+    ["SVM-poly", "0.748", "0.728", "0.834", "0.861", "0.853", "0.604", "0.797", "0.481"],
+    ["GP-RBF", "0.757", "0.741", "0.822", "0.866", "0.841", "0.641", "0.801", "0.498"],
+    ["GP-Matérn", "0.755", "0.738", "0.819", "0.865", "0.844", "0.632", "0.800", "0.493"],
     ["RandomForest", "0.725", "0.701", "0.810", "0.851", "0.850", "0.553", "0.782", "0.433"],
+    ["XGBoost", "0.730", "0.720", "0.801", "0.845", "0.784", "0.656", "0.770", "0.449"],
     ["HistGB", "0.722", "0.705", "0.796", "0.841", "0.809", "0.600", "0.771", "0.423"],
-    ["L1-LR", "0.709", "0.707", "0.787", "0.842", "0.722", "0.692", "0.742", "0.414"],
-    ["L2-LR", "0.690", "0.686", "0.782", "0.844", "0.710", "0.662", "0.725", "0.373"],
-    ["SVM-linear", "0.692", "0.672", "0.766", "0.830", "0.796", "0.549", "0.749", "0.362"],
+    ["kNN-Aitchison", "0.719", "0.687", "0.795", "0.838", "0.885", "0.490", "0.786", "0.422"],
     [{ text: "基线（全猜阳性）", options: { italic: true, color: MUTED } },
-     { text: "0.581", options: { italic: true, color: MUTED } }, { text: "0.500", options: { italic: true, color: MUTED } },
-     { text: "0.500", options: { italic: true, color: MUTED } }, { text: "0.581", options: { italic: true, color: MUTED } },
-     { text: "1.000", options: { italic: true, color: MUTED } }, { text: "0.000", options: { italic: true, color: MUTED } },
-     { text: "0.735", options: { italic: true, color: MUTED } }, { text: "0.000", options: { italic: true, color: MUTED } }],
-  ], { y: 1.65, colW: [3.0, 1.18, 1.18, 1.18, 1.18, 1.09, 1.09, 1.1, 1.1], rowH: 0.42, fontSize: 11 });
+     { text: "0.581", options: { italic: true, color: MUTED } }, { text: "0.500", options: { italic: true, color: MUTED } }, { text: "0.500", options: { italic: true, color: MUTED } }, { text: "0.581", options: { italic: true, color: MUTED } }, { text: "1.000", options: { italic: true, color: MUTED } }, { text: "0.000", options: { italic: true, color: MUTED } }, { text: "0.735", options: { italic: true, color: MUTED } }, { text: "0.000", options: { italic: true, color: MUTED } }],
+  ], { y: 1.5, colW: [2.9, 1.15, 1.25, 1.15, 1.15, 1.05, 1.05, 1.0, 1.0], rowH: 0.33, fontSize: 10 });
+
+  s.addText("按 ROC-AUC 排序的前 10 名（共 17 个模型）· 完整表见 results/model_comparison_all16.csv", {
+    x: 0.6, y: 5.52, w: 12.1, h: 0.3, margin: 0,
+    fontFace: BODY, fontSize: 9.5, color: MUTED, italic: true,
+  });
 
   card(s, {
-    x: 0.6, y: 5.2, w: 12.1, h: 1.5, accent: TEAL,
-    title: "SVM-RBF 在九项指标中赢下八项",
-    body: "随机森林只在灵敏度上略胜（0.850 对 0.820），代价是特异度仅 0.553——意味着它在阴性样本上比抛硬币好不了多少。SVM-RBF 是唯一 MCC 超过 0.5 的模型。",
+    x: 0.6, y: 5.85, w: 12.1, h: 0.95, accent: TEAL,
+    title: "ExtraTrees 分数最高——但没有成为主模型", titleSize: 14,
+    body: "ExtraTrees 在 AUC、PR-AUC、MCC 上领先，但差距未达显著（p=0.085），且是 17 选 1 的最高分。后两页给出取舍依据。", bodySize: 11,
   });
 }
 
@@ -478,13 +484,48 @@ divider("03", "建模与评估", "一套嵌套协议，六种模型，一次诚�
   card(s, {
     x: 0.6, y: 3.7, w: 7.0, h: 1.5, accent: MOSS,
     title: "结论", titleSize: 14,
-    body: "SVM-RBF 显著优于其余所有模型——不只是数值上领先。早先一轮漏掉 SVM 的比较曾得出「四个模型无显著差异」，加入 RBF 核后该结论被推翻。",
+    body: "SVM-RBF 显著优于除 ExtraTrees 外的所有模型。ExtraTrees 的 +0.020 领先只到 p=0.085，25 折中仅胜 14 折。单凭这一点还不足以定夺——下一页的分层检验才是决定性的。",
     bodySize: 11.5,
   });
 
   s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: 5.9, w: 12.1, h: 0.9, fill: { color: DARK } });
   s.addText("SVM-linear 只有 0.766——赢的是核函数，不是 SVM 本身。这是真实非线性结构的第一个线索。", {
     x: 0.95, y: 6.12, w: 11.5, h: 0.5, margin: 0, fontFace: BODY, fontSize: 14, color: MOSS, italic: true,
+  });
+}
+
+// ================================================================ 15b WHY NOT EXTRATREES
+{
+  const s = slide("为什么 ExtraTrees 没有取代主模型", "建模 · 模型选择");
+  s.addText("AUC 高 0.020、p=0.085，不足以定夺模型选择。决定性的检验是：信号弱的时候两个模型各自表现如何——于是我们在每个采样月份分层内部并排重跑。", {
+    x: 0.6, y: 1.42, w: 12.1, h: 0.5, margin: 0, fontFace: BODY, fontSize: 12.5, color: MUTED, valign: "top",
+  });
+  table(s, [
+    [th("分层"), th("n"), th("阳性"), th("ExtraTrees"), th("SVM-RBF"), th("Δ")],
+    ["7 月", "86", "52", "0.988", "0.975", { text: "+0.013", options: { color: MOSS } }],
+    ["7 月 + 8 月", "123", "77", "0.970", "0.961", { text: "+0.008", options: { color: MOSS } }],
+    ["10 月", "42", "24", "0.827", "0.819", { text: "+0.008", options: { color: MOSS } }],
+    [{ text: "1 月 + 10 月（最弱层）", options: { fill: { color: "FBEDE7" }, bold: true } },
+     { text: "92", options: { fill: { color: "FBEDE7" } } }, { text: "29", options: { fill: { color: "FBEDE7" } } },
+     { text: "0.715", options: { fill: { color: "FBEDE7" }, bold: true, color: CORAL } },
+     { text: "0.774", options: { fill: { color: "FBEDE7" }, bold: true } },
+     { text: "−0.060", options: { fill: { color: "FBEDE7" }, bold: true, color: CORAL } }],
+  ], { y: 2.0, colW: [3.3, 1.4, 1.4, 2.2, 2.0, 1.8], rowH: 0.46 });
+
+  card(s, {
+    x: 0.6, y: 4.4, w: 5.9, h: 1.9, accent: CORAL, fill: "FBEDE7",
+    title: "领先只来自容易的分层",
+    body: "在任务本已容易的分层上 ExtraTrees 多赚 +0.008～+0.013，却在最困难的分层上丢掉 0.060。\n\n这正是强正则化的特征：信号强时无害，信号弱时把真实结构一并抹掉。",
+    bodyColor: "7A2E14",
+  });
+  card(s, {
+    x: 6.8, y: 4.4, w: 5.9, h: 1.9, accent: MOSS,
+    title: "从中保留下来的东西",
+    body: "两个模型的 permutation importance 排名高度一致：Spearman ρ = 0.738（p = 3.3e-13），Top-15 重合 10/15。\n\n因此 biomarker 面板不依赖于选哪个模型——这反过来加强了「生物学发现」一节的结论。",
+  });
+
+  s.addText("ExtraTrees 自身的置换检验同样通过（实测 0.856，零分布 0.496 ± 0.046，p = 0.0099）。", {
+    x: 0.6, y: 6.45, w: 12.1, h: 0.3, margin: 0, fontFace: BODY, fontSize: 11, color: MUTED, italic: true,
   });
 }
 
@@ -736,7 +777,7 @@ divider("05", "生物学发现", "哪些菌携带信号——以及方法之间�
 
 // ================================================================ 27 LIMITATIONS
 {
-  const s = slide("六项已知局限", "局限");
+  const s = slide("七项已知局限", "局限");
   const lims = [
     ["跨研究泛化失败", "按 BioProject 做 GroupKFold：AUC 0.54 ± 0.29。四个研究的宿主、组织与地域各不相同。"],
     ["上游过滤规则未知", "275 个特征对禽类 16S 而言远远偏少。若过滤时用到了标签，本报告所有数字都被高估。"],
@@ -744,17 +785,19 @@ divider("05", "生物学发现", "哪些菌携带信号——以及方法之间�
     ["判决阈值未优化", "所有准确率均在固定阈值 0.5 下计算。调优需把阈值选择嵌套进 CV。"],
     ["分类学分辨率受限", "种水平完全空白，55 个特征无属注释。生物学解释止步于属/科。"],
     ["混杂基线偏高", "仅协变量即达 0.881。关于菌群的结论必须始终相对这条基线陈述。"],
+    ["多重比较抬高了最优分", "共比较 17 个模型，最优是 17 选 1。Bonferroni 校正阈值约 p < 0.003。"],
   ];
   lims.forEach((l, i) => {
     const col = i % 2, row = Math.floor(i / 2);
-    const x = 0.6 + col * 6.25, y = 1.6 + row * 1.66;
+    const x = 0.6 + col * 6.25, y = 1.5 + row * 1.33;
     card(s, {
-      x, y, w: 5.9, h: 1.45, accent: CORAL, fill: "FBEDE7",
-      title: `${i + 1}.  ${l[0]}`, titleSize: 13.5, body: l[1], bodySize: 11.5, bodyColor: "7A2E14",
+      x, y, w: 5.9, h: 1.18, accent: CORAL, fill: "FBEDE7",
+      title: `${i + 1}.  ${l[0]}`, titleSize: 12.5, body: l[1], bodySize: 10.5, bodyColor: "7A2E14",
     });
   });
-  s.addText("与 README 中的表述完全一致——未因汇报场合而弱化。", {
-    x: 0.6, y: 6.65, w: 12.1, h: 0.3, margin: 0, fontFace: BODY, fontSize: 11, color: MUTED, italic: true,
+  s.addText("与 README 中的表述完全一致——未因汇报场合而弱化。\n第 7 项正是 ExtraTrees 虽有最高 AUC 却未成为主模型的原因。", {
+    x: 6.85, y: 5.5, w: 5.8, h: 1.0, margin: 0,
+    fontFace: BODY, fontSize: 11, color: MUTED, italic: true, valign: "top",
   });
 }
 
@@ -763,17 +806,18 @@ divider("05", "生物学发现", "哪些菌携带信号——以及方法之间�
   const s = slide("结论", "总结");
   const cs = [
     "野鸭肠道菌群携带真实且可复现的流感感染信号（置换检验 p = 0.0099）。",
-    "SVM-RBF 是最优模型——AUC 0.839、MCC 0.531——并显著优于随机森林（p = 0.021）与 L1-LR（p < 0.001）。",
+    "SVM-RBF 是主模型——AUC 0.839、MCC 0.531——在 17 个模型的比较中显著优于随机森林（p = 0.021）、XGBoost（p = 0.0016）与 L1-LR（p < 0.001）。",
     "信号部分来自非线性：RBF 核比线性核多出 0.073 的 AUC，且若干菌只在组合中起作用。",
     "九个菌通过了三套独立筛选方法的交叉验证；其中 Candidatus Arthromitus（SFB）有独立的免疫学证据支持。",
     "采样季节是严重的混杂因子（仅协变量即达 AUC 0.881），但分层分析表明它无法解释掉全部信号。",
+    "ExtraTrees 分数更高（AUC 0.859），但在最弱分层上更差（0.715 对 0.774）——其领先只来自本已容易的分层。",
     "结论仅适用于 UC Davis 野鸭队列，不可跨宿主或跨研究外推。",
   ];
   cs.forEach((c, i) => {
-    const y = 1.5 + i * 0.86;
+    const y = 1.35 + i * 0.79;
     s.addShape(pres.shapes.OVAL, { x: 0.6, y: y + 0.06, w: 0.5, h: 0.5, fill: { color: i < 5 ? TEAL : CORAL } });
     s.addText(String(i + 1), { x: 0.6, y: y + 0.14, w: 0.5, h: 0.34, margin: 0, fontFace: HEAD, fontSize: 14, bold: true, color: W, align: "center" });
-    s.addText(c, { x: 1.3, y: y + 0.02, w: 11.4, h: 0.65, margin: 0, fontFace: BODY, fontSize: 13.5, color: INK, lineSpacingMultiple: 1.1 });
+    s.addText(c, { x: 1.3, y: y + 0.02, w: 11.4, h: 0.62, margin: 0, fontFace: BODY, fontSize: 12.5, color: INK, lineSpacingMultiple: 1.08, valign: "top" });
   });
 }
 
@@ -785,7 +829,7 @@ divider("05", "生物学发现", "哪些菌携带信号——以及方法之间�
     ["build_features.py", "构建特征矩阵 + 质控报告（深度、稀疏度、泄漏审计）"],
     ["export_ml_dataset.py", "导出含元数据与协变量的开箱即用建模数据集"],
     ["train_eval.py", "嵌套 CV、置换检验、混杂检查、月份分层、稳定性选择"],
-    ["compare_models.py", "六模型 × 九指标横向比较"],
+    ["compare_models.py + explore_models.py", "17 模型 × 九指标横向比较"],
     ["svm_analysis.py", "超参网格扩展 + permutation importance"],
   ], { y: 1.7, colW: [3.6, 8.5], rowH: 0.46, align: "left" });
 
