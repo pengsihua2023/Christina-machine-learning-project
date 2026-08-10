@@ -142,7 +142,21 @@ SVM-poly  vs SVM-RBF      Δ=-0.006   12/25 折胜   Wilcoxon p=0.476
 XGBoost   vs RandomForest Δ=-0.009                Wilcoxon p=0.242
 ```
 
-**SVM-RBF 显著优于除 ExtraTrees 外的所有模型。ExtraTrees 的 +0.020 领先未达显著（p=0.085），且这是在 17 个模型中挑出的最高分，多重比较下更不足以作为替换依据**（Bonferroni 粗校正阈值约 0.003）。详见 §3.3 与 §5.7。
+**注意：把最优模型与明显更差的模型对比（如 SVM-RBF vs L1-LR，p<0.0001）几乎不携带信息量。** 有意义的问题是领先的几个模型之间能否分辨。前六名的全部 15 次两两检验（`results/top_cluster_pairwise.csv`）：
+
+| Wilcoxon p | SVM-RBF | Ensemble | SVM-poly | GP-RBF | GP-Matérn |
+|---|---|---|---|---|---|
+| **ExtraTrees** | 0.085 | **0.005** | **0.003** | **0.001** | **0.001** |
+| **SVM-RBF** | — | 0.360 | 0.476 | **0.003** | **0.002** |
+| **Ensemble** | — | — | 0.609 | **0.001** | **0.000** |
+| **SVM-poly** | — | — | — | 0.554 | 0.420 |
+| **GP-RBF** | — | — | — | — | 0.051 |
+
+（粗体 = p<0.05 可区分）
+
+**结论：ExtraTrees、SVM-RBF、集成、SVM-poly 四者互相无法区分**，AUC 落在 0.834–0.859，完全处于 ±0.04–0.06 的折间波动内。真正的分离要到 GP-RBF 以下才出现。**因此模型选择不能由 AUC 决定**，只能依据错误结构与弱分层稳健性（§3.3）。
+
+唯一真正受控且决定性的对比是核函数消融：**SVM-RBF vs SVM-linear，Δ=+0.073，25 折中 25 折全胜，Wilcoxon p=1e-5**——同一模型族，只换核函数（§6.3）。
 
 ### 3.3 关于 ExtraTrees 与主模型的选择
 
@@ -441,7 +455,7 @@ cross_val_score(make_pipeline(StandardScaler(),
 2. **主模型为 SVM-RBF**（C=5，gamma=scale）：AUC 0.839 ± 0.060，PR-AUC 0.872，MCC 0.531，Accuracy 0.771（基线 0.581）。在 17 个模型的比较中显著优于随机森林（p=0.021）、XGBoost（p=0.0016）、GP-RBF（p=0.0028）与 L1-LR（p<0.001）。超参网格已验证无边界效应。
    **ExtraTrees 的 AUC 更高（0.859）但未达显著（p=0.085）；且在最弱的 Jan+Oct 分层上实测更差（0.715 对 0.774），领先仅来自已经容易的分层**，故未取代主模型（§3.3）。
 
-3. **菌群中存在真实的非线性结构。** RBF 核相对线性核有 0.073 的 AUC 优势，且部分重要特征在单变量检验中完全不显著。
+3. **菌群中存在真实的非线性结构。** RBF 核相对线性核有 0.073 的 AUC 优势（25/25 折全胜，p=1e-5，本项目最强的单项证据），且部分重要特征在单变量检验中完全不显著。
 
 4. **9 个特征通过三套独立方法的交叉验证**：*Rothia*、*Staphylococcus*、*Lawsonella* 在阳性组降低，*Candidatus Arthromitus*(SFB)、*Varibaculum*、*Psittacicella* 及一个未定属 Ruminococcaceae 升高（另含 2 个未注释特征）。
    *Veillonella* 与 *Prevotella* 虽在阳性组显著降低（FDR 2.3e-05 / 3.6e-05）且 *Veillonella* 的 SVM 重要性排名第 2，但 L1 选中频率仅 0.105 / 0.005，未进入交集——这是共线性导致的，不代表其无生物学意义（详见 §6.2）。

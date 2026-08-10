@@ -159,7 +159,21 @@ SVM-poly  vs SVM-RBF      Δ=-0.006   wins 12/25   Wilcoxon p=0.476
 XGBoost   vs RandomForest Δ=-0.009                Wilcoxon p=0.242
 ```
 
-**SVM-RBF significantly beats every model except ExtraTrees. ExtraTrees' +0.020 lead is not significant (p=0.085), and it is the top score among 17 models — under multiple comparison that is far from sufficient grounds for replacing it** (a crude Bonferroni threshold would be ~0.003). See §3.3 and §5.7.
+**Note: comparing the winner against a clearly weaker model (e.g. SVM-RBF vs L1-LR, p<0.0001) carries almost no information.** The question that matters is whether the leading models can be told apart. All 15 pairwise tests among the top six (`results/top_cluster_pairwise.csv`):
+
+| Wilcoxon p | SVM-RBF | Ensemble | SVM-poly | GP-RBF | GP-Matérn |
+|---|---|---|---|---|---|
+| **ExtraTrees** | 0.085 | **0.005** | **0.003** | **0.001** | **0.001** |
+| **SVM-RBF** | — | 0.360 | 0.476 | **0.003** | **0.002** |
+| **Ensemble** | — | — | 0.609 | **0.001** | **0.000** |
+| **SVM-poly** | — | — | — | 0.554 | 0.420 |
+| **GP-RBF** | — | — | — | — | 0.051 |
+
+(bold = p<0.05, distinguishable)
+
+**ExtraTrees, SVM-RBF, the ensemble and SVM-poly cannot be separated from one another.** Their AUCs span 0.834–0.859, entirely inside the ±0.04–0.06 fold-to-fold spread. Real separation only begins at GP-RBF. **Model choice therefore cannot be decided by AUC** — only by error structure and robustness on weak strata (§3.3).
+
+The one genuinely controlled and genuinely decisive comparison is the kernel ablation: **SVM-RBF vs SVM-linear, Δ=+0.073, winning 25 of 25 folds, Wilcoxon p=1e-5** — same model family, only the kernel differs (§6.3).
 
 ### 3.3 On ExtraTrees and the choice of primary model
 
@@ -519,7 +533,7 @@ cross_val_score(make_pipeline(StandardScaler(),
    strata that were already easy — so it does not replace the primary model (§3.3).
 
 3. **Genuine nonlinear structure exists in the microbiome data.** The RBF kernel gains
-   0.073 AUC over a linear kernel, and several important features are entirely
+   0.073 AUC over a linear kernel (25/25 folds, p=1e-5 — the strongest single result here), and several important features are entirely
    non-significant under univariate testing.
 
 4. **Nine features survive cross-validation by three independent methods**: *Rothia*,

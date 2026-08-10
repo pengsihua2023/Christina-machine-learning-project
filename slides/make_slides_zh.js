@@ -434,13 +434,13 @@ divider("03", "建模与评估", "一套嵌套协议，十七种模型，一次�
 
 // ================================================================ 14 MODEL TABLE
 {
-  const s = slide("十七种模型，相同折划分", "建模 · 比较");
+  const s = slide("十七种模型，其中四个打平", "建模 · 比较");
   table(s, [
     [th("模型"), th("准确率"), th("平衡准确率"), th("ROC-AUC"), th("PR-AUC"), th("灵敏度"), th("特异度"), th("F1"), th("MCC")],
     [{ text: "ExtraTrees", options: rowHi }, { text: "0.777", options: rowHi }, { text: "0.755", options: rowHi }, { text: "0.859", options: rowHi }, { text: "0.893", options: rowHi }, { text: "0.890", options: rowHi }, { text: "0.620", options: rowHi }, { text: "0.822", options: rowHi }, { text: "0.542", options: rowHi }],
     [{ text: "SVM-RBF", options: rowHi }, { text: "0.771", options: rowHi }, { text: "0.761", options: rowHi }, { text: "0.839", options: rowHi }, { text: "0.872", options: rowHi }, { text: "0.820", options: rowHi }, { text: "0.703", options: rowHi }, { text: "0.805", options: rowHi }, { text: "0.531", options: rowHi }],
-    ["Ensemble（软投票）", "0.766", "0.756", "0.836", "0.873", "0.818", "0.694", "0.802", "0.521"],
-    ["SVM-poly", "0.748", "0.728", "0.834", "0.861", "0.853", "0.604", "0.797", "0.481"],
+    [{ text: "Ensemble（软投票）", options: rowHi }, { text: "0.766", options: rowHi }, { text: "0.756", options: rowHi }, { text: "0.836", options: rowHi }, { text: "0.873", options: rowHi }, { text: "0.818", options: rowHi }, { text: "0.694", options: rowHi }, { text: "0.802", options: rowHi }, { text: "0.521", options: rowHi }],
+    [{ text: "SVM-poly", options: rowHi }, { text: "0.748", options: rowHi }, { text: "0.728", options: rowHi }, { text: "0.834", options: rowHi }, { text: "0.861", options: rowHi }, { text: "0.853", options: rowHi }, { text: "0.604", options: rowHi }, { text: "0.797", options: rowHi }, { text: "0.481", options: rowHi }],
     ["GP-RBF", "0.757", "0.741", "0.822", "0.866", "0.841", "0.641", "0.801", "0.498"],
     ["GP-Matérn", "0.755", "0.738", "0.819", "0.865", "0.844", "0.632", "0.800", "0.493"],
     ["RandomForest", "0.725", "0.701", "0.810", "0.851", "0.850", "0.553", "0.782", "0.433"],
@@ -451,46 +451,48 @@ divider("03", "建模与评估", "一套嵌套协议，十七种模型，一次�
      { text: "0.581", options: { italic: true, color: MUTED } }, { text: "0.500", options: { italic: true, color: MUTED } }, { text: "0.500", options: { italic: true, color: MUTED } }, { text: "0.581", options: { italic: true, color: MUTED } }, { text: "1.000", options: { italic: true, color: MUTED } }, { text: "0.000", options: { italic: true, color: MUTED } }, { text: "0.735", options: { italic: true, color: MUTED } }, { text: "0.000", options: { italic: true, color: MUTED } }],
   ], { y: 1.5, colW: [2.9, 1.15, 1.25, 1.15, 1.15, 1.05, 1.05, 1.0, 1.0], rowH: 0.33, fontSize: 10 });
 
-  s.addText("按 ROC-AUC 排序的前 10 名（共 17 个模型）· 完整表见 results/model_comparison_all16.csv", {
+  s.addText("按 ROC-AUC 排序的前 10 名（共 17 个）· 底色标出打平的领先群体 · 完整表见 results/model_comparison_all16.csv", {
     x: 0.6, y: 5.52, w: 12.1, h: 0.3, margin: 0,
     fontFace: BODY, fontSize: 9.5, color: MUTED, italic: true,
   });
 
   card(s, {
     x: 0.6, y: 5.85, w: 12.1, h: 0.95, accent: TEAL,
-    title: "ExtraTrees 分数最高——但没有成为主模型", titleSize: 14,
-    body: "ExtraTrees 在 AUC、PR-AUC、MCC 上领先，但差距未达显著（p=0.085），且是 17 选 1 的最高分。后两页给出取舍依据。", bodySize: 11,
+    title: "顶部这一块要当作一个群体读，而不是一个排名", titleSize: 14,
+    body: "前四行彼此无法区分（见下一页），此处的先后顺序是噪声。真正的分离要到 GP-RBF 以下才出现。", bodySize: 11,
   });
 }
 
 // ================================================================ 15 SIGNIFICANCE
 {
-  const s = slide("差距是真的吗？配对检验", "建模 · 显著性");
-  s.addText("折间标准差为 ±0.05，仅比较平均 AUC 不足以下结论。我们在同一批 25 折上做逐折配对比较。", {
-    x: 0.6, y: 1.42, w: 7.0, h: 0.5, margin: 0, fontFace: BODY, fontSize: 12.5, color: MUTED, valign: "top",
+  const s = slide("AUC 无法决定选哪个模型", "建模 · 显著性");
+  s.addText("拿最优模型去比一个明显更差的模型，证明不了任何事。真正该问的是：领先的这几个模型之间到底能不能分辨。以下是前六名在同一批 25 折上的全部 15 次两两检验：", {
+    x: 0.6, y: 1.42, w: 12.1, h: 0.55, margin: 0, fontFace: BODY, fontSize: 12.5, color: MUTED, valign: "top",
   });
   table(s, [
-    [th("对比"), th("Δ AUC"), th("胜出"), th("Wilcoxon p"), th("配对 t p")],
-    ["SVM-RBF vs 随机森林", "+0.029", "17/25", { text: "0.021", options: rowHi }, "0.013"],
-    ["SVM-RBF vs L1-LR", "+0.052", "21/25", { text: "0.0002", options: rowHi }, "<0.0001"],
-  ], { x: 0.6, y: 2.0, w: 7.0, colW: [2.6, 1.1, 1.0, 1.35, 0.95], rowH: 0.5, fontSize: 10.5 });
+    [th("Wilcoxon p"), th("SVM-RBF"), th("Ensemble"), th("SVM-poly"), th("GP-RBF"), th("GP-Matérn")],
+    [{ text: "ExtraTrees", options: { bold: true, align: "left" } }, { text: ".085", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".005", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".003", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".001", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".001", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }],
+    [{ text: "SVM-RBF", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".360", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".476", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".003", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".002", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }],
+    [{ text: "Ensemble", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".609", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".001", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".000", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }],
+    [{ text: "SVM-poly", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".554", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".420", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }],
+    [{ text: "GP-RBF", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".051", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }],
+  ], { y: 2.15, colW: [2.5, 1.92, 1.92, 1.92, 1.92, 1.92], rowH: 0.42, fontSize: 11 });
 
-  s.addImage({ path: path.join(IMG, "roc6_zh.png"), x: 8.15, y: 1.62, w: 4.45, h: 3.59 });
-  s.addText("折外 ROC：单次 5 折划分 + 固定超参，非上一页的嵌套 CV 估计值", {
-    x: 8.15, y: 5.24, w: 4.45, h: 0.55, margin: 0,
-    fontFace: BODY, fontSize: 9, color: MUTED, italic: true,
-  });
+  s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: 4.82, w: 0.2, h: 0.2, fill: { color: "EDEDEA" } });
+  s.addText("灰色 = 无法区分（p ≥ 0.05）", { x: 0.9, y: 4.78, w: 4.2, h: 0.3, margin: 0, fontFace: BODY, fontSize: 10, color: MUTED });
+  s.addShape(pres.shapes.RECTANGLE, { x: 4.9, y: 4.82, w: 0.2, h: 0.2, fill: { color: "E4F0F0" } });
+  s.addText("青色 = 可以区分", { x: 5.2, y: 4.78, w: 4.0, h: 0.3, margin: 0, fontFace: BODY, fontSize: 10, color: MUTED });
 
   card(s, {
-    x: 0.6, y: 3.7, w: 7.0, h: 1.5, accent: MOSS,
-    title: "结论", titleSize: 14,
-    body: "SVM-RBF 显著优于除 ExtraTrees 外的所有模型。ExtraTrees 的 +0.020 领先只到 p=0.085，25 折中仅胜 14 折。单凭这一点还不足以定夺——下一页的分层检验才是决定性的。",
-    bodySize: 11.5,
+    x: 0.6, y: 5.15, w: 5.9, h: 1.68, accent: CORAL, fill: "FBEDE7",
+    title: "前四名是统计意义上的平局", titleSize: 14, bodySize: 11,
+    body: "ExtraTrees、SVM-RBF、集成模型与 SVM-poly 在这份数据上彼此无法区分。它们的 AUC 落在 0.834–0.859，完全处在 ±0.04–0.06 的折间波动之内。\n\n给它们排名等于在读噪声。",
+    bodyColor: "7A2E14",
   });
-
-  s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: 5.9, w: 12.1, h: 0.9, fill: { color: DARK } });
-  s.addText("SVM-linear 只有 0.766——赢的是核函数，不是 SVM 本身。这是真实非线性结构的第一个线索。", {
-    x: 0.95, y: 6.12, w: 11.5, h: 0.5, margin: 0, fontFace: BODY, fontSize: 14, color: MOSS, italic: true,
+  card(s, {
+    x: 6.8, y: 5.15, w: 5.9, h: 1.68, accent: MOSS,
+    title: "所以取舍必须依据别的东西", titleSize: 14, bodySize: 11,
+    body: "剩下两条依据：判决阈值处的错误结构（SVM-RBF 特异度 0.703，ExtraTrees 0.620），以及信号微弱处的稳健性。\n\n真正决定取舍的检验在下一页。",
   });
 }
 
@@ -752,7 +754,7 @@ divider("05", "生物学发现", "哪些菌携带信号——以及方法之间�
   card(s, {
     x: 0.6, y: 1.6, w: 5.9, h: 2.1, accent: TEAL,
     title: "证据一——核函数带来的差距",
-    body: "SVM-RBF     AUC 0.839\nSVM-linear  AUC 0.766\n\n两个模型仅在核函数上不同，却差出 0.073。带来性能的是非线性，而不是最大间隔这一形式本身。",
+    body: "SVM-RBF     AUC 0.839\nSVM-linear  AUC 0.766\n\nΔ = +0.073，25 折中 25 折全胜，Wilcoxon p = 1e-5。\n\n这是一次受控对比——同一模型族，只换核函数——也是本报告中最具决定性的检验。",
   });
   card(s, {
     x: 6.8, y: 1.6, w: 5.9, h: 2.1, accent: TEAL,
@@ -763,7 +765,7 @@ divider("05", "生物学发现", "哪些菌携带信号——以及方法之间�
   card(s, {
     x: 0.6, y: 3.95, w: 12.1, h: 1.25, accent: MOSS,
     title: "生物学解读",
-    body: "这与已知的肠道菌群规律一致：菌通过菌群联合体与代谢交叉喂养发挥作用，而非孤立起效。单个属很少能独自决定一个免疫表型。",
+    body: "这与已知的肠道菌群规律一致：菌通过菌群联合体与代谢交叉喂养发挥作用，而非孤立起效。单个属很少能独自决定一个免疫表型。\n\n与模型比较那一页形成对照：在那里，领先的几个模型互相分不开；在这里，一次受控改动在每一折上都干净地分开了。",
   });
 
   s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: 5.45, w: 12.1, h: 1.15, fill: { color: DARK } });

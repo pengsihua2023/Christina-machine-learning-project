@@ -434,13 +434,13 @@ divider("03", "Modeling & Evaluation", "A nested protocol, seventeen models, one
 
 // ================================================================ 14 MODEL TABLE
 {
-  const s = slide("Seventeen Models on Identical Folds", "Modeling · comparison");
+  const s = slide("Seventeen Models, Four of Them Tied", "Modeling · comparison");
   table(s, [
     [th("Model"), th("Accuracy"), th("Bal. Acc"), th("ROC-AUC"), th("PR-AUC"), th("Sens."), th("Spec."), th("F1"), th("MCC")],
     [{ text: "ExtraTrees", options: rowHi }, { text: "0.777", options: rowHi }, { text: "0.755", options: rowHi }, { text: "0.859", options: rowHi }, { text: "0.893", options: rowHi }, { text: "0.890", options: rowHi }, { text: "0.620", options: rowHi }, { text: "0.822", options: rowHi }, { text: "0.542", options: rowHi }],
     [{ text: "SVM-RBF", options: rowHi }, { text: "0.771", options: rowHi }, { text: "0.761", options: rowHi }, { text: "0.839", options: rowHi }, { text: "0.872", options: rowHi }, { text: "0.820", options: rowHi }, { text: "0.703", options: rowHi }, { text: "0.805", options: rowHi }, { text: "0.531", options: rowHi }],
-    ["Ensemble (soft-vote)", "0.766", "0.756", "0.836", "0.873", "0.818", "0.694", "0.802", "0.521"],
-    ["SVM-poly", "0.748", "0.728", "0.834", "0.861", "0.853", "0.604", "0.797", "0.481"],
+    [{ text: "Ensemble (soft-vote)", options: rowHi }, { text: "0.766", options: rowHi }, { text: "0.756", options: rowHi }, { text: "0.836", options: rowHi }, { text: "0.873", options: rowHi }, { text: "0.818", options: rowHi }, { text: "0.694", options: rowHi }, { text: "0.802", options: rowHi }, { text: "0.521", options: rowHi }],
+    [{ text: "SVM-poly", options: rowHi }, { text: "0.748", options: rowHi }, { text: "0.728", options: rowHi }, { text: "0.834", options: rowHi }, { text: "0.861", options: rowHi }, { text: "0.853", options: rowHi }, { text: "0.604", options: rowHi }, { text: "0.797", options: rowHi }, { text: "0.481", options: rowHi }],
     ["GP-RBF", "0.757", "0.741", "0.822", "0.866", "0.841", "0.641", "0.801", "0.498"],
     ["GP-Matérn", "0.755", "0.738", "0.819", "0.865", "0.844", "0.632", "0.800", "0.493"],
     ["RandomForest", "0.725", "0.701", "0.810", "0.851", "0.850", "0.553", "0.782", "0.433"],
@@ -451,46 +451,48 @@ divider("03", "Modeling & Evaluation", "A nested protocol, seventeen models, one
      { text: "0.581", options: { italic: true, color: MUTED } }, { text: "0.500", options: { italic: true, color: MUTED } }, { text: "0.500", options: { italic: true, color: MUTED } }, { text: "0.581", options: { italic: true, color: MUTED } }, { text: "1.000", options: { italic: true, color: MUTED } }, { text: "0.000", options: { italic: true, color: MUTED } }, { text: "0.735", options: { italic: true, color: MUTED } }, { text: "0.000", options: { italic: true, color: MUTED } }],
   ], { y: 1.5, colW: [2.9, 1.15, 1.25, 1.15, 1.15, 1.05, 1.05, 1.0, 1.0], rowH: 0.33, fontSize: 10 });
 
-  s.addText("Top 10 of 17 models by ROC-AUC · full table in results/model_comparison_all16.csv", {
+  s.addText("Top 10 of 17 by ROC-AUC · shading marks the tied leading group · full table in results/model_comparison_all16.csv", {
     x: 0.6, y: 5.52, w: 12.1, h: 0.3, margin: 0,
     fontFace: BODY, fontSize: 9.5, color: MUTED, italic: true,
   });
 
   card(s, {
     x: 0.6, y: 5.85, w: 12.1, h: 0.95, accent: TEAL,
-    title: "ExtraTrees scores highest — but does not become the primary model", titleSize: 14,
-    body: "ExtraTrees leads on AUC, PR-AUC and MCC, but the lead is not significant (p=0.085) and it is a best-of-17 score. The next two slides settle the choice.", bodySize: 11,
+    title: "Read the top block as one group, not as a ranking", titleSize: 14,
+    body: "The first four rows cannot be told apart (next slide) — their order here is noise. Real separation starts at GP-RBF.", bodySize: 11,
   });
 }
 
 // ================================================================ 15 SIGNIFICANCE
 {
-  const s = slide("Is the Gap Real? Paired Testing", "Modeling · significance");
-  s.addText("Fold-to-fold SD is ±0.05, so comparing mean AUCs is not enough. We compare per-fold AUCs pairwise on the same 25 folds.", {
-    x: 0.6, y: 1.42, w: 7.0, h: 0.5, margin: 0, fontFace: BODY, fontSize: 12.5, color: MUTED, valign: "top",
+  const s = slide("AUC Cannot Settle the Model Choice", "Modeling · significance");
+  s.addText("Comparing the best model against a clearly weaker one proves nothing. The question that matters is whether the leading models can be told apart at all. All 15 pairwise tests among the top six, on the same 25 folds:", {
+    x: 0.6, y: 1.42, w: 12.1, h: 0.55, margin: 0, fontFace: BODY, fontSize: 12.5, color: MUTED, valign: "top",
   });
   table(s, [
-    [th("Comparison"), th("Δ AUC"), th("Won"), th("Wilcoxon p"), th("t p")],
-    ["SVM-RBF vs RandomForest", "+0.029", "17/25", { text: "0.021", options: rowHi }, "0.013"],
-    ["SVM-RBF vs L1-LR", "+0.052", "21/25", { text: "0.0002", options: rowHi }, "<0.0001"],
-  ], { x: 0.6, y: 2.0, w: 7.0, colW: [2.6, 1.1, 1.0, 1.35, 0.95], rowH: 0.5, fontSize: 10.5 });
+    [th("Wilcoxon p"), th("SVM-RBF"), th("Ensemble"), th("SVM-poly"), th("GP-RBF"), th("GP-Matérn")],
+    [{ text: "ExtraTrees", options: { bold: true, align: "left" } }, { text: ".085", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".005", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".003", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".001", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".001", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }],
+    [{ text: "SVM-RBF", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".360", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".476", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".003", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".002", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }],
+    [{ text: "Ensemble", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".609", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".001", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".000", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }],
+    [{ text: "SVM-poly", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".554", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".420", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }],
+    [{ text: "GP-RBF", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".051", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }],
+  ], { y: 2.15, colW: [2.5, 1.92, 1.92, 1.92, 1.92, 1.92], rowH: 0.42, fontSize: 11 });
 
-  s.addImage({ path: path.join(IMG, "roc6.png"), x: 8.15, y: 1.62, w: 4.45, h: 3.59 });
-  s.addText("Out-of-fold ROC, single 5-fold split at fixed hyperparameters — not the nested-CV estimate in the table on the previous slide.", {
-    x: 8.15, y: 5.24, w: 4.45, h: 0.55, margin: 0,
-    fontFace: BODY, fontSize: 9, color: MUTED, italic: true,
-  });
+  s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: 4.82, w: 0.2, h: 0.2, fill: { color: "EDEDEA" } });
+  s.addText("grey = indistinguishable (p ≥ 0.05)", { x: 0.9, y: 4.78, w: 4.2, h: 0.3, margin: 0, fontFace: BODY, fontSize: 10, color: MUTED });
+  s.addShape(pres.shapes.RECTANGLE, { x: 4.9, y: 4.82, w: 0.2, h: 0.2, fill: { color: "E4F0F0" } });
+  s.addText("teal = distinguishable", { x: 5.2, y: 4.78, w: 4.0, h: 0.3, margin: 0, fontFace: BODY, fontSize: 10, color: MUTED });
 
   card(s, {
-    x: 0.6, y: 3.7, w: 7.0, h: 1.5, accent: MOSS,
-    title: "Verdict", titleSize: 14,
-    body: "SVM-RBF significantly beats every model except ExtraTrees, whose +0.020 lead reaches only p=0.085 on 14/25 folds. That alone would not settle the choice — the stratified test on the next slide does.",
-    bodySize: 11.5,
+    x: 0.6, y: 5.15, w: 5.9, h: 1.68, accent: CORAL, fill: "FBEDE7",
+    title: "The top four are a statistical tie", titleSize: 14, bodySize: 11,
+    body: "ExtraTrees, SVM-RBF, the ensemble and SVM-poly cannot be separated from one another on this data. Their AUCs span 0.834–0.859, well inside the ±0.04–0.06 fold-to-fold spread.\n\nRanking them is reading noise.",
+    bodyColor: "7A2E14",
   });
-
-  s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: 5.9, w: 12.1, h: 0.9, fill: { color: DARK } });
-  s.addText("SVM-linear reaches only 0.766 — the kernel is what wins, not the SVM. This is the first hint of real nonlinear structure.", {
-    x: 0.95, y: 6.12, w: 11.5, h: 0.5, margin: 0, fontFace: BODY, fontSize: 14, color: MOSS, italic: true,
+  card(s, {
+    x: 6.8, y: 5.15, w: 5.9, h: 1.68, accent: MOSS,
+    title: "So the choice must rest on something else", titleSize: 14, bodySize: 11,
+    body: "Two grounds remain: error structure at the operating threshold (specificity 0.703 for SVM-RBF vs 0.620 for ExtraTrees) and robustness where the signal is weak.\n\nThe next slide is the test that actually decides.",
   });
 }
 
@@ -752,7 +754,7 @@ divider("05", "Biological Findings", "Which taxa carry the signal — and what t
   card(s, {
     x: 0.6, y: 1.6, w: 5.9, h: 2.1, accent: TEAL,
     title: "Line of evidence 1 — the kernel gap",
-    body: "SVM-RBF     AUC 0.839\nSVM-linear  AUC 0.766\n\nA 0.073 gap between two models that differ only in the kernel. The nonlinearity, not the margin formulation, is what earns the performance.",
+    body: "SVM-RBF     AUC 0.839\nSVM-linear  AUC 0.766\n\nΔ = +0.073, winning 25 of 25 folds, Wilcoxon p = 1e-5.\n\nA controlled comparison — same model family, only the kernel differs — and the most decisive test in this deck.",
   });
   card(s, {
     x: 6.8, y: 1.6, w: 5.9, h: 2.1, accent: TEAL,
@@ -763,7 +765,7 @@ divider("05", "Biological Findings", "Which taxa carry the signal — and what t
   card(s, {
     x: 0.6, y: 3.95, w: 12.1, h: 1.25, accent: MOSS,
     title: "Biological reading",
-    body: "This is consistent with what is known about gut communities: taxa act through consortia and metabolic cross-feeding rather than in isolation. A single genus rarely determines an immune phenotype on its own.",
+    body: "This is consistent with what is known about gut communities: taxa act through consortia and metabolic cross-feeding rather than in isolation. A single genus rarely determines an immune phenotype on its own.\n\nNote the contrast with the model comparison: there, nothing separated the leaders. Here, one controlled change separates cleanly on every fold.",
   });
 
   s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: 5.45, w: 12.1, h: 1.15, fill: { color: DARK } });
