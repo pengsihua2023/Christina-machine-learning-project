@@ -1,0 +1,8 @@
+loc,Neg,Pos,n,pos_rate,testable
+"GrizzlyIslandWildlifeArea(GIWA),SolanoCounty",31,65,96,0.677,True
+"SacramentoNationalWildlifeRefuge,GlennCounty",45,35,80,0.438,True
+"ConawayRanch,YoloCounty",18,25,43,0.581,True
+"MandevilleIsland,SanJoaquinCounty",5,9,14,0.643,False
+"SuisunMarsh/ArnoldRanch,SolanoCounty",0,11,11,1.0,False
+"SuisunMarsh/Balboa,SolanoCounty",10,1,11,0.091,False
+"SuisunMarsh/Sunrise,SolanoCounty",0,5,5,1.0,False

@@ -344,6 +344,52 @@ microbiome → is-it-July    AUC 0.731
 
 **This section is a sensitivity analysis, not the primary analysis.** The primary analysis still uses all 260 samples and reports AUC 0.839. Its value is in bracketing how much independent information the microbiome carries: **conservatively +0.043, and +0.177 once temporal confounding is removed; the truth lies between them.**
 
+### 4.6 Cross-site generalization: would the model work at a new wetland?
+
+Random cross-validation puts samples from the same site in both the training and validation folds, so a model can score well simply by recognising the site. Grouping by site (leave-one-location-out, LOLO) removes that shortcut (`site_generalization.py`).
+
+Three of seven sites qualify as test folds (n≥15, minority class ≥5), covering 219/260 samples.
+
+**The naive LOLO result looks catastrophic:**
+
+| Model | LOLO mean AUC | Random CV, same samples | Drop |
+|---|---|---|---|
+| SVM-RBF | 0.443 | 0.853 | −0.409 |
+| ExtraTrees | 0.443 | 0.842 | −0.399 |
+| L1-LR | 0.469 | 0.777 | −0.308 |
+
+**But the diagnosis shows the failure is temporal extrapolation, not spatial generalization.**
+
+Site and month are almost interchangeable in this cohort:
+
+```
+Sacramento NWR   46 of 80 samples in January
+GIWA             82 of 96 in July–August
+ConawayRanch     sampled only in Oct/Nov/Dec
+```
+
+So "leave one site out" is simultaneously "leave one season out". Breaking down the Sacramento fold:
+
+```
+its January samples: n=46 with only 1 positive   ->  AUC 0.044
+training set retains only 4 January samples      ->  the model has barely seen winter
+```
+
+That AUC is effectively **the percentile rank of a single bird** — far too unstable to interpret.
+
+**Re-running LOLO with season held fixed (July–August only):**
+
+| Held-out site | n | Pos | AUC |
+|---|---|---|---|
+| GIWA | 82 | 51 | **0.919** |
+| MandevilleIsland | 14 | 9 | **0.844** |
+| SuisunMarsh/Balboa | 11 | 1 | 1.000 |
+| | | **mean** | **0.921** |
+
+**Conclusion: with season comparable, the model transfers well across sampling sites (AUC 0.84–0.92).** The naive 0.443 is an artefact of space and time being entangled, and must not be read as spatial generalization failure.
+
+For reference, site one-hot alone predicts the label at random-CV AUC 0.670 (under LOLO this baseline necessarily degenerates to 0.5, since the held-out site's column is constant zero in training).
+
 ---
 
 ## 5. Known Limitations (eight)
@@ -412,11 +458,16 @@ maximum while hiding the search is selective reporting. An unbiased estimate of 
 performance would require another cross-validation layer (an outer loop for model selection,
 an outermost loop for evaluation); this project does not do that.
 
-### 5.8 Spatial confounding is unresolved
+### 5.8 The sampling design binds space to time
 
-Temporal confounding can be handled by stratifying on month or by excluding the extreme months (§4.3, §4.5), but sampling-site confounding persists throughout. Even within the deconfounded subset, site predicts the label at AUC 0.740 while the microbiome predicts site at AUC 0.753 — a complete confounding path.
+Spatial confounding initially looked like an independent problem; §4.6 shows it is not. In this cohort, sampling site and sampling month are nearly interchangeable (Sacramento concentrated in January, GIWA in July–August, ConawayRanch only in autumn/winter). Consequently:
 
-In wild waterfowl, sampling site is intrinsically correlated with infection pressure (wetlands differ in bird density, migratory flyway, and water exchange), so this path cannot be severed by statistics alone. Site-stratified reanalysis would be required, but the largest single site in this cohort contributes only 90 samples — too few for stable estimates once stratified.
+- **Spatial generalization itself is good**: with season fixed, cross-site AUC is 0.84–0.92 (§4.6)
+- **But temporal extrapolation cannot be tested fairly**: holding out Sacramento leaves only 4 January samples in training, so the model never has a chance to learn the winter microbiome–infection relationship
+
+This is a limitation of the **sampling design, not of the model**. Answering "will this work in a new season?" requires data with multiple sites sampled in every season; this cohort does not have that structure.
+
+Until then, any claim about cross-season deployment — positive or negative — is unsupported by evidence.
 
 ---
 
@@ -484,6 +535,7 @@ and tree models performing comparably.
 | `explore_models.py` | Round-two 9 models + ensemble (kernels, kNN, discriminant analysis, PLS-DA) |
 | `validate_extratrees.py` | Subjects ExtraTrees to the same validation as SVM-RBF |
 | `deconfound_analysis.py` | Deconfounding sensitivity analysis (drops Nov/Dec/Jan) |
+| `site_generalization.py` | Leave-one-site-out generalization + season-fixed control |
 | `svm_analysis.py` | SVM grid expansion + permutation importance |
 | `dna_embedding.py` | DNABERT-2 / NT-v2 sequence embedding (alternative feature route, not used here) |
 
@@ -526,6 +578,7 @@ Season | Age | Sex | Feeding | Species | Location | month | <feature columns>
 | `differential_abundance.csv` | CLR + Welch t + BH-FDR |
 | `month_stratified.csv` / `confound_check.csv` | Confounding analyses |
 | `deconfound_summary.json` / `deconf_*.csv` | Deconfounding sensitivity analysis |
+| `site_generalization.json` / `site_*.csv` | Cross-site generalization |
 | `permutation_null.txt` / `summary.json` | Permutation null distribution and summary |
 | `summary_plots.png` | ROC + volcano + stability-selection triptych |
 
@@ -542,6 +595,7 @@ python3 compare_models.py            # → results/model_comparison_full.csv (ro
 python3 explore_models.py            # → results/model_exploration.csv (round two)
 python3 validate_extratrees.py       # → results/et_* (ExtraTrees validation)
 python3 deconfound_analysis.py       # → results/deconf_* (deconfounding sensitivity)
+python3 site_generalization.py       # → results/site_* (cross-site generalization)
 python3 svm_analysis.py              # → results/svm_*
 ```
 
@@ -607,7 +661,9 @@ cross_val_score(make_pipeline(StandardScaler(),
    seasons.
 
 6. **The conclusions apply strictly to the UC Davis wild-duck cohort**; they do not hold
-   across hosts or studies.
+   across hosts or studies. Within it, however, the model transfers well across sampling
+   sites once season is comparable (AUC 0.84–0.92, §4.6) — spatial generalization is not
+   the bottleneck; the binding of space to time in the sampling design is.
 
 7. **Tree models are not uniformly weak**: the greedy-split family (RF/XGBoost/HistGB) all
    trail SVM-RBF, but the randomised-split ExtraTrees posts the highest AUC of any model.

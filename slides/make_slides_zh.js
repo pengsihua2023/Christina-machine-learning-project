@@ -687,6 +687,44 @@ divider("04", "信号是真的吗？", "置换检验、混杂因子与分层再�
   });
 }
 
+// ================================================================ 22c SITE GENERALIZATION
+{
+  const s = slide("换一个湿地还能用吗？", "有效性 · 泛化");
+  s.addText("随机交叉验证允许模型靠「认地点」拿分，按地点分组则切断这条捷径。朴素结果初看是灾难性的——而且具有误导性。", {
+    x: 0.6, y: 1.42, w: 12.1, h: 0.5, margin: 0, fontFace: BODY, fontSize: 12.5, color: MUTED, valign: "top",
+  });
+  table(s, [
+    [th("留一地点交叉验证"), th("LOLO AUC"), th("随机 CV"), th("差")],
+    ["SVM-RBF", { text: "0.443", options: { color: CORAL, bold: true } }, "0.853", { text: "−0.409", options: { color: CORAL } }],
+    ["ExtraTrees", { text: "0.443", options: { color: CORAL, bold: true } }, "0.842", { text: "−0.399", options: { color: CORAL } }],
+    ["L1-LR", { text: "0.469", options: { color: CORAL, bold: true } }, "0.777", { text: "−0.308", options: { color: CORAL } }],
+  ], { x: 0.6, y: 2.0, w: 6.0, colW: [2.1, 1.35, 1.35, 1.2], rowH: 0.44, fontSize: 11 });
+
+  card(s, {
+    x: 6.9, y: 2.0, w: 5.8, h: 1.94, accent: CORAL, fill: "FBEDE7",
+    title: "为什么具有误导性", titleSize: 14, bodySize: 11,
+    body: "本队列的地点与月份几乎可以互换：Sacramento 80 个中 46 个在 1 月，GIWA 96 个中 82 个在 7–8 月，ConawayRanch 只在秋冬。\n\n所以「留一地点」同时也是「留一季节」。",
+    bodyColor: "7A2E14",
+  });
+
+  s.addText("固定季节（仅 7–8 月）后重做留一地点：", {
+    x: 0.6, y: 4.2, w: 12.1, h: 0.3, margin: 0, fontFace: HEAD, fontSize: 15, bold: true, color: INK,
+  });
+  table(s, [
+    [th("留出地点"), th("n"), th("阳性"), th("AUC")],
+    ["GIWA", "82", "51", { text: "0.919", options: { color: "2E6B3A", bold: true } }],
+    ["MandevilleIsland", "14", "9", { text: "0.844", options: { color: "2E6B3A", bold: true } }],
+    ["SuisunMarsh/Balboa", "11", "1", "1.000"],
+    [{ text: "平均", options: rowHi }, { text: "", options: rowHi }, { text: "", options: rowHi }, { text: "0.921", options: rowHi }],
+  ], { x: 0.6, y: 4.6, w: 6.0, colW: [2.55, 1.05, 1.05, 1.35], rowH: 0.42, fontSize: 11 });
+
+  card(s, {
+    x: 6.9, y: 4.6, w: 5.8, h: 1.68, accent: MOSS,
+    title: "空间泛化不是瓶颈", titleSize: 14, bodySize: 11,
+    body: "在季节可比的前提下，模型跨湿地迁移的 AUC 为 0.84–0.92。\n\n把朴素平均值拖下去的 Sacramento 那一折，其 46 个 1 月样本中只有 1 个阳性——那个 AUC 是单只鸟的排名百分位，不是一个估计值。",
+  });
+}
+
 // ================================================================ 23 DIVIDER 5
 divider("05", "生物学发现", "哪些菌携带信号——以及方法之间在哪里产生分歧");
 
@@ -783,7 +821,7 @@ divider("05", "生物学发现", "哪些菌携带信号——以及方法之间�
     ["分类学分辨率受限", "种水平完全空白，55 个特征无属注释。生物学解释止步于属/科。"],
     ["混杂基线偏高", "仅协变量即达 0.881。关于菌群的结论必须始终相对这条基线陈述。"],
     ["多重比较抬高了最优分", "共比较 17 个模型，最优是 17 选 1。Bonferroni 校正阈值约 p < 0.003。"],
-    ["空间混杂未解决", "即使删掉被混杂的月份：地点 → 标签 AUC 0.740，菌群 → 地点 0.753。按地点分层则样本量不足。"],
+    ["采样设计把空间与时间绑死", "地点与月份几乎可互换，故跨季节部署无法检验。跨地点迁移本身是好的（0.84–0.92）。"],
   ];
   lims.forEach((l, i) => {
     const col = i % 2, row = Math.floor(i / 2);

@@ -1,0 +1,4 @@
+held_out_site,n_test,n_pos,AUC
+"GrizzlyIslandWildlifeArea(GIWA),SolanoCounty",82,51,0.9190385831752055
+"MandevilleIsland,SanJoaquinCounty",14,9,0.8444444444444446
+"SuisunMarsh/Balboa,SolanoCounty",11,1,1.0

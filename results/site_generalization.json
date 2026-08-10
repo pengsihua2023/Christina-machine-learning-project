@@ -1,0 +1,58 @@
+{
+  "testable_sites": [
+    "GrizzlyIslandWildlifeArea(GIWA),SolanoCounty",
+    "SacramentoNationalWildlifeRefuge,GlennCounty",
+    "ConawayRanch,YoloCounty"
+  ],
+  "n_covered": 219,
+  "site_only_auc": 0.6704812177070241,
+  "summary": [
+    {
+      "model": "SVM-RBF",
+      "LOLO_AUC_mean": 0.4434102695393018,
+      "LOLO_AUC_min": 0.16825396825396824,
+      "LOLO_AUC_max": 0.6253101736972705,
+      "LOLO_MCC_mean": -0.06413820964695431,
+      "random_CV_AUC": 0.8525380116959065,
+      "drop": -0.4091277421566047
+    },
+    {
+      "model": "ExtraTrees",
+      "LOLO_AUC_mean": 0.4430501398243334,
+      "LOLO_AUC_min": 0.16190476190476188,
+      "LOLO_AUC_max": 0.6000000000000001,
+      "LOLO_MCC_mean": -0.1579083466872309,
+      "random_CV_AUC": 0.8420397660818715,
+      "drop": -0.3989896262575381
+    },
+    {
+      "model": "L1-LR",
+      "LOLO_AUC_mean": 0.4690367219399478,
+      "LOLO_AUC_min": 0.12634920634920632,
+      "LOLO_AUC_max": 0.6540942928039702,
+      "LOLO_MCC_mean": -0.03509890669565846,
+      "random_CV_AUC": 0.7765473684210525,
+      "drop": -0.30751064648110477
+    }
+  ],
+  "season_fixed_lolo": [
+    {
+      "held_out_site": "GrizzlyIslandWildlifeArea(GIWA),SolanoCounty",
+      "n_test": 82,
+      "n_pos": 51,
+      "AUC": 0.9190385831752055
+    },
+    {
+      "held_out_site": "MandevilleIsland,SanJoaquinCounty",
+      "n_test": 14,
+      "n_pos": 9,
+      "AUC": 0.8444444444444446
+    },
+    {
+      "held_out_site": "SuisunMarsh/Balboa,SolanoCounty",
+      "n_test": 11,
+      "n_pos": 1,
+      "AUC": 1.0
+    }
+  ]
+}

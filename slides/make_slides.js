@@ -687,6 +687,44 @@ divider("04", "Is the Signal Real?", "Permutation testing, confounders, and stra
   });
 }
 
+// ================================================================ 22c SITE GENERALIZATION
+{
+  const s = slide("Would It Work at a New Wetland?", "Validity · generalization");
+  s.addText("Random cross-validation lets a model score by recognising the site. Grouping by site removes that shortcut. The naive result looks catastrophic — and is misleading.", {
+    x: 0.6, y: 1.42, w: 12.1, h: 0.5, margin: 0, fontFace: BODY, fontSize: 12.5, color: MUTED, valign: "top",
+  });
+  table(s, [
+    [th("Leave-one-site-out"), th("LOLO AUC"), th("Random CV"), th("Drop")],
+    ["SVM-RBF", { text: "0.443", options: { color: CORAL, bold: true } }, "0.853", { text: "−0.409", options: { color: CORAL } }],
+    ["ExtraTrees", { text: "0.443", options: { color: CORAL, bold: true } }, "0.842", { text: "−0.399", options: { color: CORAL } }],
+    ["L1-LR", { text: "0.469", options: { color: CORAL, bold: true } }, "0.777", { text: "−0.308", options: { color: CORAL } }],
+  ], { x: 0.6, y: 2.0, w: 6.0, colW: [2.1, 1.35, 1.35, 1.2], rowH: 0.44, fontSize: 11 });
+
+  card(s, {
+    x: 6.9, y: 2.0, w: 5.8, h: 1.94, accent: CORAL, fill: "FBEDE7",
+    title: "Why it is misleading", titleSize: 14, bodySize: 11,
+    body: "Site and month are nearly interchangeable here: Sacramento is 46/80 January, GIWA 82/96 July–August, ConawayRanch autumn only.\n\nSo leave-one-site-out is also leave-one-season-out.",
+    bodyColor: "7A2E14",
+  });
+
+  s.addText("Hold season fixed (July–August only) and repeat leave-one-site-out:", {
+    x: 0.6, y: 4.2, w: 12.1, h: 0.3, margin: 0, fontFace: HEAD, fontSize: 15, bold: true, color: INK,
+  });
+  table(s, [
+    [th("Held-out site"), th("n"), th("Pos"), th("AUC")],
+    ["GIWA", "82", "51", { text: "0.919", options: { color: "2E6B3A", bold: true } }],
+    ["MandevilleIsland", "14", "9", { text: "0.844", options: { color: "2E6B3A", bold: true } }],
+    ["SuisunMarsh/Balboa", "11", "1", "1.000"],
+    [{ text: "mean", options: rowHi }, { text: "", options: rowHi }, { text: "", options: rowHi }, { text: "0.921", options: rowHi }],
+  ], { x: 0.6, y: 4.6, w: 6.0, colW: [2.55, 1.05, 1.05, 1.35], rowH: 0.42, fontSize: 11 });
+
+  card(s, {
+    x: 6.9, y: 4.6, w: 5.8, h: 1.68, accent: MOSS,
+    title: "Spatial generalization is not the bottleneck", titleSize: 14, bodySize: 11,
+    body: "With season comparable, the model transfers across wetlands at AUC 0.84–0.92.\n\nThe Sacramento fold that dragged the naive average down had 46 January samples with a single positive — that AUC is one bird's percentile rank, not an estimate.",
+  });
+}
+
 // ================================================================ 23 DIVIDER 5
 divider("05", "Biological Findings", "Which taxa carry the signal — and what the methods disagree about");
 
@@ -783,7 +821,7 @@ divider("05", "Biological Findings", "Which taxa carry the signal — and what t
     ["Taxonomic resolution is capped", "Species level entirely empty; 55 features lack a genus. Interpretation stops at genus/family."],
     ["Confounder baseline is high", "Covariates alone reach 0.881. Microbiome claims must always be framed relative to that."],
     ["Multiple comparison inflates the winner", "17 models compared; the reported best is a best-of-17. Bonferroni over 17 tests would demand p < 0.003."],
-    ["Spatial confounding is unresolved", "Even after dropping the confounded months: site → label AUC 0.740, microbiome → site 0.753. Site-stratified reanalysis is underpowered here."],
+    ["Sampling design binds space to time", "Site and month are nearly interchangeable, so cross-season deployment cannot be tested. Cross-site transfer itself is fine (0.84–0.92)."],
   ];
   lims.forEach((l, i) => {
     const col = i % 2, row = Math.floor(i / 2);

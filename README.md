@@ -311,6 +311,52 @@ t 统计量 Spearman ρ = 0.879 (p = 2.7e-21)
 
 **本节的定位是敏感性分析，不是主分析。** 主分析仍使用全部 260 个样本并报告 AUC 0.839。本节的价值在于给出菌群独立信息量的区间：**保守估计 +0.043，消除时间混杂后 +0.177，真值应在两者之间。**
 
+### 4.6 跨采样点泛化：模型能用到新湿地吗
+
+随机划分的交叉验证会把同一地点的样本同时放进训练与测试折，模型可以靠"认地点"拿分。按地点分组（留一地点，LOLO）切断这条捷径（`site_generalization.py`）。
+
+7 个采样点中有 3 个满足作测试折的条件（n≥15 且少数类≥5），覆盖 219/260 个样本。
+
+**朴素 LOLO 的结果初看是灾难性的：**
+
+| 模型 | LOLO 平均 AUC | 同样本随机 CV | 差 |
+|---|---|---|---|
+| SVM-RBF | 0.443 | 0.853 | −0.409 |
+| ExtraTrees | 0.443 | 0.842 | −0.399 |
+| L1-LR | 0.469 | 0.777 | −0.308 |
+
+**但诊断表明，失败的是时间外推，不是空间泛化。**
+
+原因在于本队列的地点与月份高度纠缠：
+
+```
+Sacramento NWR   80 个样本中 46 个在 1 月
+GIWA             96 个中 82 个在 7–8 月
+ConawayRanch     只在 10/11/12 月采样
+```
+
+因此"留一地点"同时也是"留一时段"。拆开看留出 Sacramento 的情形：
+
+```
+其 1 月样本 n=46，其中阳性仅 1 个        →  AUC 0.044
+而训练集中 1 月样本只有 4 个             →  模型几乎没见过冬季
+```
+
+该 AUC 实质是**单个阳性样本的排名百分位**，极不稳定，不应过度解读。
+
+**固定季节后重做留一地点（仅用 7–8 月）：**
+
+| 留出地点 | n | 阳性 | AUC |
+|---|---|---|---|
+| GIWA | 82 | 51 | **0.919** |
+| MandevilleIsland | 14 | 9 | **0.844** |
+| SuisunMarsh/Balboa | 11 | 1 | 1.000 |
+| | | **平均** | **0.921** |
+
+**结论：在季节可比的前提下，模型跨采样点迁移良好（AUC 0.84–0.92）。** 朴素 LOLO 的 0.443 是空间与时间混在一起的产物，不能读作"空间泛化失败"。
+
+参照：仅用地点 one-hot 预测标签，随机 CV 的 AUC 为 0.670（LOLO 下该基线必然退化为 0.5，因为留出地点的列在训练集中恒为 0）。
+
 ---
 
 ## 5. 已知局限（八项）
@@ -355,11 +401,16 @@ Species 层完全无注释，55 个特征无 Genus 注释。生物学解释只�
 
 **论文中必须报告完整的 17 模型表，而非只报最优的那一个**——只报最高分而隐去搜索过程，是选择性报告。若要给出无偏的最优模型性能，需要再套一层交叉验证（外层用于模型选择，最外层用于评估），本项目未做。
 
-### 5.8 空间混杂未解决
+### 5.8 采样设计把空间与时间绑死
 
-时间混杂可通过月份分层或排除极端月份处理（§4.3、§4.5），但采样地点的混杂始终存在。即使在去混杂子集中：采样地点预测标签 AUC 0.740，而菌群预测采样地点 AUC 0.753——一条完整的混杂通路。
+原以为空间混杂是独立问题，§4.6 的分析表明并非如此：本队列的采样点与采样月份几乎一一对应（Sacramento 集中在 1 月，GIWA 集中在 7–8 月，ConawayRanch 只在秋冬）。因此：
 
-野生水禽的采样地点与感染压力天然相关（不同湿地的鸟群密度、迁徙路线、水体交换各不相同），因此这条通路无法靠统计手段完全切断。需要按地点分层重跑，但本队列中最大地点仅 90 个样本，分层后样本量不足以支撑稳定估计。
+- **空间泛化本身是好的**：固定季节后跨采样点 AUC 0.84–0.92（§4.6）
+- **但时间外推无法被公平检验**：留出 Sacramento 时，训练集中只剩 4 个 1 月样本，模型没有机会学习冬季的菌群—感染关系
+
+这是**采样设计的局限，不是模型的局限**。要回答"模型能否用于新季节"，需要每个季节都在多个地点采样的数据；本队列不具备这一结构。
+
+在此之前，关于跨季节部署的任何断言都缺乏证据支持——包括正面的和负面的。
 
 ---
 
@@ -415,6 +466,7 @@ Species 层完全无注释，55 个特征无 Genus 注释。生物学解释只�
 | `explore_models.py` | 第二轮 9 模型 + 集成探索（核方法、近邻、判别分析、PLS-DA 等） |
 | `validate_extratrees.py` | 对 ExtraTrees 施加与 SVM-RBF 相同的验证 |
 | `deconfound_analysis.py` | 去混杂敏感性分析（排除 11/12/1 月） |
+| `site_generalization.py` | 留一地点泛化评估 + 固定季节对照 |
 | `svm_analysis.py` | SVM 超参网格扩展 + permutation importance |
 | `dna_embedding.py` | DNABERT-2 / NT-v2 序列嵌入（备选特征路线，本文未采用） |
 
@@ -456,6 +508,7 @@ Season | Age | Sex | Feeding | Species | Location | month | <特征列>
 | `differential_abundance.csv` | CLR + Welch t + BH-FDR |
 | `month_stratified.csv` / `confound_check.csv` | 混杂分析 |
 | `deconfound_summary.json` / `deconf_*.csv` | 去混杂敏感性分析结果 |
+| `site_generalization.json` / `site_*.csv` | 跨采样点泛化评估 |
 | `permutation_null.txt` / `summary.json` | 置换检验零分布与汇总 |
 | `summary_plots.png` | ROC + 火山图 + 稳定性选择三联图 |
 
@@ -472,6 +525,7 @@ python3 compare_models.py            # → results/model_comparison_full.csv（�
 python3 explore_models.py            # → results/model_exploration.csv（第二轮 9 模型 + 集成）
 python3 validate_extratrees.py       # → results/et_*（ExtraTrees 验证）
 python3 deconfound_analysis.py       # → results/deconf_*（去混杂敏感性分析）
+python3 site_generalization.py       # → results/site_*（跨采样点泛化）
 python3 svm_analysis.py              # → results/svm_*
 ```
 
