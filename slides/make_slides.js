@@ -218,7 +218,7 @@ const rowHi = { fill: { color: "E4F0F0" }, bold: true };
     ["01", "Data", "Three input files, four studies, and why we model only one of them"],
     ["02", "Processing", "Label leakage, compositional transformation, and leak-free pipelines"],
     ["03", "Modeling", "Nested CV protocol and a seventeen-model comparison"],
-    ["04", "Validity", "Permutation testing, confounders, and stratified re-analysis"],
+    ["04", "Validity", "Permutation testing, confounders, stratification, and a deconfounded subset"],
     ["05", "Findings", "Biomarkers from three independent methods; evidence of nonlinearity"],
     ["06", "Limits", "Seven known limitations, stated plainly"],
   ];
@@ -650,6 +650,43 @@ divider("04", "Is the Signal Real?", "Permutation testing, confounders, and stra
   });
 }
 
+// ================================================================ 22b DECONFOUND
+{
+  const s = slide("What If We Simply Drop the Confounded Months?", "Validity · sensitivity");
+  s.addText("November–December is 100% positive and January 90% negative. On those 95 samples a model scores well by learning the month, not the microbiome. Excluding them (n = 260 → 165):", {
+    x: 0.6, y: 1.42, w: 12.1, h: 0.5, margin: 0, fontFace: BODY, fontSize: 12.5, color: MUTED, valign: "top",
+  });
+  table(s, [
+    [th("Feature set"), th("Full n=260"), th("Subset n=165"), th("Change")],
+    ["Covariates only", "0.881", "0.774", { text: "−0.107", options: { color: MUTED } }],
+    ["Microbiome only", "0.766", { text: "0.933", options: { bold: true } }, { text: "+0.168", options: { color: MOSS, bold: true } }],
+    ["Microbiome + covariates", "0.924", "0.951", { text: "+0.027", options: { color: MOSS } }],
+    [{ text: "Independent contribution", options: rowHi }, { text: "+0.043", options: rowHi }, { text: "+0.177", options: rowHi }, { text: "×4", options: rowHi }],
+  ], { x: 0.6, y: 2.0, w: 6.9, colW: [2.7, 1.4, 1.5, 1.3], rowH: 0.44, fontSize: 11 });
+
+  card(s, {
+    x: 7.8, y: 2.0, w: 4.9, h: 2.2, accent: MOSS,
+    title: "Deconfounding worked", titleSize: 14, bodySize: 11,
+    body: "Predicting the label from month alone:\n\n   full cohort  AUC 0.775\n   subset       AUC 0.426\n\nMonth is fully neutralised. Permutation test on the subset: p = 0.0099.",
+  });
+
+  card(s, {
+    x: 0.6, y: 4.45, w: 5.9, h: 1.95, accent: TEAL,
+    title: "The biomarkers get stronger, not different", titleSize: 14, bodySize: 11,
+    body: "Significant taxa 19/70 → 34/65; Spearman ρ = 0.879 on t-statistics; 18 significant in both.\n\nVeillonella (FDR 3.7e-29) and Prevotella — the two that collinearity had pushed out of the nine-taxon panel — are now the strongest hits.",
+  });
+  card(s, {
+    x: 6.8, y: 4.45, w: 5.9, h: 1.95, accent: CORAL, fill: "FBEDE7",
+    title: "But this is a sensitivity analysis, not the result", titleSize: 14, bodySize: 11,
+    body: "The 95 excluded samples are also the hardest to classify (Jan+Oct stratum: AUC 0.668), so the two AUCs are not comparable.\n\nAnd spatial confounding is untouched: site → label AUC 0.740, microbiome → site AUC 0.753.",
+    bodyColor: "7A2E14",
+  });
+
+  s.addText("Read as a bracket on the microbiome's independent information: conservatively +0.043, +0.177 once temporal confounding is removed.", {
+    x: 0.6, y: 6.5, w: 11.6, h: 0.3, margin: 0, fontFace: BODY, fontSize: 10.5, color: MUTED, italic: true,
+  });
+}
+
 // ================================================================ 23 DIVIDER 5
 divider("05", "Biological Findings", "Which taxa carry the signal — and what the methods disagree about");
 
@@ -737,7 +774,7 @@ divider("05", "Biological Findings", "Which taxa carry the signal — and what t
 
 // ================================================================ 27 LIMITATIONS
 {
-  const s = slide("Seven Known Limitations", "Limitations");
+  const s = slide("Eight Known Limitations", "Limitations");
   const lims = [
     ["Cross-study generalization fails", "GroupKFold by BioProject: AUC 0.54 ± 0.29. Four studies differ in host, tissue, geography."],
     ["Upstream filtering rule unknown", "275 features is far too few for avian 16S. If filtering used labels, every number here is inflated."],
@@ -746,6 +783,7 @@ divider("05", "Biological Findings", "Which taxa carry the signal — and what t
     ["Taxonomic resolution is capped", "Species level entirely empty; 55 features lack a genus. Interpretation stops at genus/family."],
     ["Confounder baseline is high", "Covariates alone reach 0.881. Microbiome claims must always be framed relative to that."],
     ["Multiple comparison inflates the winner", "17 models compared; the reported best is a best-of-17. Bonferroni over 17 tests would demand p < 0.003."],
+    ["Spatial confounding is unresolved", "Even after dropping the confounded months: site → label AUC 0.740, microbiome → site 0.753. Site-stratified reanalysis is underpowered here."],
   ];
   lims.forEach((l, i) => {
     const col = i % 2, row = Math.floor(i / 2);
@@ -755,8 +793,8 @@ divider("05", "Biological Findings", "Which taxa carry the signal — and what t
       title: `${i + 1}.  ${l[0]}`, titleSize: 12.5, body: l[1], bodySize: 10.5, bodyColor: "7A2E14",
     });
   });
-  s.addText("Stated in the README as written here — not softened for presentation.\nItem 7 is why ExtraTrees, despite the highest AUC, is not the primary model.", {
-    x: 6.85, y: 5.5, w: 5.8, h: 1.0, margin: 0,
+  s.addText("Stated in the README as written here — not softened for presentation.", {
+    x: 0.6, y: 6.9, w: 12.1, h: 0.3, margin: 0,
     fontFace: BODY, fontSize: 11, color: MUTED, italic: true, valign: "top",
   });
 }
@@ -769,7 +807,7 @@ divider("05", "Biological Findings", "Which taxa carry the signal — and what t
     "SVM-RBF is the primary model — AUC 0.839, MCC 0.531 — significantly beating Random Forest (p = 0.021), XGBoost (p = 0.0016) and L1-LR (p < 0.001) among 17 models compared.",
     "The signal is partly nonlinear: the RBF kernel gains 0.073 AUC over a linear one, and several taxa act only in combination.",
     "Nine taxa survive three independent selection methods; Candidatus Arthromitus (SFB) has independent immunological support.",
-    "Sampling season is a serious confounder (covariates alone: AUC 0.881), but stratified analysis shows it does not explain the signal away.",
+    "Sampling season is a serious confounder (covariates alone: AUC 0.881). Stratification and a deconfounded subset both leave signal: the microbiome's independent contribution brackets between +0.043 and +0.177.",
     "ExtraTrees scores higher (AUC 0.859) but is worse on the weakest stratum (0.715 vs 0.774); its lead comes only from strata that were already easy.",
     "Conclusions apply to the UC Davis wild-duck cohort only; they do not transfer across hosts or studies.",
   ];

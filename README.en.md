@@ -297,9 +297,56 @@ that covariates alone reach 0.881 — this is the "confounder baseline."** Any c
 the predictive value of the microbiome must be stated relative to this baseline, or must
 explicitly separate the two contributions.
 
+### 4.5 Deconfounding sensitivity analysis: excluding November, December and January
+
+In the full cohort, November–December is 100% positive and January 90% negative. On those 95 samples a model scores well simply by learning which month it is, and the microbiome signal is drowned out. Excluding those three months (n = 260 → 165) and re-running (`deconfound_analysis.py`):
+
+**Did deconfounding work?** Predicting the label from month alone:
+
+```
+full cohort AUC 0.775   →   subset AUC 0.426     month is fully neutralised
+```
+
+Positive rates across the three retained months are 60% (July), 68% (August) and 57% (October) — close to uniform.
+
+**Feature-set ablation** (L2-LR throughout, comparable to §4.4):
+
+| | Full n=260 | Subset n=165 | Change |
+|---|---|---|---|
+| Covariates only | 0.881 | 0.774 | −0.107 |
+| Microbiome only (LR) | 0.766 | **0.933** | +0.168 |
+| Microbiome only (SVM-RBF) | 0.835 | 0.937 | +0.102 |
+| Microbiome + covariates | 0.924 | 0.951 | +0.027 |
+| **Independent contribution** | **+0.043** | **+0.177** | **×4** |
+
+Permutation test: observed 0.943, null 0.500 ± 0.064 (max 0.669), **p = 0.0099**.
+
+**The biomarkers do not change — they get stronger.** This is the most important result in this section:
+
+```
+Features at FDR<0.05     full 19/70   →   subset 34/65
+Spearman rho on t-statistics = 0.879 (p = 2.7e-21)
+Features significant in both   18
+```
+
+The strongest hits in the subset are *Veillonella* (t = −14.4, FDR = 3.7e-29), *Rothia* (t = −12.6), Mycoplasmataceae, *Prevotella* and *Streptococcus*. **Note that *Veillonella* and *Prevotella* are precisely the two genera that collinearity had pushed out of the nine-taxon intersection** (§6.2) — after deconfounding they become the strongest signals, confirming that their exclusion was a methodological artefact rather than a biological conclusion.
+
+**Two limits that must be reported alongside this:**
+
+1. **The subset AUC is not comparable to the full-cohort AUC.** The 95 excluded samples are also the hardest to classify — the stratified analysis puts Jan+Oct at AUC 0.668. What was removed is both confounding and difficulty.
+2. **Spatial confounding is untouched.** A complete confounding path persists inside the subset:
+
+```
+sampling site → label      AUC 0.740
+microbiome → site          AUC 0.753
+microbiome → is-it-July    AUC 0.731
+```
+
+**This section is a sensitivity analysis, not the primary analysis.** The primary analysis still uses all 260 samples and reports AUC 0.839. Its value is in bracketing how much independent information the microbiome carries: **conservatively +0.043, and +0.177 once temporal confounding is removed; the truth lies between them.**
+
 ---
 
-## 5. Known Limitations (seven)
+## 5. Known Limitations (eight)
 
 ### 5.1 Cross-study generalization does not hold
 
@@ -364,6 +411,12 @@ Concretely:
 maximum while hiding the search is selective reporting. An unbiased estimate of best-model
 performance would require another cross-validation layer (an outer loop for model selection,
 an outermost loop for evaluation); this project does not do that.
+
+### 5.8 Spatial confounding is unresolved
+
+Temporal confounding can be handled by stratifying on month or by excluding the extreme months (§4.3, §4.5), but sampling-site confounding persists throughout. Even within the deconfounded subset, site predicts the label at AUC 0.740 while the microbiome predicts site at AUC 0.753 — a complete confounding path.
+
+In wild waterfowl, sampling site is intrinsically correlated with infection pressure (wetlands differ in bird density, migratory flyway, and water exchange), so this path cannot be severed by statistics alone. Site-stratified reanalysis would be required, but the largest single site in this cohort contributes only 90 samples — too few for stable estimates once stratified.
 
 ---
 
@@ -430,6 +483,7 @@ and tree models performing comparably.
 | `compare_models.py` | Round-one 7-model comparison (includes XGBoost, auto-detected) |
 | `explore_models.py` | Round-two 9 models + ensemble (kernels, kNN, discriminant analysis, PLS-DA) |
 | `validate_extratrees.py` | Subjects ExtraTrees to the same validation as SVM-RBF |
+| `deconfound_analysis.py` | Deconfounding sensitivity analysis (drops Nov/Dec/Jan) |
 | `svm_analysis.py` | SVM grid expansion + permutation importance |
 | `dna_embedding.py` | DNABERT-2 / NT-v2 sequence embedding (alternative feature route, not used here) |
 
@@ -471,6 +525,7 @@ Season | Age | Sex | Feeding | Species | Location | month | <feature columns>
 | `stability_selection.csv` | L1 bootstrap selection frequencies |
 | `differential_abundance.csv` | CLR + Welch t + BH-FDR |
 | `month_stratified.csv` / `confound_check.csv` | Confounding analyses |
+| `deconfound_summary.json` / `deconf_*.csv` | Deconfounding sensitivity analysis |
 | `permutation_null.txt` / `summary.json` | Permutation null distribution and summary |
 | `summary_plots.png` | ROC + volcano + stability-selection triptych |
 
@@ -486,6 +541,7 @@ python3 train_eval.py                # → results/     full evaluation (~5 min)
 python3 compare_models.py            # → results/model_comparison_full.csv (round one)
 python3 explore_models.py            # → results/model_exploration.csv (round two)
 python3 validate_extratrees.py       # → results/et_* (ExtraTrees validation)
+python3 deconfound_analysis.py       # → results/deconf_* (deconfounding sensitivity)
 python3 svm_analysis.py              # → results/svm_*
 ```
 
@@ -570,5 +626,5 @@ cross_val_score(make_pipeline(StandardScaler(),
   0.581 baseline
 - Must include: permutation test, month-stratified results (including the 0.668 for
   Jan+Oct), and the covariate ablation
-- The limitations section should cover all seven items in §5, especially §5.7 on multiple comparison
+- The limitations section should cover all eight items in §5, especially §5.7 (multiple comparison) and §5.8 (spatial confounding)
 - The full 17-model table must be given; reporting only the winner is selective reporting

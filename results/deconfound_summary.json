@@ -1,0 +1,46 @@
+{
+  "dropped_months": [
+    11,
+    12,
+    1
+  ],
+  "n_full": 260,
+  "n_sub": 165,
+  "month_auc_full": 0.7746385979611786,
+  "month_auc_sub": 0.42597313797313796,
+  "ablation": {
+    "full": {
+      "cov": 0.8808529534981149,
+      "micro": 0.7657556207233627,
+      "micro_svm": 0.8349386957128893,
+      "both": 0.9238907973746683,
+      "increment": 0.043037843876553405,
+      "n": 260
+    },
+    "sub": {
+      "cov": 0.7737533577533577,
+      "micro": 0.9333015873015874,
+      "micro_svm": 0.9373699633699633,
+      "both": 0.9508888888888889,
+      "increment": 0.17713553113553115,
+      "n": 165
+    }
+  },
+  "permutation": {
+    "observed": 0.9432905982905982,
+    "null_mean": 0.5003808302808304,
+    "null_sd": 0.06402464325551877,
+    "null_max": 0.6688766788766788,
+    "p_value": 0.009900990099009901,
+    "n_perm": 100
+  },
+  "residual_confounding": {
+    "micro_predicts_site": 0.7528395061728396,
+    "site_predicts_label": 0.7398799348799351,
+    "micro_predicts_month": 0.7314633260711692
+  },
+  "da_sig_full": 19,
+  "da_sig_sub": 34,
+  "da_spearman_t": 0.8790322580645163,
+  "da_both_sig": 18
+}
