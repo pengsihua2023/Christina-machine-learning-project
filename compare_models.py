@@ -24,6 +24,12 @@ from sklearn.metrics import (accuracy_score, average_precision_score,
 from sklearn.model_selection import GridSearchCV, RepeatedStratifiedKFold, StratifiedKFold
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
+
+try:
+    from xgboost import XGBClassifier
+    HAS_XGB = True
+except ImportError:
+    HAS_XGB = False
 from sklearn.preprocessing import StandardScaler
 
 warnings.filterwarnings("ignore")
@@ -51,6 +57,14 @@ MODELS = {
                {"clf__learning_rate": [0.05, 0.1], "clf__max_leaf_nodes": [7, 15],
                 "clf__min_samples_leaf": [5, 10]}),
 }
+
+# XGBoost 没有 class_weight 参数，用 scale_pos_weight = n_neg/n_pos 等价实现类别加权
+if HAS_XGB:
+    MODELS["XGBoost"] = (
+        XGBClassifier(random_state=RNG, n_jobs=-1, eval_metric="logloss",
+                      subsample=0.8, colsample_bytree=0.8, tree_method="hist"),
+        {"clf__max_depth": [2, 3, 4], "clf__learning_rate": [0.05, 0.1],
+         "clf__n_estimators": [200, 400]})
 
 
 def metrics(y, p, thr=0.5):
@@ -88,6 +102,13 @@ def main():
                                     random_state=RNG)
     splits = list(outer.split(X, y))
     print(f"外层 5折 x {args.n_repeats}次 = {len(splits)} 折，内层 4 折调参\n")
+
+    if HAS_XGB:
+        spw = float((y == 0).sum() / (y == 1).sum())
+        MODELS["XGBoost"][0].set_params(scale_pos_weight=spw)
+        print(f"XGBoost 已启用，scale_pos_weight = {spw:.3f}\n")
+    else:
+        print("XGBoost 未安装，跳过\n")
 
     rows, best = [], {}
     for name, (clf, grid) in MODELS.items():

@@ -117,42 +117,98 @@ Metrics ROC-AUC / PR-AUC / Accuracy / Balanced Acc / Sensitivity / Specificity /
 
 Nested CV ensures the reported performance is free of tuning bias.
 
-### 3.2 Six-model comparison
+### 3.2 Seventeen-model comparison
 
 n=260, 70 CLR features, Pos=151 / Neg=109
 
-| Model | Accuracy | Balanced Acc | ROC-AUC | PR-AUC | Sensitivity | Specificity | Precision | F1 | MCC |
-|---|---|---|---|---|---|---|---|---|---|
-| **SVM-RBF** | **0.771** | **0.761** | **0.839** | **0.872** | 0.820 | **0.703** | **0.795** | **0.805** | **0.531** |
-| RandomForest | 0.725 | 0.701 | 0.810 | 0.851 | **0.850** | 0.553 | 0.728 | 0.782 | 0.433 |
-| HistGB | 0.722 | 0.705 | 0.796 | 0.841 | 0.809 | 0.600 | 0.739 | 0.771 | 0.423 |
-| L1-LR | 0.709 | 0.707 | 0.787 | 0.842 | 0.722 | 0.692 | 0.770 | 0.742 | 0.414 |
-| L2-LR | 0.690 | 0.686 | 0.782 | 0.844 | 0.710 | 0.662 | 0.746 | 0.725 | 0.373 |
-| SVM-linear | 0.692 | 0.672 | 0.766 | 0.830 | 0.796 | 0.549 | 0.711 | 0.749 | 0.362 |
-| *Baseline (always Pos)* | *0.581* | *0.500* | *0.500* | *0.581* | *1.000* | *0.000* | *0.581* | *0.735* | *0.000* |
+**17 models** were compared (16 individual + 1 soft-voting ensemble) in two rounds. Round one covered five families — linear, sparse, tree, boosting, kernel. Round two followed the lead that round one exposed (the RBF kernel significantly beat the linear one, so distance structure matters) and added kernel methods, nearest neighbours, discriminant analysis, and the field-standard PLS-DA.
 
-Standard deviations are in `results/model_comparison_full.csv` (typically ±0.05).
+| Model | Accuracy | Balanced Acc | ROC-AUC | PR-AUC | Sens. | Spec. | F1 | MCC |
+|---|---|---|---|---|---|---|---|---|
+| **ExtraTrees** | **0.777** | 0.755 | **0.859** | **0.893** | **0.890** | 0.620 | **0.822** | **0.542** |
+| **SVM-RBF** | 0.771 | **0.761** | 0.839 | 0.872 | 0.820 | **0.703** | 0.805 | 0.531 |
+| Ensemble (soft-vote) | 0.766 | 0.756 | 0.836 | 0.873 | 0.818 | 0.694 | 0.802 | 0.521 |
+| SVM-poly | 0.748 | 0.728 | 0.834 | 0.861 | 0.853 | 0.604 | 0.797 | 0.481 |
+| GP-RBF | 0.757 | 0.741 | 0.822 | 0.866 | 0.841 | 0.641 | 0.801 | 0.498 |
+| GP-Matérn | 0.755 | 0.738 | 0.819 | 0.865 | 0.844 | 0.632 | 0.800 | 0.493 |
+| RandomForest | 0.725 | 0.701 | 0.810 | 0.851 | 0.850 | 0.553 | 0.782 | 0.433 |
+| XGBoost | 0.730 | 0.720 | 0.801 | 0.845 | 0.784 | 0.656 | 0.770 | 0.449 |
+| HistGB | 0.722 | 0.705 | 0.796 | 0.841 | 0.809 | 0.600 | 0.771 | 0.423 |
+| kNN-Aitchison | 0.719 | 0.687 | 0.795 | 0.838 | 0.885 | 0.490 | 0.786 | 0.422 |
+| ElasticNet-LR | 0.710 | 0.706 | 0.787 | 0.844 | 0.731 | 0.681 | 0.744 | 0.412 |
+| L1-LR | 0.709 | 0.707 | 0.787 | 0.842 | 0.722 | 0.692 | 0.742 | 0.414 |
+| L2-LR | 0.690 | 0.686 | 0.782 | 0.844 | 0.710 | 0.662 | 0.725 | 0.373 |
+| PLS-DA | 0.707 | 0.696 | 0.776 | 0.837 | 0.763 | 0.629 | 0.750 | 0.400 |
+| LDA-shrinkage | 0.692 | 0.676 | 0.773 | 0.838 | 0.771 | 0.582 | 0.743 | 0.362 |
+| SVM-linear | 0.692 | 0.672 | 0.766 | 0.830 | 0.796 | 0.549 | 0.749 | 0.362 |
+| MLP | 0.616 | 0.602 | 0.649 | 0.746 | 0.690 | 0.514 | 0.676 | 0.205 |
+| *Baseline (always Pos)* | *0.581* | *0.500* | *0.500* | *0.581* | *1.000* | *0.000* | *0.735* | *0.000* |
+
+Standard deviations are in `results/model_comparison_all16.csv` (typically ±0.05; MLP reaches ±0.117).
 
 **Paired significance tests** (paired per-fold AUC over the same 25 folds):
 
 ```
-SVM-RBF vs RandomForest   Δ=+0.029   wins 17/25 folds   Wilcoxon p=0.021    paired t p=0.013
-SVM-RBF vs L1-LR          Δ=+0.052   wins 21/25 folds   Wilcoxon p=0.0002   paired t p<0.0001
+SVM-RBF vs RandomForest   Δ=+0.029   wins 17/25   Wilcoxon p=0.021    paired t p=0.013
+SVM-RBF vs XGBoost        Δ=+0.038   wins 19/25   Wilcoxon p=0.0016   paired t p=0.0019
+SVM-RBF vs L1-LR          Δ=+0.052   wins 21/25   Wilcoxon p=0.0002   paired t p<0.0001
+SVM-RBF vs GP-RBF         Δ=+0.017   wins 20/25   Wilcoxon p=0.0028   paired t p=0.0102
+ExtraTrees vs SVM-RBF     Δ=+0.020   wins 14/25   Wilcoxon p=0.085    paired t p=0.055   <- not significant
+Ensemble  vs SVM-RBF      Δ=-0.003   wins 10/25   Wilcoxon p=0.360
+SVM-poly  vs SVM-RBF      Δ=-0.006   wins 12/25   Wilcoxon p=0.476
+XGBoost   vs RandomForest Δ=-0.009                Wilcoxon p=0.242
 ```
 
-**SVM-RBF is significantly better than the rest.**
+**SVM-RBF significantly beats every model except ExtraTrees. ExtraTrees' +0.020 lead is not significant (p=0.085), and it is the top score among 17 models — under multiple comparison that is far from sufficient grounds for replacing it** (a crude Bonferroni threshold would be ~0.003). See §3.3 and §5.7.
 
-### 3.3 Three pitfalls in reading these metrics
+### 3.3 On ExtraTrees and the choice of primary model
+
+ExtraTrees beats SVM-RBF on AUC (0.859), PR-AUC (0.893), and MCC (0.542), with the smallest fold-to-fold SD of any model (±0.041 vs ±0.060). It differs from a random forest in that **split points are chosen at random rather than greedily optimised** — extra randomisation that acts as strong regularisation at n=260.
+
+The primary model nonetheless remains **SVM-RBF**:
+
+1. **Not statistically grounds for replacement**: p=0.085, winning only 14/25 folds, and it is the maximum over 17 models with no multiple-comparison correction.
+2. **Worse error structure**: ExtraTrees runs 0.890 sensitivity / 0.620 specificity against SVM-RBF's 0.820 / 0.703. **ExtraTrees still carries the tree-model tendency to guess positive**, and its balanced accuracy is actually lower (0.755 vs 0.761).
+3. **The supporting analyses are already built around SVM-RBF**: hyperparameter surface, permutation importance, three-method biomarker intersection.
+
+`validate_extratrees.py` subjects ExtraTrees to exactly the same validation as SVM-RBF (month stratification, permutation test, permutation importance, rank agreement with SVM); results in `results/et_*`.
+
+**Validation outcome (completed, `results/et_*`)**:
+
+| Stratum | n | Pos | ExtraTrees | SVM-RBF | Δ |
+|---|---|---|---|---|---|
+| July | 86 | 52 | 0.988 | 0.975 | +0.013 |
+| Jul+Aug | 123 | 77 | 0.970 | 0.961 | +0.008 |
+| October | 42 | 24 | 0.827 | 0.819 | +0.008 |
+| **Jan+Oct (weakest)** | 92 | 29 | **0.715** | **0.774** | **−0.060** |
+
+**This is decisive: ExtraTrees leads slightly on the easy strata (+0.008 to +0.013) but falls clearly behind on the hardest one, Jan+Oct (−0.060).** Its overall AUC advantage comes from scenarios that were already easy, while it is worse precisely where the signal is weakest and model capability matters most. This is consistent with the explanation that ExtraTrees gains from extra randomisation acting as strong regularisation — harmless when signal is strong, destructive when it is weak.
+
+All other checks pass:
+
+```
+Permutation test   observed 0.856 | null 0.496 ± 0.046 (max 0.598) | p = 0.0099   OK
+Rank agreement     Spearman rho = 0.738 (p=3.3e-13) against SVM-RBF importance
+                   Top-15 overlap 10/15                                           OK
+```
+
+The rank agreement shows the **biomarker conclusions do not depend on model choice** — under ExtraTrees, *Veillonella*, *Rothia*, *Candidatus Arthromitus*, *Staphylococcus*, and *Lawsonella* still rank near the top. That strengthens §6.1.
+
+**Final decision: SVM-RBF remains the primary model.** The grounds are no longer merely "p=0.085 is not significant" but the measured fact that ExtraTrees performs worse on the weakest stratum.
+
+
+### 3.4 Three pitfalls in reading these metrics
 
 1. **The accuracy baseline is 0.581, not 0.5** (58% positive rate). SVM-RBF's 0.771
    corresponds to a real gain of +19 percentage points.
 2. **F1 must not be used for model selection**: the baseline model scores F1 = 0.735,
    higher than L2-LR's 0.725. F1 is severely inflated when positives dominate.
 3. **The most reliable comparison metrics are MCC and Balanced Accuracy** (both have a
-   baseline of 0). Tree models earn part of their accuracy by riding the positive rate —
-   RF's specificity is only 0.553, versus 0.703 for SVM-RBF.
+   baseline of 0). Greedy-split tree models earn part of their accuracy by riding the
+   positive rate — RF's specificity is only 0.553, versus 0.703 for SVM-RBF. ExtraTrees
+   improves on this (0.620) without eliminating it.
 
-### 3.4 Hyperparameter robustness
+### 3.5 Hyperparameter robustness
 
 The SVM-RBF grid was expanded from `C=[0.1…10]` to `[0.01…500]` and `gamma` to
 `[1e-4…0.1]+scale`, then rerun:
@@ -229,7 +285,7 @@ explicitly separate the two contributions.
 
 ---
 
-## 5. Known Limitations
+## 5. Known Limitations (seven)
 
 ### 5.1 Cross-study generalization does not hold
 
@@ -268,6 +324,32 @@ selection into the inner CV loop.
 
 The species level is entirely unannotated and 55 features lack a genus assignment.
 Biological interpretation is limited to genus or family level.
+
+---
+
+### 5.6 The confounder baseline is high
+
+Covariates alone (season, site, species, sex) reach AUC 0.881 — higher than the microbiome
+alone at 0.766. Any statement about the predictive value of the microbiome must be framed
+relative to that baseline rather than to 0.50 (see §4.4).
+
+### 5.7 Multiple comparison: the best model's performance is overestimated
+
+Seventeen models were compared, and the reported "best" performance is the maximum over
+those seventeen. **The act of selecting introduces optimistic bias** — the same mechanism as
+hyperparameter selection bias, one level up.
+
+Concretely:
+
+- ExtraTrees' AUC of 0.859 is a best-of-17 figure; its **unbiased** expectation is lower
+- The paired p=0.085 carries no multiple-comparison correction; a Bonferroni threshold over
+  17 comparisons would be ~0.003
+- This is part of why SVM-RBF remains the primary model (§3.3)
+
+**The manuscript must report the full 17-model table, not only the winner** — reporting the
+maximum while hiding the search is selective reporting. An unbiased estimate of best-model
+performance would require another cross-validation layer (an outer loop for model selection,
+an outermost loop for evaluation); this project does not do that.
 
 ---
 
@@ -331,7 +413,9 @@ and tree models performing comparably.
 | `export_ml_dataset.py` | Export ready-to-use modeling datasets |
 | `merge_counts_clr.py` | Merge count and CLR representations into a single file |
 | `train_eval.py` | Full evaluation: nested CV, permutation test, confounder checks, month stratification, differential abundance, stability selection |
-| `compare_models.py` | Six-model comparison across all metrics |
+| `compare_models.py` | Round-one 7-model comparison (includes XGBoost, auto-detected) |
+| `explore_models.py` | Round-two 9 models + ensemble (kernels, kNN, discriminant analysis, PLS-DA) |
+| `validate_extratrees.py` | Subjects ExtraTrees to the same validation as SVM-RBF |
 | `svm_analysis.py` | SVM grid expansion + permutation importance |
 | `dna_embedding.py` | DNABERT-2 / NT-v2 sequence embedding (alternative feature route, not used here) |
 
@@ -363,7 +447,11 @@ Season | Age | Sex | Feeding | Species | Location | month | <feature columns>
 
 | File | Contents |
 |---|---|
-| `model_comparison_full.csv` | Six models × 9 metrics + standard deviations |
+| `model_comparison_all16.csv` | **17 models × 9 metrics + SDs (authoritative summary)** |
+| `model_comparison_full.csv` | Round one, 7 models |
+| `model_exploration.csv` | Round two, 9 models + ensemble |
+| `exploration_fold_aucs.npz` / `svm_fold_aucs.npy` | Per-fold AUCs for paired testing |
+| `et_*.csv` / `et_validation.json` | ExtraTrees validation results |
 | `svm_hyperparam_surface.csv` | SVM C × gamma surface |
 | `svm_permutation_importance.csv` / `.png` | SVM-RBF feature importance |
 | `stability_selection.csv` | L1 bootstrap selection frequencies |
@@ -381,7 +469,9 @@ python3 build_features.py            # → features/    QC report
 python3 export_ml_dataset.py         # → ml_dataset/  modeling datasets
 python3 merge_counts_clr.py          # → ml_dataset/primary_merged.csv
 python3 train_eval.py                # → results/     full evaluation (~5 min)
-python3 compare_models.py            # → results/model_comparison_full.csv
+python3 compare_models.py            # → results/model_comparison_full.csv (round one)
+python3 explore_models.py            # → results/model_exploration.csv (round two)
+python3 validate_extratrees.py       # → results/et_* (ExtraTrees validation)
 python3 svm_analysis.py              # → results/svm_*
 ```
 
@@ -420,10 +510,13 @@ cross_val_score(make_pipeline(StandardScaler(),
    status, and the signal is real.** Permutation test p=0.0099; month-stratified analysis
    retains AUC 0.86–0.96 in the Jul–Aug cohort.
 
-2. **The best model is SVM-RBF** (C=5, gamma=scale): AUC 0.839 ± 0.060, PR-AUC 0.872,
-   MCC 0.531, Accuracy 0.771 (baseline 0.581). Significantly better than random forest
-   (p=0.021) and L1-LR (p<0.001). The hyperparameter grid was verified free of edge
-   effects.
+2. **The primary model is SVM-RBF** (C=5, gamma=scale): AUC 0.839 ± 0.060, PR-AUC 0.872,
+   MCC 0.531, Accuracy 0.771 (baseline 0.581). Across 17 models it significantly beats
+   random forest (p=0.021), XGBoost (p=0.0016), GP-RBF (p=0.0028), and L1-LR (p<0.001).
+   The hyperparameter grid was verified free of edge effects.
+   **ExtraTrees scores higher (AUC 0.859) but not significantly (p=0.085), and measures
+   worse on the weakest Jan+Oct stratum (0.715 vs 0.774)** — its lead comes only from
+   strata that were already easy — so it does not replace the primary model (§3.3).
 
 3. **Genuine nonlinear structure exists in the microbiome data.** The RBF kernel gains
    0.073 AUC over a linear kernel, and several important features are entirely
@@ -446,16 +539,22 @@ cross_val_score(make_pipeline(StandardScaler(),
 6. **The conclusions apply strictly to the UC Davis wild-duck cohort**; they do not hold
    across hosts or studies.
 
-7. **The largest open risk is the unknown upstream filtering rule for the feature table**
+7. **Tree models are not uniformly weak**: the greedy-split family (RF/XGBoost/HistGB) all
+   trail SVM-RBF, but the randomised-split ExtraTrees posts the highest AUC of any model.
+   The earlier judgment that "tree models are uniformly weak at this sample size" is
+   corrected accordingly.
+
+8. **The largest open risk is the unknown upstream filtering rule for the feature table**
    (§5.2). This should be confirmed with the data provider before finalizing.
 
 ### Suggested manuscript framing
 
 - SVM-RBF as the primary model, with the hyperparameter surface included to demonstrate
-  it is not over-tuned
+  it is not over-tuned; report ExtraTrees alongside it and state why it was not chosen
 - L1-LR as an interpretable comparator, used to derive the biomarker panel
 - Primary metrics: ROC-AUC + PR-AUC + MCC; accuracy must be reported alongside the
   0.581 baseline
 - Must include: permutation test, month-stratified results (including the 0.668 for
   Jan+Oct), and the covariate ablation
-- The limitations section should cover all six items in §5
+- The limitations section should cover all seven items in §5, especially §5.7 on multiple comparison
+- The full 17-model table must be given; reporting only the winner is selective reporting
