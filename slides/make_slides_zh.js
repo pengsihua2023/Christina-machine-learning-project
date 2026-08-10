@@ -441,7 +441,7 @@ divider("03", "建模与评估", "一套嵌套协议，十七种模型，一次�
 
 // ================================================================ 14 MODEL TABLE
 {
-  const s = slide("十七种模型，其中四个打平", "建模 · 比较");
+  const s = slide("十七种模型，不存在一致的排名", "建模 · 比较");
   table(s, [
     [th("模型"), th("准确率"), th("平衡准确率"), th("ROC-AUC"), th("PR-AUC"), th("灵敏度"), th("特异度"), th("F1"), th("MCC")],
     [{ text: "ExtraTrees", options: rowHi }, { text: "0.777", options: rowHi }, { text: "0.755", options: rowHi }, { text: "0.859", options: rowHi }, { text: "0.893", options: rowHi }, { text: "0.890", options: rowHi }, { text: "0.620", options: rowHi }, { text: "0.822", options: rowHi }, { text: "0.542", options: rowHi }],
@@ -458,7 +458,7 @@ divider("03", "建模与评估", "一套嵌套协议，十七种模型，一次�
      { text: "0.581", options: { italic: true, color: MUTED } }, { text: "0.500", options: { italic: true, color: MUTED } }, { text: "0.500", options: { italic: true, color: MUTED } }, { text: "0.581", options: { italic: true, color: MUTED } }, { text: "1.000", options: { italic: true, color: MUTED } }, { text: "0.000", options: { italic: true, color: MUTED } }, { text: "0.735", options: { italic: true, color: MUTED } }, { text: "0.000", options: { italic: true, color: MUTED } }],
   ], { y: 1.5, colW: [2.9, 1.15, 1.25, 1.15, 1.15, 1.05, 1.05, 1.0, 1.0], rowH: 0.33, fontSize: 10 });
 
-  s.addText("按 ROC-AUC 排序的前 10 名（共 17 个）· 底色标出打平的领先群体 · 完整表见 results/model_comparison_all16.csv", {
+  s.addText("按 ROC-AUC 排序的前 10 名（共 17 个）· 底色标出领先群体 · 完整表见 results/model_comparison_all16.csv", {
     x: 0.6, y: 5.52, w: 12.1, h: 0.3, margin: 0,
     fontFace: BODY, fontSize: 9.5, color: MUTED, italic: true,
   });
@@ -466,7 +466,7 @@ divider("03", "建模与评估", "一套嵌套协议，十七种模型，一次�
   card(s, {
     x: 0.6, y: 5.85, w: 12.1, h: 0.95, accent: TEAL,
     title: "顶部这一块要当作一个群体读，而不是一个排名", titleSize: 14,
-    body: "前四行彼此无法区分（见下一页），此处的先后顺序是噪声。真正的分离要到 GP-RBF 以下才出现。", bodySize: 11,
+    body: "两个领跑者之间无法区分，且这四个中有三个互相无法区分（见下一页）。此处的先后顺序基本上是噪声；真正的分离要到 GP-RBF 以下才出现。", bodySize: 11,
   });
 }
 
@@ -485,26 +485,26 @@ divider("03", "建模与评估", "一套嵌套协议，十七种模型，一次�
     [{ text: "GP-RBF", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".051", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }],
   ], { y: 2.15, colW: [2.5, 1.92, 1.92, 1.92, 1.92, 1.92], rowH: 0.42, fontSize: 11 });
 
-  s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: 4.82, w: 0.2, h: 0.2, fill: { color: "EDEDEA" } });
-  s.addText("灰色 = 无法区分（p ≥ 0.05）", { x: 0.9, y: 4.78, w: 4.2, h: 0.3, margin: 0, fontFace: BODY, fontSize: 10, color: MUTED });
-  s.addShape(pres.shapes.RECTANGLE, { x: 4.9, y: 4.82, w: 0.2, h: 0.2, fill: { color: "E4F0F0" } });
-  s.addText("青色 = 可以区分", { x: 5.2, y: 4.78, w: 4.0, h: 0.3, margin: 0, fontFace: BODY, fontSize: 10, color: MUTED });
+  s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: 4.74, w: 0.18, h: 0.18, fill: { color: "EDEDEA" } });
+  s.addText("灰色 = 无法区分（p ≥ 0.05）", { x: 0.88, y: 4.71, w: 4.2, h: 0.26, margin: 0, fontFace: BODY, fontSize: 10, color: MUTED });
+  s.addShape(pres.shapes.RECTANGLE, { x: 4.9, y: 4.74, w: 0.18, h: 0.18, fill: { color: "E4F0F0" } });
+  s.addText("青色 = 可以区分", { x: 5.18, y: 4.71, w: 4.0, h: 0.26, margin: 0, fontFace: BODY, fontSize: 10, color: MUTED });
 
   card(s, {
-    x: 0.6, y: 5.05, w: 5.9, h: 1.42, accent: CORAL, fill: "FBEDE7",
-    title: "前四名是统计意义上的平局", titleSize: 14, bodySize: 11,
-    body: "ExtraTrees、SVM-RBF、集成模型与 SVM-poly 在这份数据上彼此无法区分。它们的 AUC 落在 0.834–0.859，完全处在 ±0.04–0.06 的折间波动之内。\n\n给它们排名等于在读噪声。",
+    x: 0.6, y: 5.06, w: 5.9, h: 1.45, accent: CORAL, fill: "FBEDE7",
+    title: "「无法区分」不具传递性", titleSize: 14, bodySize: 11,
+    body: "ExtraTrees 对 SVM-RBF：p = 0.085。SVM-RBF、集成、SVM-poly 三者互相无法区分（p = 0.360–0.609）。但 ExtraTrees 确实能与后两者分开。\n\n领先者之间不存在一致的排名。",
     bodyColor: "7A2E14",
   });
   card(s, {
-    x: 6.8, y: 5.05, w: 5.9, h: 1.42, accent: MOSS,
+    x: 6.8, y: 5.06, w: 5.9, h: 1.45, accent: MOSS,
     title: "所以取舍必须依据别的东西", titleSize: 14, bodySize: 11,
     body: "剩下两条依据：判决阈值处的错误结构（SVM-RBF 特异度 0.703，ExtraTrees 0.620），以及信号微弱处的稳健性。\n\n真正决定取舍的检验在下一页。",
   });
 
-  s.addText("超参稳健性：SVM-RBF 网格已扩展至 C ∈ [0.01, 500]、gamma ∈ [1e-4, 0.1] + scale。15 折中 0 折选中边界值，AUC 未变（0.838 对 0.839），整个曲面跨度仅 0.73–0.81。完整曲面见 results/svm_hyperparam_surface.csv。", {
-    x: 0.6, y: 6.58, w: 12.1, h: 0.35, margin: 0,
-    fontFace: BODY, fontSize: 9.5, color: MUTED, italic: true,
+  s.addText("超参稳健性：网格扩展至 C ∈ [0.01, 500]、gamma ∈ [1e-4, 0.1] + scale。15 折中 0 折触及边界，AUC 未变（0.838 对 0.839），曲面跨度仅 0.73–0.81。", {
+    x: 0.6, y: 6.6, w: 11.6, h: 0.32, margin: 0,
+    fontFace: BODY, fontSize: 9, color: MUTED, italic: true,
   });
 }
 

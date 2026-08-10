@@ -441,7 +441,7 @@ divider("03", "Modeling & Evaluation", "A nested protocol, seventeen models, one
 
 // ================================================================ 14 MODEL TABLE
 {
-  const s = slide("Seventeen Models, Four of Them Tied", "Modeling · comparison");
+  const s = slide("Seventeen Models, No Consistent Ranking", "Modeling · comparison");
   table(s, [
     [th("Model"), th("Accuracy"), th("Bal. Acc"), th("ROC-AUC"), th("PR-AUC"), th("Sens."), th("Spec."), th("F1"), th("MCC")],
     [{ text: "ExtraTrees", options: rowHi }, { text: "0.777", options: rowHi }, { text: "0.755", options: rowHi }, { text: "0.859", options: rowHi }, { text: "0.893", options: rowHi }, { text: "0.890", options: rowHi }, { text: "0.620", options: rowHi }, { text: "0.822", options: rowHi }, { text: "0.542", options: rowHi }],
@@ -458,15 +458,15 @@ divider("03", "Modeling & Evaluation", "A nested protocol, seventeen models, one
      { text: "0.581", options: { italic: true, color: MUTED } }, { text: "0.500", options: { italic: true, color: MUTED } }, { text: "0.500", options: { italic: true, color: MUTED } }, { text: "0.581", options: { italic: true, color: MUTED } }, { text: "1.000", options: { italic: true, color: MUTED } }, { text: "0.000", options: { italic: true, color: MUTED } }, { text: "0.735", options: { italic: true, color: MUTED } }, { text: "0.000", options: { italic: true, color: MUTED } }],
   ], { y: 1.5, colW: [2.9, 1.15, 1.25, 1.15, 1.15, 1.05, 1.05, 1.0, 1.0], rowH: 0.33, fontSize: 10 });
 
-  s.addText("Top 10 of 17 by ROC-AUC · shading marks the tied leading group · full table in results/model_comparison_all16.csv", {
+  s.addText("Top 10 of 17 by ROC-AUC · shading marks the leading group · full table in results/model_comparison_all16.csv", {
     x: 0.6, y: 5.52, w: 12.1, h: 0.3, margin: 0,
     fontFace: BODY, fontSize: 9.5, color: MUTED, italic: true,
   });
 
   card(s, {
     x: 0.6, y: 5.85, w: 12.1, h: 0.95, accent: TEAL,
-    title: "Read the top block as one group, not as a ranking", titleSize: 14,
-    body: "The first four rows cannot be told apart (next slide) — their order here is noise. Real separation starts at GP-RBF.", bodySize: 11,
+    title: "Read the top block as a group, not as a ranking", titleSize: 14,
+    body: "The two leaders cannot be told apart, and three of these four are mutually indistinguishable (next slide). Their order here is largely noise; real separation starts at GP-RBF.", bodySize: 11,
   });
 }
 
@@ -485,26 +485,26 @@ divider("03", "Modeling & Evaluation", "A nested protocol, seventeen models, one
     [{ text: "GP-RBF", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".051", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }],
   ], { y: 2.15, colW: [2.5, 1.92, 1.92, 1.92, 1.92, 1.92], rowH: 0.42, fontSize: 11 });
 
-  s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: 4.82, w: 0.2, h: 0.2, fill: { color: "EDEDEA" } });
-  s.addText("grey = indistinguishable (p ≥ 0.05)", { x: 0.9, y: 4.78, w: 4.2, h: 0.3, margin: 0, fontFace: BODY, fontSize: 10, color: MUTED });
-  s.addShape(pres.shapes.RECTANGLE, { x: 4.9, y: 4.82, w: 0.2, h: 0.2, fill: { color: "E4F0F0" } });
-  s.addText("teal = distinguishable", { x: 5.2, y: 4.78, w: 4.0, h: 0.3, margin: 0, fontFace: BODY, fontSize: 10, color: MUTED });
+  s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: 4.74, w: 0.18, h: 0.18, fill: { color: "EDEDEA" } });
+  s.addText("grey = indistinguishable (p ≥ 0.05)", { x: 0.88, y: 4.71, w: 4.2, h: 0.26, margin: 0, fontFace: BODY, fontSize: 10, color: MUTED });
+  s.addShape(pres.shapes.RECTANGLE, { x: 4.9, y: 4.74, w: 0.18, h: 0.18, fill: { color: "E4F0F0" } });
+  s.addText("teal = distinguishable", { x: 5.18, y: 4.71, w: 4.0, h: 0.26, margin: 0, fontFace: BODY, fontSize: 10, color: MUTED });
 
   card(s, {
-    x: 0.6, y: 5.05, w: 5.9, h: 1.42, accent: CORAL, fill: "FBEDE7",
-    title: "The top four are a statistical tie", titleSize: 14, bodySize: 11,
-    body: "ExtraTrees, SVM-RBF, the ensemble and SVM-poly cannot be separated from one another on this data. Their AUCs span 0.834–0.859, well inside the ±0.04–0.06 fold-to-fold spread.\n\nRanking them is reading noise.",
+    x: 0.6, y: 5.06, w: 5.9, h: 1.45, accent: CORAL, fill: "FBEDE7",
+    title: "Indistinguishability is not transitive", titleSize: 14, bodySize: 11,
+    body: "ExtraTrees vs SVM-RBF: p = 0.085. SVM-RBF, ensemble and SVM-poly: mutually not separable (p = 0.360–0.609). Yet ExtraTrees does separate from those two.\n\nNo consistent ranking exists among the leaders.",
     bodyColor: "7A2E14",
   });
   card(s, {
-    x: 6.8, y: 5.05, w: 5.9, h: 1.42, accent: MOSS,
+    x: 6.8, y: 5.06, w: 5.9, h: 1.45, accent: MOSS,
     title: "So the choice must rest on something else", titleSize: 14, bodySize: 11,
     body: "Two grounds remain: error structure at the operating threshold (specificity 0.703 for SVM-RBF vs 0.620 for ExtraTrees) and robustness where the signal is weak.\n\nThe next slide is the test that actually decides.",
   });
 
-  s.addText("Hyperparameter robustness: the SVM-RBF grid was expanded to C ∈ [0.01, 500] and gamma ∈ [1e-4, 0.1] + scale. 0 of 15 folds selected a boundary value and AUC was unchanged (0.838 vs 0.839); the whole surface spans only 0.73–0.81. Full surface in results/svm_hyperparam_surface.csv.", {
-    x: 0.6, y: 6.58, w: 12.1, h: 0.35, margin: 0,
-    fontFace: BODY, fontSize: 9.5, color: MUTED, italic: true,
+  s.addText("Hyperparameter robustness: grid expanded to C ∈ [0.01, 500], gamma ∈ [1e-4, 0.1] + scale. 0 of 15 folds hit a boundary; AUC unchanged (0.838 vs 0.839); surface spans only 0.73–0.81.", {
+    x: 0.6, y: 6.6, w: 11.6, h: 0.32, margin: 0,
+    fontFace: BODY, fontSize: 9, color: MUTED, italic: true,
   });
 }
 

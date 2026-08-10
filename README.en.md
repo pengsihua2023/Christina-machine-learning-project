@@ -171,7 +171,7 @@ XGBoost   vs RandomForest Δ=-0.009                Wilcoxon p=0.242
 
 (bold = p<0.05, distinguishable)
 
-**ExtraTrees, SVM-RBF, the ensemble and SVM-poly cannot be separated from one another.** Their AUCs span 0.834–0.859, entirely inside the ±0.04–0.06 fold-to-fold spread. Real separation only begins at GP-RBF. **Model choice therefore cannot be decided by AUC** — only by error structure and robustness on weak strata (§3.3).
+**Note that indistinguishability is not transitive.** The two leaders, ExtraTrees and SVM-RBF, cannot be separated (p=0.085); SVM-RBF, the ensemble and SVM-poly are mutually indistinguishable (p=0.360–0.609); but ExtraTrees does separate from the ensemble and SVM-poly (p=0.005 / 0.003). **No consistent ranking therefore exists among the leaders**, whose AUCs span 0.834–0.859, inside the ±0.04–0.06 fold-to-fold spread. **Model choice therefore cannot be decided by AUC** — only by error structure and robustness on weak strata (§3.3).
 
 The one genuinely controlled and genuinely decisive comparison is the kernel ablation: **SVM-RBF vs SVM-linear, Δ=+0.073, winning 25 of 25 folds, Wilcoxon p=1e-5** — same model family, only the kernel differs (§6.3).
 
