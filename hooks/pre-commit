@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+#
+# 提交前一致性检查。
+#
+# 同一批数字存在于 5 份交付物中（两份 README、两份幻灯片源、摘要），
+# 本项目已因此出现过多次「改一处漏三处」。此 hook 在每次提交前自动核对。
+#
+# 安装（仓库克隆后执行一次）：
+#     git config core.hooksPath hooks
+#
+# 绕过（仅在明知文档暂时不一致、且下一次提交会修复时使用）：
+#     git commit --no-verify
+#
+set -uo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT" || exit 1
+
+# 只在相关文件被暂存时才跑，避免与文档数字无关的提交被拖慢
+if ! git diff --cached --name-only | grep -qE '^(README\.md|README\.en\.md|slides/make_slides.*\.js|manuscript/.*\.md|results/)'; then
+    exit 0
+fi
+
+if ! command -v python3 >/dev/null 2>&1; then
+    echo "pre-commit: 未找到 python3，跳过一致性检查" >&2
+    exit 0
+fi
+
+echo "pre-commit: 运行一致性检查 ..."
+OUT="$(python3 check_consistency.py 2>&1)"
+STATUS=$?
+
+if [ $STATUS -ne 0 ]; then
+    echo "$OUT"
+    cat >&2 <<'MSG'
+
+────────────────────────────────────────────────────────────────
+提交已中止：交付物中的数字与 results/ 不一致。
+
+  修正后重新提交，或：
+    python3 check_consistency.py --verbose   查看每一项检查
+    python3 check_consistency.py --strict    同时把未知数值视为错误
+    git commit --no-verify                   明知不一致时强行提交
+────────────────────────────────────────────────────────────────
+MSG
+    exit 1
+fi
+
+# 通过时只打印摘要行，不刷屏
+echo "$OUT" | grep -E '^\s+(全集含|[0-9]+/[0-9]+ 项通过|未发现陈旧表述)' || true
+echo "pre-commit: 一致性检查通过"
+exit 0

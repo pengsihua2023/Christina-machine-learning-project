@@ -34,6 +34,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 
+import mb_common as mb
+
 warnings.filterwarnings("ignore")
 RNG = 0
 DATA = "ml_dataset/primary_merged.csv"
@@ -148,7 +150,8 @@ def score_of(est, X):
 def nested(X, y, clf, grid, splits):
     rows, aucs = [], []
     for tr, te in splits:
-        gs = GridSearchCV(Pipeline([("sc", StandardScaler()), ("clf", clf)]), grid,
+        gs = GridSearchCV(Pipeline([("clr", mb.PrevalenceCLR(0.10)),
+                                    ("sc", StandardScaler()), ("clf", clf)]), grid,
                           scoring="roc_auc", n_jobs=-1,
                           cv=StratifiedKFold(4, shuffle=True, random_state=RNG))
         gs.fit(X[tr], y[tr])
@@ -165,7 +168,8 @@ def main():
     args = ap.parse_args()
 
     d = pd.read_csv(DATA, index_col=0)
-    X = d[[c for c in d.columns if c.endswith("__clr")]].values
+    # 原始计数 —— CLR 在 pipeline 内，逐折拟合（见 compare_models.py 注释）
+    X = d[[c for c in d.columns if c.endswith("__count")]].values
     y = d["label"].values
     splits = list(RepeatedStratifiedKFold(n_splits=5, n_repeats=args.n_repeats,
                                           random_state=RNG).split(X, y))

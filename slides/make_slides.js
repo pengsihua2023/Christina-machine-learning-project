@@ -189,7 +189,7 @@ const rowHi = { fill: { color: "E4F0F0" }, bold: true };
   stat(s, { x: 6.6, y: 1.5, w: 2.85, value: "+0.04–0.11", label: "Adds over covariates", sub: "model-dependent increment", valueSize: 28, color: DARK2 });
   stat(s, { x: 9.6, y: 1.5, w: 3.1, value: "9", label: "Biomarkers", sub: "3 independent methods agree", color: MOSS });
 
-  s.addText("Model performance is deliberately not the headline: the four best of 17 models are statistically indistinguishable (AUC 0.834–0.859), so no single score is a property of the finding.", {
+  s.addText("Model performance is deliberately not the headline: no consistent ranking exists among the leading models (AUC 0.825–0.858, all within fold-to-fold noise), so no single score is a property of the finding.", {
     x: 0.6, y: 2.92, w: 12.1, h: 0.4, margin: 0,
     fontFace: BODY, fontSize: 11.5, color: MUTED, italic: true, valign: "top",
   });
@@ -424,8 +424,8 @@ divider("03", "Modeling & Evaluation", "A nested protocol, seventeen models, one
   });
   const pit = [
     ["Accuracy's baseline is 0.581", "58% of samples are positive, so always-Pos already scores 0.581. Never report accuracy without that number beside it."],
-    ["F1 cannot rank models", "The always-Pos baseline scores F1 = 0.735 — above L2-LR's 0.725. F1 inflates when positives dominate."],
-    ["MCC has a zero baseline", "So does balanced accuracy. They expose class asymmetry at once: RF reaches 0.725 accuracy while catching 55% of negatives."],
+    ["F1 cannot rank models", "The always-Pos baseline scores F1 = 0.735 — above L2-LR's 0.699. F1 inflates when positives dominate."],
+    ["MCC has a zero baseline", "So does balanced accuracy. They expose class asymmetry at once: RF reaches 0.718 accuracy while catching 54% of negatives."],
   ];
   pit.forEach((p, i) => {
     card(s, { x: 0.6 + i * 4.1, y: 3.95, w: 3.9, h: 1.5, accent: CORAL, fill: "FBEDE7",
@@ -444,16 +444,16 @@ divider("03", "Modeling & Evaluation", "A nested protocol, seventeen models, one
   const s = slide("Seventeen Models, No Consistent Ranking", "Modeling · comparison");
   table(s, [
     [th("Model"), th("Accuracy"), th("Bal. Acc"), th("ROC-AUC"), th("PR-AUC"), th("Sens."), th("Spec."), th("F1"), th("MCC")],
-    [{ text: "ExtraTrees", options: rowHi }, { text: "0.777", options: rowHi }, { text: "0.755", options: rowHi }, { text: "0.859", options: rowHi }, { text: "0.893", options: rowHi }, { text: "0.890", options: rowHi }, { text: "0.620", options: rowHi }, { text: "0.822", options: rowHi }, { text: "0.542", options: rowHi }],
-    [{ text: "SVM-RBF", options: rowHi }, { text: "0.771", options: rowHi }, { text: "0.761", options: rowHi }, { text: "0.839", options: rowHi }, { text: "0.872", options: rowHi }, { text: "0.820", options: rowHi }, { text: "0.703", options: rowHi }, { text: "0.805", options: rowHi }, { text: "0.531", options: rowHi }],
-    [{ text: "Ensemble (soft-vote)", options: rowHi }, { text: "0.766", options: rowHi }, { text: "0.756", options: rowHi }, { text: "0.836", options: rowHi }, { text: "0.873", options: rowHi }, { text: "0.818", options: rowHi }, { text: "0.694", options: rowHi }, { text: "0.802", options: rowHi }, { text: "0.521", options: rowHi }],
-    [{ text: "SVM-poly", options: rowHi }, { text: "0.748", options: rowHi }, { text: "0.728", options: rowHi }, { text: "0.834", options: rowHi }, { text: "0.861", options: rowHi }, { text: "0.853", options: rowHi }, { text: "0.604", options: rowHi }, { text: "0.797", options: rowHi }, { text: "0.481", options: rowHi }],
-    ["GP-RBF", "0.757", "0.741", "0.822", "0.866", "0.841", "0.641", "0.801", "0.498"],
-    ["GP-Matérn", "0.755", "0.738", "0.819", "0.865", "0.844", "0.632", "0.800", "0.493"],
-    ["RandomForest", "0.725", "0.701", "0.810", "0.851", "0.850", "0.553", "0.782", "0.433"],
-    ["XGBoost", "0.730", "0.720", "0.801", "0.845", "0.784", "0.656", "0.770", "0.449"],
-    ["HistGB", "0.722", "0.705", "0.796", "0.841", "0.809", "0.600", "0.771", "0.423"],
-    ["kNN-Aitchison", "0.719", "0.687", "0.795", "0.838", "0.885", "0.490", "0.786", "0.422"],
+    [{ text: "ExtraTrees", options: rowHi }, { text: "0.778", options: rowHi }, { text: "0.756", options: rowHi }, { text: "0.858", options: rowHi }, { text: "0.891", options: rowHi }, { text: "0.887", options: rowHi }, { text: "0.626", options: rowHi }, { text: "0.822", options: rowHi }, { text: "0.542", options: rowHi }],
+    [{ text: "SVM-RBF", options: rowHi }, { text: "0.773", options: rowHi }, { text: "0.764", options: rowHi }, { text: "0.835", options: rowHi }, { text: "0.871", options: rowHi }, { text: "0.820", options: rowHi }, { text: "0.708", options: rowHi }, { text: "0.807", options: rowHi }, { text: "0.535", options: rowHi }],
+    [{ text: "Ensemble (soft-vote)", options: rowHi }, { text: "0.767", options: rowHi }, { text: "0.757", options: rowHi }, { text: "0.834", options: rowHi }, { text: "0.874", options: rowHi }, { text: "0.816", options: rowHi }, { text: "0.699", options: rowHi }, { text: "0.802", options: rowHi }, { text: "0.523", options: rowHi }],
+    [{ text: "SVM-poly", options: rowHi }, { text: "0.740", options: rowHi }, { text: "0.718", options: rowHi }, { text: "0.825", options: rowHi }, { text: "0.851", options: rowHi }, { text: "0.857", options: rowHi }, { text: "0.579", options: rowHi }, { text: "0.792", options: rowHi }, { text: "0.463", options: rowHi }],
+    ["GP-RBF", "0.749", "0.733", "0.821", "0.868", "0.834", "0.631", "0.794", "0.482"],
+    ["GP-Matérn", "0.746", "0.728", "0.818", "0.866", "0.841", "0.615", "0.793", "0.475"],
+    ["RandomForest", "0.718", "0.693", "0.806", "0.845", "0.850", "0.535", "0.777", "0.416"],
+    ["XGBoost", "0.727", "0.716", "0.800", "0.846", "0.786", "0.646", "0.768", "0.441"],
+    ["HistGB", "0.709", "0.695", "0.794", "0.843", "0.783", "0.608", "0.757", "0.399"],
+    ["kNN-Aitchison", "0.710", "0.679", "0.790", "0.830", "0.870", "0.488", "0.776", "0.402"],
     [{ text: "Baseline (always Pos)", options: { italic: true, color: MUTED } },
      { text: "0.581", options: { italic: true, color: MUTED } }, { text: "0.500", options: { italic: true, color: MUTED } }, { text: "0.500", options: { italic: true, color: MUTED } }, { text: "0.581", options: { italic: true, color: MUTED } }, { text: "1.000", options: { italic: true, color: MUTED } }, { text: "0.000", options: { italic: true, color: MUTED } }, { text: "0.735", options: { italic: true, color: MUTED } }, { text: "0.000", options: { italic: true, color: MUTED } }],
   ], { y: 1.5, colW: [2.9, 1.15, 1.25, 1.15, 1.15, 1.05, 1.05, 1.0, 1.0], rowH: 0.33, fontSize: 10 });
@@ -466,7 +466,7 @@ divider("03", "Modeling & Evaluation", "A nested protocol, seventeen models, one
   card(s, {
     x: 0.6, y: 5.85, w: 12.1, h: 0.95, accent: TEAL,
     title: "Read the top block as a group, not as a ranking", titleSize: 14,
-    body: "The two leaders cannot be told apart, and three of these four are mutually indistinguishable (next slide). Their order here is largely noise; real separation starts at GP-RBF.", bodySize: 11,
+    body: "ExtraTrees leads only nominally (p=0.041, uncorrected); SVM-RBF, the ensemble and SVM-poly are mutually indistinguishable (next slide). Real separation starts at GP-RBF.", bodySize: 11,
   });
 }
 
@@ -478,11 +478,11 @@ divider("03", "Modeling & Evaluation", "A nested protocol, seventeen models, one
   });
   table(s, [
     [th("Wilcoxon p"), th("SVM-RBF"), th("Ensemble"), th("SVM-poly"), th("GP-RBF"), th("GP-Matérn")],
-    [{ text: "ExtraTrees", options: { bold: true, align: "left" } }, { text: ".085", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".005", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".003", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".001", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".001", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }],
-    [{ text: "SVM-RBF", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".360", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".476", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".003", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".002", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }],
-    [{ text: "Ensemble", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".609", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".001", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".000", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }],
-    [{ text: "SVM-poly", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".554", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".420", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }],
-    [{ text: "GP-RBF", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".051", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }],
+    [{ text: "ExtraTrees", options: { bold: true, align: "left" } }, { text: ".041", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".012", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".000", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".003", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".001", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }],
+    [{ text: "SVM-RBF", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".539", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".270", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".069", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".035", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }],
+    [{ text: "Ensemble", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".331", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".023", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".003", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }],
+    [{ text: "SVM-poly", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".925", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".809", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }],
+    [{ text: "GP-RBF", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".044", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }],
   ], { y: 2.15, colW: [2.5, 1.92, 1.92, 1.92, 1.92, 1.92], rowH: 0.42, fontSize: 11 });
 
   s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: 4.74, w: 0.18, h: 0.18, fill: { color: "EDEDEA" } });
@@ -493,7 +493,7 @@ divider("03", "Modeling & Evaluation", "A nested protocol, seventeen models, one
   card(s, {
     x: 0.6, y: 5.06, w: 5.9, h: 1.45, accent: CORAL, fill: "FBEDE7",
     title: "Indistinguishability is not transitive", titleSize: 14, bodySize: 11,
-    body: "ExtraTrees vs SVM-RBF: p = 0.085. SVM-RBF, ensemble and SVM-poly: mutually not separable (p = 0.360–0.609). Yet ExtraTrees does separate from those two.\n\nNo consistent ranking exists among the leaders.",
+    body: "ExtraTrees is nominally ahead of everything (p = 0.041 vs SVM-RBF) but fails the Bonferroni threshold for 15 tests (0.0033) and wins only 14/25 folds.\n\nSVM-RBF, ensemble and SVM-poly are mutually inseparable (p = 0.270–0.539).",
     bodyColor: "7A2E14",
   });
   card(s, {
@@ -502,7 +502,7 @@ divider("03", "Modeling & Evaluation", "A nested protocol, seventeen models, one
     body: "Two grounds remain: error structure at the operating threshold (specificity 0.703 for SVM-RBF vs 0.620 for ExtraTrees) and robustness where the signal is weak.\n\nThe next slide is the test that actually decides.",
   });
 
-  s.addText("Hyperparameter robustness: grid expanded to C ∈ [0.01, 500], gamma ∈ [1e-4, 0.1] + scale. 0 of 15 folds hit a boundary; AUC unchanged (0.838 vs 0.839); surface spans only 0.73–0.81.", {
+  s.addText("Hyperparameter robustness: grid expanded to C ∈ [0.01, 500], gamma ∈ [1e-4, 0.1] + scale. 0 of 15 folds hit a boundary; AUC essentially unchanged; the surface spans only 0.73–0.81.", {
     x: 0.6, y: 6.6, w: 11.6, h: 0.32, margin: 0,
     fontFace: BODY, fontSize: 9, color: MUTED, italic: true,
   });
@@ -511,7 +511,7 @@ divider("03", "Modeling & Evaluation", "A nested protocol, seventeen models, one
 // ================================================================ 15b WHY NOT EXTRATREES
 {
   const s = slide("Why ExtraTrees Does Not Take Over", "Modeling · model choice");
-  s.addText("A 0.020 AUC lead at p=0.085 does not settle a model choice. The decisive test is where each model stands when the signal is weak — so we re-ran both inside every sampling-month stratum.", {
+  s.addText("A 0.023 AUC lead at p=0.041, uncorrected for 15 comparisons, does not settle a model choice. The decisive test is where each model stands when the signal is weak — so we re-ran both inside every sampling-month stratum.", {
     x: 0.6, y: 1.42, w: 12.1, h: 0.5, margin: 0, fontFace: BODY, fontSize: 12.5, color: MUTED, valign: "top",
   });
   table(s, [
@@ -798,7 +798,7 @@ divider("05", "Biological Findings", "Which taxa carry the signal — and what t
   card(s, {
     x: 0.6, y: 1.6, w: 5.9, h: 2.1, accent: TEAL,
     title: "Line of evidence 1 — the kernel gap",
-    body: "SVM-RBF     AUC 0.839\nSVM-linear  AUC 0.766\n\nΔ = +0.073, winning 25 of 25 folds, Wilcoxon p = 1e-5.\n\nA controlled comparison — same model family, only the kernel differs — and the most decisive test in this deck.",
+    body: "SVM-RBF     AUC 0.835\nSVM-linear  AUC 0.755\n\nΔ = +0.080, winning 24 of 25 folds, Wilcoxon p < 0.0001.\n\nA controlled comparison — same model family, only the kernel differs — and the most decisive test in this deck.",
   });
   card(s, {
     x: 6.8, y: 1.6, w: 5.9, h: 2.1, accent: TEAL,
@@ -853,11 +853,11 @@ divider("05", "Biological Findings", "Which taxa carry the signal — and what t
   const s = slide("Conclusions", "Summary");
   const cs = [
     "Duck gut microbiota carry a real, reproducible signal for influenza infection status (permutation p = 0.0099).",
-    "SVM-RBF is the primary model — AUC 0.839, MCC 0.531 — significantly beating Random Forest (p = 0.021), XGBoost (p = 0.0016) and L1-LR (p < 0.001) among 17 models compared.",
+    "SVM-RBF is the primary model — AUC 0.835, MCC 0.535 — significantly beating Random Forest (p = 0.017), XGBoost (p = 0.005) and L1-LR (p < 0.001) among 17 models compared.",
     "The signal is partly nonlinear: the RBF kernel gains 0.073 AUC over a linear one, and several taxa act only in combination.",
     "Nine taxa survive three independent selection methods; Candidatus Arthromitus (SFB) has independent immunological support.",
     "Season is a confounder, so the primary estimate keeps only microbiome features and fixes the month: AUC 0.734 (October) to 0.965 (July), accuracy 0.676 to 0.949. The effect is real but strongly season-dependent.",
-    "ExtraTrees scores higher (AUC 0.859) but is worse on the weakest stratum (0.715 vs 0.774); its lead comes only from strata that were already easy.",
+    "ExtraTrees scores higher (AUC 0.858, p = 0.041 uncorrected) but is worse on the weakest stratum (0.715 vs 0.774); its lead comes only from strata that were already easy.",
     "Conclusions apply to the UC Davis wild-duck cohort only; they do not transfer across hosts or studies.",
   ];
   cs.forEach((c, i) => {

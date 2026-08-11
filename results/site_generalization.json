@@ -54,5 +54,6 @@
       "n_pos": 1,
       "AUC": 1.0
     }
-  ]
+  ],
+  "season_fixed_mean_auc": 0.92116100920655
 }

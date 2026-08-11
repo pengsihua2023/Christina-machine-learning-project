@@ -25,6 +25,8 @@ from sklearn.model_selection import GridSearchCV, RepeatedStratifiedKFold, Strat
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
 
+import mb_common as mb
+
 try:
     from xgboost import XGBClassifier
     HAS_XGB = True
@@ -92,7 +94,9 @@ def main():
     args = ap.parse_args()
 
     d = pd.read_csv(args.data, index_col=0)
-    feat = [c for c in d.columns if c.endswith(f"__{args.level}")]
+    # 必须使用原始计数：流行度过滤与 CLR 放进 pipeline，在每折训练集内拟合。
+    # 读 __clr 列会让过滤在全量数据上完成，造成约 0.006 的乐观偏倚。
+    feat = [c for c in d.columns if c.endswith("__count")]
     X, y = d[feat].values, d["label"].values
     print(f"数据: {X.shape[0]} 样本 x {len(feat)} 特征 ({args.level}) | "
           f"Pos={int(y.sum())} Neg={int((1-y).sum())} | "
@@ -115,7 +119,8 @@ def main():
         per_fold = []
         chosen = []
         for tr, te in splits:
-            gs = GridSearchCV(Pipeline([("sc", StandardScaler()), ("clf", clf)]),
+            gs = GridSearchCV(Pipeline([("clr", mb.PrevalenceCLR(0.10)),
+                                        ("sc", StandardScaler()), ("clf", clf)]),
                               grid, scoring="roc_auc", n_jobs=-1,
                               cv=StratifiedKFold(4, shuffle=True, random_state=RNG))
             gs.fit(X[tr], y[tr])

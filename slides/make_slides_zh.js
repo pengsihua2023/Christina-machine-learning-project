@@ -189,7 +189,7 @@ const rowHi = { fill: { color: "E4F0F0" }, bold: true };
   stat(s, { x: 6.6, y: 1.5, w: 2.85, value: "+0.04–0.11", label: "相对协变量的增量", sub: "量级依赖模型选择", valueSize: 28, color: DARK2 });
   stat(s, { x: 9.6, y: 1.5, w: 3.1, value: "9", label: "个 Biomarker", sub: "三套独立方法一致", color: MOSS });
 
-  s.addText("这里刻意不把模型分数放在头条：17 个模型中最好的四个在统计上无法区分（AUC 0.834–0.859），因此任何单一分数都不是这项发现的属性。", {
+  s.addText("这里刻意不把模型分数放在头条：领先的几个模型之间不存在一致的排名（AUC 0.825–0.858，全部落在折间波动内），因此任何单一分数都不是这项发现的属性。", {
     x: 0.6, y: 2.92, w: 12.1, h: 0.4, margin: 0,
     fontFace: BODY, fontSize: 11.5, color: MUTED, italic: true, valign: "top",
   });
@@ -424,8 +424,8 @@ divider("03", "建模与评估", "一套嵌套协议，十七种模型，一次�
   });
   const pit = [
     ["准确率的基线是 0.581", "58% 的样本为阳性，全猜阳性已有 0.581。报告准确率时绝不能不给这条基线。"],
-    ["F1 不能用来给模型排名", "全猜阳性的基线 F1 = 0.735，高于 L2-LR 的 0.725。阳性占多数时 F1 严重虚高。"],
-    ["MCC 的基线是 0", "平衡准确率同样如此。它们能立刻暴露类别不对称——随机森林准确率 0.725，却只识别出 55% 的阴性样本。"],
+    ["F1 不能用来给模型排名", "全猜阳性的基线 F1 = 0.735，高于 L2-LR 的 0.699。阳性占多数时 F1 严重虚高。"],
+    ["MCC 的基线是 0", "平衡准确率同样如此。它们能立刻暴露类别不对称——随机森林准确率 0.718，却只识别出 54% 的阴性样本。"],
   ];
   pit.forEach((p, i) => {
     card(s, { x: 0.6 + i * 4.1, y: 3.95, w: 3.9, h: 1.5, accent: CORAL, fill: "FBEDE7",
@@ -444,16 +444,16 @@ divider("03", "建模与评估", "一套嵌套协议，十七种模型，一次�
   const s = slide("十七种模型，不存在一致的排名", "建模 · 比较");
   table(s, [
     [th("模型"), th("准确率"), th("平衡准确率"), th("ROC-AUC"), th("PR-AUC"), th("灵敏度"), th("特异度"), th("F1"), th("MCC")],
-    [{ text: "ExtraTrees", options: rowHi }, { text: "0.777", options: rowHi }, { text: "0.755", options: rowHi }, { text: "0.859", options: rowHi }, { text: "0.893", options: rowHi }, { text: "0.890", options: rowHi }, { text: "0.620", options: rowHi }, { text: "0.822", options: rowHi }, { text: "0.542", options: rowHi }],
-    [{ text: "SVM-RBF", options: rowHi }, { text: "0.771", options: rowHi }, { text: "0.761", options: rowHi }, { text: "0.839", options: rowHi }, { text: "0.872", options: rowHi }, { text: "0.820", options: rowHi }, { text: "0.703", options: rowHi }, { text: "0.805", options: rowHi }, { text: "0.531", options: rowHi }],
-    [{ text: "Ensemble（软投票）", options: rowHi }, { text: "0.766", options: rowHi }, { text: "0.756", options: rowHi }, { text: "0.836", options: rowHi }, { text: "0.873", options: rowHi }, { text: "0.818", options: rowHi }, { text: "0.694", options: rowHi }, { text: "0.802", options: rowHi }, { text: "0.521", options: rowHi }],
-    [{ text: "SVM-poly", options: rowHi }, { text: "0.748", options: rowHi }, { text: "0.728", options: rowHi }, { text: "0.834", options: rowHi }, { text: "0.861", options: rowHi }, { text: "0.853", options: rowHi }, { text: "0.604", options: rowHi }, { text: "0.797", options: rowHi }, { text: "0.481", options: rowHi }],
-    ["GP-RBF", "0.757", "0.741", "0.822", "0.866", "0.841", "0.641", "0.801", "0.498"],
-    ["GP-Matérn", "0.755", "0.738", "0.819", "0.865", "0.844", "0.632", "0.800", "0.493"],
-    ["RandomForest", "0.725", "0.701", "0.810", "0.851", "0.850", "0.553", "0.782", "0.433"],
-    ["XGBoost", "0.730", "0.720", "0.801", "0.845", "0.784", "0.656", "0.770", "0.449"],
-    ["HistGB", "0.722", "0.705", "0.796", "0.841", "0.809", "0.600", "0.771", "0.423"],
-    ["kNN-Aitchison", "0.719", "0.687", "0.795", "0.838", "0.885", "0.490", "0.786", "0.422"],
+    [{ text: "ExtraTrees", options: rowHi }, { text: "0.778", options: rowHi }, { text: "0.756", options: rowHi }, { text: "0.858", options: rowHi }, { text: "0.891", options: rowHi }, { text: "0.887", options: rowHi }, { text: "0.626", options: rowHi }, { text: "0.822", options: rowHi }, { text: "0.542", options: rowHi }],
+    [{ text: "SVM-RBF", options: rowHi }, { text: "0.773", options: rowHi }, { text: "0.764", options: rowHi }, { text: "0.835", options: rowHi }, { text: "0.871", options: rowHi }, { text: "0.820", options: rowHi }, { text: "0.708", options: rowHi }, { text: "0.807", options: rowHi }, { text: "0.535", options: rowHi }],
+    [{ text: "Ensemble（软投票）", options: rowHi }, { text: "0.767", options: rowHi }, { text: "0.757", options: rowHi }, { text: "0.834", options: rowHi }, { text: "0.874", options: rowHi }, { text: "0.816", options: rowHi }, { text: "0.699", options: rowHi }, { text: "0.802", options: rowHi }, { text: "0.523", options: rowHi }],
+    [{ text: "SVM-poly", options: rowHi }, { text: "0.740", options: rowHi }, { text: "0.718", options: rowHi }, { text: "0.825", options: rowHi }, { text: "0.851", options: rowHi }, { text: "0.857", options: rowHi }, { text: "0.579", options: rowHi }, { text: "0.792", options: rowHi }, { text: "0.463", options: rowHi }],
+    ["GP-RBF", "0.749", "0.733", "0.821", "0.868", "0.834", "0.631", "0.794", "0.482"],
+    ["GP-Matérn", "0.746", "0.728", "0.818", "0.866", "0.841", "0.615", "0.793", "0.475"],
+    ["RandomForest", "0.718", "0.693", "0.806", "0.845", "0.850", "0.535", "0.777", "0.416"],
+    ["XGBoost", "0.727", "0.716", "0.800", "0.846", "0.786", "0.646", "0.768", "0.441"],
+    ["HistGB", "0.709", "0.695", "0.794", "0.843", "0.783", "0.608", "0.757", "0.399"],
+    ["kNN-Aitchison", "0.710", "0.679", "0.790", "0.830", "0.870", "0.488", "0.776", "0.402"],
     [{ text: "基线（全猜阳性）", options: { italic: true, color: MUTED } },
      { text: "0.581", options: { italic: true, color: MUTED } }, { text: "0.500", options: { italic: true, color: MUTED } }, { text: "0.500", options: { italic: true, color: MUTED } }, { text: "0.581", options: { italic: true, color: MUTED } }, { text: "1.000", options: { italic: true, color: MUTED } }, { text: "0.000", options: { italic: true, color: MUTED } }, { text: "0.735", options: { italic: true, color: MUTED } }, { text: "0.000", options: { italic: true, color: MUTED } }],
   ], { y: 1.5, colW: [2.9, 1.15, 1.25, 1.15, 1.15, 1.05, 1.05, 1.0, 1.0], rowH: 0.33, fontSize: 10 });
@@ -466,7 +466,7 @@ divider("03", "建模与评估", "一套嵌套协议，十七种模型，一次�
   card(s, {
     x: 0.6, y: 5.85, w: 12.1, h: 0.95, accent: TEAL,
     title: "顶部这一块要当作一个群体读，而不是一个排名", titleSize: 14,
-    body: "两个领跑者之间无法区分，且这四个中有三个互相无法区分（见下一页）。此处的先后顺序基本上是噪声；真正的分离要到 GP-RBF 以下才出现。", bodySize: 11,
+    body: "ExtraTrees 只是名义领先（p=0.041，未校正）；SVM-RBF、集成、SVM-poly 三者互相无法区分（见下一页）。真正的分离要到 GP-RBF 以下才出现。", bodySize: 11,
   });
 }
 
@@ -478,11 +478,11 @@ divider("03", "建模与评估", "一套嵌套协议，十七种模型，一次�
   });
   table(s, [
     [th("Wilcoxon p"), th("SVM-RBF"), th("Ensemble"), th("SVM-poly"), th("GP-RBF"), th("GP-Matérn")],
-    [{ text: "ExtraTrees", options: { bold: true, align: "left" } }, { text: ".085", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".005", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".003", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".001", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".001", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }],
-    [{ text: "SVM-RBF", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".360", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".476", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".003", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".002", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }],
-    [{ text: "Ensemble", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".609", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".001", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".000", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }],
-    [{ text: "SVM-poly", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".554", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".420", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }],
-    [{ text: "GP-RBF", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".051", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }],
+    [{ text: "ExtraTrees", options: { bold: true, align: "left" } }, { text: ".041", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".012", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".000", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".003", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".001", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }],
+    [{ text: "SVM-RBF", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".539", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".270", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".069", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".035", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }],
+    [{ text: "Ensemble", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".331", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".023", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }, { text: ".003", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }],
+    [{ text: "SVM-poly", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".925", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }, { text: ".809", options: { fill: { color: "EDEDEA" }, color: MUTED, bold: false } }],
+    [{ text: "GP-RBF", options: { bold: true, align: "left" } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: "", options: { fill: { color: "F7F5F1" } } }, { text: ".044", options: { fill: { color: "E4F0F0" }, color: TEAL, bold: true } }],
   ], { y: 2.15, colW: [2.5, 1.92, 1.92, 1.92, 1.92, 1.92], rowH: 0.42, fontSize: 11 });
 
   s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: 4.74, w: 0.18, h: 0.18, fill: { color: "EDEDEA" } });
@@ -493,7 +493,7 @@ divider("03", "建模与评估", "一套嵌套协议，十七种模型，一次�
   card(s, {
     x: 0.6, y: 5.06, w: 5.9, h: 1.45, accent: CORAL, fill: "FBEDE7",
     title: "「无法区分」不具传递性", titleSize: 14, bodySize: 11,
-    body: "ExtraTrees 对 SVM-RBF：p = 0.085。SVM-RBF、集成、SVM-poly 三者互相无法区分（p = 0.360–0.609）。但 ExtraTrees 确实能与后两者分开。\n\n领先者之间不存在一致的排名。",
+    body: "ExtraTrees 名义上领先于所有模型（对 SVM-RBF p = 0.041），但未通过 15 次检验的 Bonferroni 阈值（0.0033），且仅赢 14/25 折。\n\nSVM-RBF、集成、SVM-poly 三者互相无法区分（p = 0.270–0.539）。",
     bodyColor: "7A2E14",
   });
   card(s, {
@@ -502,7 +502,7 @@ divider("03", "建模与评估", "一套嵌套协议，十七种模型，一次�
     body: "剩下两条依据：判决阈值处的错误结构（SVM-RBF 特异度 0.703，ExtraTrees 0.620），以及信号微弱处的稳健性。\n\n真正决定取舍的检验在下一页。",
   });
 
-  s.addText("超参稳健性：网格扩展至 C ∈ [0.01, 500]、gamma ∈ [1e-4, 0.1] + scale。15 折中 0 折触及边界，AUC 未变（0.838 对 0.839），曲面跨度仅 0.73–0.81。", {
+  s.addText("超参稳健性：网格扩展至 C ∈ [0.01, 500]、gamma ∈ [1e-4, 0.1] + scale。15 折中 0 折触及边界，AUC 基本未变，曲面跨度仅 0.73–0.81。", {
     x: 0.6, y: 6.6, w: 11.6, h: 0.32, margin: 0,
     fontFace: BODY, fontSize: 9, color: MUTED, italic: true,
   });
@@ -511,7 +511,7 @@ divider("03", "建模与评估", "一套嵌套协议，十七种模型，一次�
 // ================================================================ 15b WHY NOT EXTRATREES
 {
   const s = slide("为什么 ExtraTrees 没有取代主模型", "建模 · 模型选择");
-  s.addText("AUC 高 0.020、p=0.085，不足以定夺模型选择。决定性的检验是：信号弱的时候两个模型各自表现如何——于是我们在每个采样月份分层内部并排重跑。", {
+  s.addText("AUC 高 0.023、p=0.041（未经 15 次比较校正），不足以定夺模型选择。决定性的检验是：信号弱的时候两个模型各自表现如何——于是我们在每个采样月份分层内部并排重跑。", {
     x: 0.6, y: 1.42, w: 12.1, h: 0.5, margin: 0, fontFace: BODY, fontSize: 12.5, color: MUTED, valign: "top",
   });
   table(s, [
@@ -798,7 +798,7 @@ divider("05", "生物学发现", "哪些菌携带信号——以及方法之间�
   card(s, {
     x: 0.6, y: 1.6, w: 5.9, h: 2.1, accent: TEAL,
     title: "证据一——核函数带来的差距",
-    body: "SVM-RBF     AUC 0.839\nSVM-linear  AUC 0.766\n\nΔ = +0.073，25 折中 25 折全胜，Wilcoxon p = 1e-5。\n\n这是一次受控对比——同一模型族，只换核函数——也是本报告中最具决定性的检验。",
+    body: "SVM-RBF     AUC 0.835\nSVM-linear  AUC 0.755\n\nΔ = +0.080，25 折中 24 折胜，Wilcoxon p < 0.0001。\n\n这是一次受控对比——同一模型族，只换核函数——也是本报告中最具决定性的检验。",
   });
   card(s, {
     x: 6.8, y: 1.6, w: 5.9, h: 2.1, accent: TEAL,
@@ -853,11 +853,11 @@ divider("05", "生物学发现", "哪些菌携带信号——以及方法之间�
   const s = slide("结论", "总结");
   const cs = [
     "野鸭肠道菌群携带真实且可复现的流感感染信号（置换检验 p = 0.0099）。",
-    "SVM-RBF 是主模型——AUC 0.839、MCC 0.531——在 17 个模型的比较中显著优于随机森林（p = 0.021）、XGBoost（p = 0.0016）与 L1-LR（p < 0.001）。",
+    "SVM-RBF 是主模型——AUC 0.835、MCC 0.535——在 17 个模型的比较中显著优于随机森林（p = 0.017）、XGBoost（p = 0.005）与 L1-LR（p < 0.001）。",
     "信号部分来自非线性：RBF 核比线性核多出 0.073 的 AUC，且若干菌只在组合中起作用。",
     "九个菌通过了三套独立筛选方法的交叉验证；其中 Candidatus Arthromitus（SFB）有独立的免疫学证据支持。",
     "季节是混杂因子，因此主估计只保留菌群特征并固定月份：AUC 从 10 月的 0.734 到 7 月的 0.965，准确率 0.676 至 0.949。效应真实存在，但强烈依赖季节。",
-    "ExtraTrees 分数更高（AUC 0.859），但在最弱分层上更差（0.715 对 0.774）——其领先只来自本已容易的分层。",
+    "ExtraTrees 分数更高（AUC 0.858，p = 0.041 未校正），但在最弱分层上更差（0.715 对 0.774）——其领先只来自本已容易的分层。",
     "结论仅适用于 UC Davis 野鸭队列，不可跨宿主或跨研究外推。",
   ];
   cs.forEach((c, i) => {
