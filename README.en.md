@@ -802,7 +802,9 @@ Each entry is anchored to a measured value from this project where possible. Sec
 |---|---|---|
 | **Differential abundance** | Test each taxon for a between-group difference. **Not one step but the output of the CLR + Welch t + BH-FDR pipeline** (§6.1) | 19 of 70 taxa at FDR<0.05 |
 | **Welch t-test** | A t-test that **does not assume equal variances**. Should be the default whenever group sizes differ | 151 positive vs 109 negative, so required |
-| **BH-FDR** | Benjamini–Hochberg false discovery rate correction for running many tests. Controls the **share of false positives among reported hits** | Discards 5 taxa with p<0.05 but FDR≥0.05 |
+| **p-value** | Probability of seeing a difference this large when there is none. **Governs a single test** | 5% error allowed per test |
+| **FDR**<br>False Discovery Rate | **The share of false positives among the results you call significant. Governs a batch.**<br>With 70 taxa, pure noise still yields about 3.5 hits at p<0.05 — FDR exists to handle exactly that | Of the 19 hits at FDR<0.05, about 1 (19×5%) is expected to be false |
+| **BH procedure**<br>Benjamini–Hochberg | The **algorithm** that controls FDR (FDR is the quantity, BH the method). Sort the 70 p-values ascending, compare the *i*-th to *i*/70 × 0.05, take the largest *i* that passes | Discards 5 taxa with p<0.05 but FDR≥0.05 |
 | **Bonferroni** | Stricter correction controlling the chance of any error at all; too strict when features correlate | Threshold falls to 0.0007 over 70 tests |
 | **Permutation test** | Shuffle labels, rerun the whole pipeline, build a null. **Rules out overfitting, not confounding** | Observed 0.743 vs null 0.501, p=0.0099 (§4.1) |
 
