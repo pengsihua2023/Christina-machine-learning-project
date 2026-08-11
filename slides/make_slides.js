@@ -232,6 +232,38 @@ const rowHi = { fill: { color: "E4F0F0" }, bold: true };
   });
 }
 
+// ================================================================ 3b READING KEY
+{
+  const s = slide("How to Read the Numbers in This Deck", "Before we start");
+  s.addText("Six conventions. Each one, if misread, changes what a result means \u2014 so they come before any data rather than after.", {
+    x: 0.6, y: 1.42, w: 12.1, h: 0.4, margin: 0, fontFace: BODY, fontSize: 12.5, color: MUTED, valign: "top",
+  });
+
+  const items = [
+    ["Baselines are not 0.5", "58% of samples are positive, so always-guessing-Pos already scores accuracy 0.581 \u2014 and PR-AUC 0.581 too. Only ROC-AUC (0.50), MCC (0) and balanced accuracy (0.50) have clean baselines.", CORAL],
+    ["AUC ignores the threshold, accuracy does not", "The same predictions give accuracy 0.69\u20130.77 depending on where the cut-off sits. AUC measures ranking quality, so it is the metric for comparing models.", CORAL],
+    ["MCC is the one to trust under imbalance", "It uses all four cells of the confusion matrix and has a baseline of 0. Accuracy and F1 both reward simply guessing the majority class.", TEAL],
+    ["p governs one test, FDR governs a batch", "Across 70 taxa, pure noise still yields ~3.5 hits at p<0.05. Of our 19 hits at FDR<0.05, about 1 is expected to be false.", TEAL],
+    ["Leakage is not confounding", "Leaked information does not exist at prediction time and must be deleted. Confounded information does exist \u2014 you know the month \u2014 and must be handled by stratification instead.", MOSS],
+    ["Ranges are deliberate, not averages", "Where a result varies across strata we report the range (AUC 0.734\u20130.965), never a sample-weighted mean, which would hide the weakest stratum.", MOSS],
+  ];
+  items.forEach((it, i) => {
+    const col = i % 2, row = Math.floor(i / 2);
+    card(s, {
+      x: 0.6 + col * 6.25, y: 1.95 + row * 1.62, w: 5.9, h: 1.45,
+      accent: it[2], fill: it[2] === CORAL ? "FBEDE7" : W,
+      title: `${i + 1}.  ${it[0]}`, titleSize: 13,
+      body: it[1], bodySize: 10.5,
+      bodyColor: it[2] === CORAL ? "7A2E14" : MUTED,
+    });
+  });
+
+  s.addText("Full definitions \u2014 CLR, Welch t, L1 stability selection and the rest \u2014 are in README section 10.", {
+    x: 0.6, y: 6.85, w: 12.1, h: 0.3, margin: 0,
+    fontFace: BODY, fontSize: 10.5, color: MUTED, italic: true,
+  });
+}
+
 // ================================================================ 4 DIVIDER 1
 divider("01", "The Data", "Three files, four studies, 326 samples — and one cohort worth modeling");
 
@@ -402,7 +434,7 @@ divider("03", "Modeling & Evaluation", "A nested protocol, seventeen models, one
 
 // ================================================================ 13 PROTOCOL + METRICS
 {
-  const s = slide("How This Section Should Be Read", "Modeling · protocol");
+  const s = slide("Evaluation Protocol", "Modeling · protocol");
 
   const proto = [
     ["Outer loop", "RepeatedStratifiedKFold\n5 folds × 5 repeats = 25\nPurpose: performance estimate", DARK2],
@@ -418,22 +450,19 @@ divider("03", "Modeling & Evaluation", "A nested protocol, seventeen models, one
     fontFace: BODY, fontSize: 11, color: MUTED, italic: true,
   });
 
-  s.addText("Three ways the metrics mislead", {
-    x: 0.6, y: 3.5, w: 12.1, h: 0.35, margin: 0,
-    fontFace: HEAD, fontSize: 17, bold: true, color: INK,
+  card(s, {
+    x: 0.6, y: 3.55, w: 5.9, h: 1.85, accent: MOSS,
+    title: "Hyperparameters are not over-tuned", titleSize: 14, bodySize: 11,
+    body: "The SVM-RBF grid was expanded to C ∈ [0.01, 500] and gamma ∈ [1e-4, 0.1] + scale.\n\n0 of 15 folds selected a boundary value, AUC was essentially unchanged, and the whole surface spans only 0.73–0.81.",
   });
-  const pit = [
-    ["Accuracy's baseline is 0.581", "58% of samples are positive, so always-Pos already scores 0.581. Never report accuracy without that number beside it."],
-    ["F1 cannot rank models", "The always-Pos baseline scores F1 = 0.735 — above L2-LR's 0.699. F1 inflates when positives dominate."],
-    ["MCC has a zero baseline", "So does balanced accuracy. They expose class asymmetry at once: RF reaches 0.718 accuracy while catching 54% of negatives."],
-  ];
-  pit.forEach((p, i) => {
-    card(s, { x: 0.6 + i * 4.1, y: 3.95, w: 3.9, h: 1.5, accent: CORAL, fill: "FBEDE7",
-              title: `${i + 1}.  ${p[0]}`, titleSize: 12.5, body: p[1], bodySize: 11, bodyColor: "7A2E14" });
+  card(s, {
+    x: 6.8, y: 3.55, w: 5.9, h: 1.85, accent: TEAL,
+    title: "Metrics reported", titleSize: 14, bodySize: 11,
+    body: "ROC-AUC · PR-AUC · Accuracy · Balanced Accuracy · Sensitivity · Specificity · Precision · F1 · MCC\n\nHow to read them: see the conventions on slide 4.",
   });
 
   caveat(s, {
-    x: 0.6, y: 5.65, w: 12.1, h: 0.85,
+    x: 0.6, y: 5.6, w: 12.1, h: 0.85,
     text: "All accuracy figures use a fixed 0.5 threshold. A 0.55 threshold performs better, but was chosen by looking at test data — using it would require folding threshold selection into the inner loop.",
     size: 11,
   });
@@ -502,10 +531,6 @@ divider("03", "Modeling & Evaluation", "A nested protocol, seventeen models, one
     body: "Two grounds remain: error structure at the operating threshold (specificity 0.703 for SVM-RBF vs 0.620 for ExtraTrees) and robustness where the signal is weak.\n\nThe next slide is the test that actually decides.",
   });
 
-  s.addText("Hyperparameter robustness: grid expanded to C ∈ [0.01, 500], gamma ∈ [1e-4, 0.1] + scale. 0 of 15 folds hit a boundary; AUC essentially unchanged; the surface spans only 0.73–0.81.", {
-    x: 0.6, y: 6.6, w: 11.6, h: 0.32, margin: 0,
-    fontFace: BODY, fontSize: 9, color: MUTED, italic: true,
-  });
 }
 
 // ================================================================ 15b WHY NOT EXTRATREES

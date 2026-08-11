@@ -232,6 +232,38 @@ const rowHi = { fill: { color: "E4F0F0" }, bold: true };
   });
 }
 
+// ================================================================ 3b READING KEY
+{
+  const s = slide("\u8bfb\u61c2\u672c\u62a5\u544a\u6570\u5b57\u7684\u516d\u4e2a\u524d\u63d0", "\u5f00\u59cb\u4e4b\u524d");
+  s.addText("\u516d\u6761\u7ea6\u5b9a\u3002\u6bcf\u4e00\u6761\u8bfb\u9519\u90fd\u4f1a\u6539\u53d8\u7ed3\u679c\u7684\u542b\u4e49\u2014\u2014\u56e0\u6b64\u5b83\u4eec\u653e\u5728\u770b\u5230\u4efb\u4f55\u6570\u636e\u4e4b\u524d\uff0c\u800c\u4e0d\u662f\u4e4b\u540e\u3002", {
+    x: 0.6, y: 1.42, w: 12.1, h: 0.4, margin: 0, fontFace: BODY, fontSize: 12.5, color: MUTED, valign: "top",
+  });
+
+  const items = [
+    ["\u57fa\u7ebf\u4e0d\u662f 0.5", "58% \u7684\u6837\u672c\u4e3a\u9633\u6027\uff0c\u6240\u4ee5\u5168\u731c\u9633\u6027\u5df2\u7ecf\u80fd\u62ff\u5230\u51c6\u786e\u7387 0.581\u2014\u2014PR-AUC \u7684\u57fa\u7ebf\u4e5f\u662f 0.581\u3002\u53ea\u6709 ROC-AUC\uff080.50\uff09\u3001MCC\uff080\uff09\u4e0e\u5e73\u8861\u51c6\u786e\u7387\uff080.50\uff09\u7684\u57fa\u7ebf\u662f\u5e72\u51c0\u7684\u3002", CORAL],
+    ["AUC \u4e0e\u9608\u503c\u65e0\u5173\uff0c\u51c6\u786e\u7387\u6709\u5173", "\u540c\u4e00\u7ec4\u9884\u6d4b\uff0c\u9608\u503c\u4e0d\u540c\u51c6\u786e\u7387\u5728 0.69\u20130.77 \u4e4b\u95f4\u6ed1\u52a8\u3002AUC \u8861\u91cf\u7684\u662f\u6392\u5e8f\u8d28\u91cf\uff0c\u56e0\u6b64\u6a21\u578b\u6bd4\u8f83\u5e94\u4ee5\u5b83\u4e3a\u51c6\u3002", CORAL],
+    ["\u4e0d\u5e73\u8861\u65f6\u6700\u8be5\u4fe1 MCC", "\u5b83\u7528\u6ee1\u6df7\u6dc6\u77e9\u9635\u56db\u683c\uff0c\u4e14\u57fa\u7ebf\u4e3a 0\u3002\u51c6\u786e\u7387\u4e0e F1 \u90fd\u4f1a\u5956\u52b1\u201c\u76f4\u63a5\u731c\u591a\u6570\u7c7b\u201d\u8fd9\u79cd\u884c\u4e3a\u3002", TEAL],
+    ["p \u7ba1\u4e00\u6b21\uff0cFDR \u7ba1\u4e00\u6279", "70 \u4e2a\u83cc\u5373\u4f7f\u5168\u662f\u566a\u58f0\uff0c\u6309 p<0.05 \u4ecd\u4f1a\u6709\u7ea6 3.5 \u4e2a\u201c\u663e\u8457\u201d\u3002\u6211\u4eec\u62a5\u51fa\u7684 19 \u4e2a FDR<0.05 \u7ed3\u679c\u4e2d\uff0c\u9884\u671f\u7ea6 1 \u4e2a\u4e3a\u5047\u9633\u6027\u3002", TEAL],
+    ["\u6cc4\u6f0f \u2260 \u6df7\u6742", "\u6cc4\u6f0f\u7684\u4fe1\u606f\u5728\u9884\u6d4b\u65f6\u4e0d\u5b58\u5728\uff0c\u5fc5\u987b\u5220\u9664\uff1b\u6df7\u6742\u7684\u4fe1\u606f\u5b58\u5728\u2014\u2014\u4f60\u5f53\u7136\u77e5\u9053\u4eca\u5929\u51e0\u6708\u2014\u2014\u5e94\u7528\u5206\u5c42\u5904\u7406\u800c\u975e\u5220\u9664\u3002", MOSS],
+    ["\u533a\u95f4\u662f\u6545\u610f\u7684\uff0c\u4e0d\u662f\u5e73\u5747\u503c", "\u7ed3\u679c\u5728\u5404\u5c42\u95f4\u5dee\u5f02\u5927\u65f6\uff0c\u6211\u4eec\u62a5\u533a\u95f4\uff08AUC 0.734\u20130.965\uff09\uff0c\u800c\u4e0d\u662f\u6837\u672c\u91cf\u52a0\u6743\u5e73\u5747\u503c\u2014\u2014\u540e\u8005\u4f1a\u63a9\u76d6\u6700\u5f31\u7684\u5c42\u3002", MOSS],
+  ];
+  items.forEach((it, i) => {
+    const col = i % 2, row = Math.floor(i / 2);
+    card(s, {
+      x: 0.6 + col * 6.25, y: 1.95 + row * 1.62, w: 5.9, h: 1.45,
+      accent: it[2], fill: it[2] === CORAL ? "FBEDE7" : W,
+      title: `${i + 1}.  ${it[0]}`, titleSize: 13,
+      body: it[1], bodySize: 10.5,
+      bodyColor: it[2] === CORAL ? "7A2E14" : MUTED,
+    });
+  });
+
+  s.addText("CLR\u3001Welch t\u3001L1 \u7a33\u5b9a\u6027\u9009\u62e9\u7b49\u5b8c\u6574\u5b9a\u4e49\u89c1 README \u00a710 \u672f\u8bed\u8868\u3002", {
+    x: 0.6, y: 6.85, w: 12.1, h: 0.3, margin: 0,
+    fontFace: BODY, fontSize: 10.5, color: MUTED, italic: true,
+  });
+}
+
 // ================================================================ 4 DIVIDER 1
 divider("01", "数据", "三个文件、四个研究、326 个样本——以及唯一值得建模的那个队列");
 
@@ -402,7 +434,7 @@ divider("03", "建模与评估", "一套嵌套协议，十七种模型，一次�
 
 // ================================================================ 13 PROTOCOL + METRICS
 {
-  const s = slide("这一章应该怎么读", "建模 · 协议");
+  const s = slide("评估协议", "建模 · 协议");
 
   const proto = [
     ["外层循环", "RepeatedStratifiedKFold\n5 折 × 5 次重复 = 25 折\n用途：性能评估", DARK2],
@@ -418,22 +450,19 @@ divider("03", "建模与评估", "一套嵌套协议，十七种模型，一次�
     fontFace: BODY, fontSize: 11, color: MUTED, italic: true,
   });
 
-  s.addText("指标会以三种方式误导你", {
-    x: 0.6, y: 3.5, w: 12.1, h: 0.35, margin: 0,
-    fontFace: HEAD, fontSize: 17, bold: true, color: INK,
+  card(s, {
+    x: 0.6, y: 3.55, w: 5.9, h: 1.85, accent: MOSS,
+    title: "超参并非调出来的", titleSize: 14, bodySize: 11,
+    body: "SVM-RBF 网格已扩展至 C ∈ [0.01, 500]、gamma ∈ [1e-4, 0.1] + scale。\n\n15 折中 0 折选中边界值，AUC 基本未变，整个曲面跨度仅 0.73–0.81。",
   });
-  const pit = [
-    ["准确率的基线是 0.581", "58% 的样本为阳性，全猜阳性已有 0.581。报告准确率时绝不能不给这条基线。"],
-    ["F1 不能用来给模型排名", "全猜阳性的基线 F1 = 0.735，高于 L2-LR 的 0.699。阳性占多数时 F1 严重虚高。"],
-    ["MCC 的基线是 0", "平衡准确率同样如此。它们能立刻暴露类别不对称——随机森林准确率 0.718，却只识别出 54% 的阴性样本。"],
-  ];
-  pit.forEach((p, i) => {
-    card(s, { x: 0.6 + i * 4.1, y: 3.95, w: 3.9, h: 1.5, accent: CORAL, fill: "FBEDE7",
-              title: `${i + 1}.  ${p[0]}`, titleSize: 12.5, body: p[1], bodySize: 11, bodyColor: "7A2E14" });
+  card(s, {
+    x: 6.8, y: 3.55, w: 5.9, h: 1.85, accent: TEAL,
+    title: "报告的指标", titleSize: 14, bodySize: 11,
+    body: "ROC-AUC · PR-AUC · 准确率 · 平衡准确率 · 灵敏度 · 特异度 · 精确率 · F1 · MCC\n\n如何解读：见第 4 页的读数约定。",
   });
 
   caveat(s, {
-    x: 0.6, y: 5.65, w: 12.1, h: 0.85,
+    x: 0.6, y: 5.6, w: 12.1, h: 0.85,
     text: "所有准确率均在固定阈值 0.5 下计算。阈值 0.55 表现更好，但那是看着测试数据挑出来的——若要采用，必须把阈值选择也放进内层循环。",
     size: 11,
   });
@@ -502,10 +531,6 @@ divider("03", "建模与评估", "一套嵌套协议，十七种模型，一次�
     body: "剩下两条依据：判决阈值处的错误结构（SVM-RBF 特异度 0.703，ExtraTrees 0.620），以及信号微弱处的稳健性。\n\n真正决定取舍的检验在下一页。",
   });
 
-  s.addText("超参稳健性：网格扩展至 C ∈ [0.01, 500]、gamma ∈ [1e-4, 0.1] + scale。15 折中 0 折触及边界，AUC 基本未变，曲面跨度仅 0.73–0.81。", {
-    x: 0.6, y: 6.6, w: 11.6, h: 0.32, margin: 0,
-    fontFace: BODY, fontSize: 9, color: MUTED, italic: true,
-  });
 }
 
 // ================================================================ 15b WHY NOT EXTRATREES
