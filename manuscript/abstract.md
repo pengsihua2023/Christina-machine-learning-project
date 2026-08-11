@@ -26,10 +26,14 @@ ablation, and by refitting within single sampling months.
 0.839 ± 0.060; permutation p = 0.0099 against a null of 0.501 ± 0.049). Sampling
 month was a strong confounder: covariates alone (season, site, species, sex)
 reached AUC 0.881, and the microbiome itself predicted November–December sampling
-at AUC 0.777. The association nevertheless persisted within single months
-(AUC 0.944 for July–August; 0.860 for October), though it weakened markedly in the
-January–October stratum (0.668), and microbiome features added 0.043 AUC over
-covariates alone. Model choice could not be resolved by
+at AUC 0.777. Because season is a confounder rather than an exposure of
+interest, the primary estimate was obtained by stratification, keeping only microbiome
+features in the model: within single months, AUC ranged from 0.734 in October
+(accuracy 0.676, specificity 0.533) to 0.965 in July (accuracy 0.949, specificity
+0.929), with July and August combined reaching 0.959. Only 165 of 260 samples could
+enter a stratified analysis, as November and December were entirely positive. Under
+covariate adjustment instead, the microbiome added between 0.043 and 0.105 AUC
+depending on the model. Model choice could not be resolved by
 discrimination: the two leading models were statistically indistinguishable
 (ExtraTrees AUC 0.859 vs SVM-RBF 0.839, Wilcoxon p = 0.085), and three of the top
 four formed a mutually indistinguishable group (pairwise p = 0.360–0.609), so no
@@ -44,9 +48,9 @@ of *Candidatus* Arthromitus (segmented filamentous bacteria), *Varibaculum* and
 *Psittacicella* in infected birds.
 
 **Conclusions.** Wild duck gut microbiota carry a reproducible, partly nonlinear
-signal of influenza infection status that is not fully explained by seasonal
-confounding, but whose incremental value over routinely recorded sampling
-covariates is modest. Findings are specific to this cohort; cross-study
+signal of influenza infection status that survives adjustment for seasonal
+confounding, but its strength is markedly heterogeneous across seasons and its
+incremental value over routinely recorded sampling covariates is modest. Findings are specific to this cohort; cross-study
 generalisation failed (AUC 0.54 ± 0.29 across four host species).
 
 **Keywords:** avian influenza; gut microbiome; 16S rRNA; compositional data;
@@ -82,8 +86,9 @@ p = 0.0099，零分布 0.501 ± 0.049）。采样月份是强混杂因子：仅�
 包括感染个体中 *Rothia*、*Staphylococcus*、*Lawsonella* 的降低，以及
 *Candidatus* Arthromitus（分节丝状菌）、*Varibaculum*、*Psittacicella* 的富集。
 
-**结论。** 野鸭肠道菌群携带可复现、部分为非线性的流感感染状态信号，该信号不能被
-季节混杂完全解释；但相对于常规记录的采样协变量，其增量价值有限。本研究结论仅适用
+**结论。** 野鸭肠道菌群携带可复现、部分为非线性的流感感染状态信号，该信号经季节
+混杂校正后依然存在；但其强度在不同季节间高度异质，且相对于常规记录的采样协变量，
+其增量价值有限。本研究结论仅适用
 于该队列；跨研究泛化失败（四个宿主物种间 AUC 0.54 ± 0.29）。
 
 **关键词：** 禽流感；肠道菌群；16S rRNA；成分数据；机器学习；混杂；野生水禽

@@ -185,8 +185,8 @@ const rowHi = { fill: { color: "E4F0F0" }, bold: true };
 {
   const s = slide("At a Glance", "Executive summary");
   stat(s, { x: 0.6, y: 1.5, w: 2.85, value: "p=0.0099", label: "The signal is real", sub: "permutation test, 100 shuffles", valueSize: 32 });
-  stat(s, { x: 3.6, y: 1.5, w: 2.85, value: "+0.043", label: "Independent contribution", sub: "AUC over covariates alone", color: DARK2 });
-  stat(s, { x: 6.6, y: 1.5, w: 2.85, value: "0.86–0.96", label: "Survives the confounder", sub: "AUC within a single month", valueSize: 30, color: DARK2 });
+  stat(s, { x: 3.6, y: 1.5, w: 2.85, value: "0.73–0.97", label: "Effect within a season", sub: "AUC, microbiome only", valueSize: 30, color: DARK2 });
+  stat(s, { x: 6.6, y: 1.5, w: 2.85, value: "+0.04–0.11", label: "Adds over covariates", sub: "model-dependent increment", valueSize: 28, color: DARK2 });
   stat(s, { x: 9.6, y: 1.5, w: 3.1, value: "9", label: "Biomarkers", sub: "3 independent methods agree", color: MOSS });
 
   s.addText("Model performance is deliberately not the headline: the four best of 17 models are statistically indistinguishable (AUC 0.834–0.859), so no single score is a property of the finding.", {
@@ -622,31 +622,42 @@ divider("04", "Is the Signal Real?", "Permutation testing, confounders, and stra
   });
 }
 
-// ================================================================ 22 ABLATION
+// ================================================================ 22 ABLATION (stratified)
 {
-  const s = slide("How Much Does the Microbiome Actually Add?", "Validity · ablation");
-
-  const bars = [
-    ["Covariates only", 0.881, "season, site, species, sex, month", DARK2],
-    ["Microbiome only", 0.766, "70 CLR features", TEAL],
-    ["Microbiome + covariates", 0.924, "combined model", MOSS],
-  ];
-  bars.forEach((b, i) => {
-    const y = 1.75 + i * 1.15;
-    const wMax = 7.6, wBar = wMax * (b[1] - 0.5) / 0.45;
-    s.addText(b[0], { x: 0.6, y, w: 3.2, h: 0.35, margin: 0, fontFace: HEAD, fontSize: 14, bold: true, color: INK });
-    s.addText(b[2], { x: 0.6, y: y + 0.34, w: 3.2, h: 0.3, margin: 0, fontFace: BODY, fontSize: 10.5, color: MUTED });
-    s.addShape(pres.shapes.RECTANGLE, { x: 3.95, y: y + 0.05, w: wMax, h: 0.52, fill: { color: "E8EEF0" } });
-    s.addShape(pres.shapes.RECTANGLE, { x: 3.95, y: y + 0.05, w: wBar, h: 0.52, fill: { color: b[3] } });
-    s.addText(b[1].toFixed(3), { x: 11.7, y: y + 0.07, w: 1.0, h: 0.45, margin: 0, fontFace: HEAD, fontSize: 17, bold: true, color: b[3] });
+  const s = slide("The Microbiome Effect, With Season Held Fixed", "Validity \u00b7 primary estimate");
+  s.addText("Season is a confounder, not an exposure of interest \u2014 so it does not belong in the model. Instead we fix the month and compare within strata. The model contains nothing but the 70 CLR features.", {
+    x: 0.6, y: 1.42, w: 12.1, h: 0.5, margin: 0, fontFace: BODY, fontSize: 12.5, color: MUTED, valign: "top",
   });
-  s.addText("AUC  (bar origin = 0.50)", { x: 3.95, y: 5.15, w: 4, h: 0.3, margin: 0, fontFace: BODY, fontSize: 10, color: MUTED });
+  table(s, [
+    [th("Stratum"), th("n"), th("AUC"), th("Accuracy"), th("Baseline"), th("Spec."), th("MCC")],
+    [{ text: "All samples (unstratified)", options: { italic: true, color: MUTED } },
+     { text: "260", options: { italic: true, color: MUTED } }, { text: "0.833", options: { italic: true, color: MUTED } },
+     { text: "0.772", options: { italic: true, color: MUTED } }, { text: "0.581", options: { italic: true, color: MUTED } },
+     { text: "0.703", options: { italic: true, color: MUTED } }, { text: "0.530", options: { italic: true, color: MUTED } }],
+    [{ text: "July", options: rowHi }, { text: "86", options: rowHi }, { text: "0.965", options: rowHi },
+     { text: "0.949", options: rowHi }, { text: "0.605", options: rowHi }, { text: "0.929", options: rowHi }, { text: "0.893", options: rowHi }],
+    ["August", "37", "0.910", "0.838", "0.676", "0.667", "0.618"],
+    [{ text: "October", options: { fill: { color: "FBEDE7" }, bold: true } },
+     { text: "42", options: { fill: { color: "FBEDE7" } } }, { text: "0.734", options: { fill: { color: "FBEDE7" }, bold: true, color: CORAL } },
+     { text: "0.676", options: { fill: { color: "FBEDE7" }, bold: true, color: CORAL } }, { text: "0.571", options: { fill: { color: "FBEDE7" } } },
+     { text: "0.533", options: { fill: { color: "FBEDE7" }, bold: true, color: CORAL } }, { text: "0.328", options: { fill: { color: "FBEDE7" }, bold: true, color: CORAL } }],
+    ["Jul + Aug", "123", "0.959", "0.930", "0.626", "0.896", "0.850"],
+  ], { y: 2.0, colW: [3.5, 1.2, 1.5, 1.7, 1.5, 1.35, 1.35], rowH: 0.42, fontSize: 11 });
 
   card(s, {
-    x: 0.6, y: 5.55, w: 12.1, h: 1.15, accent: CORAL, fill: "FBEDE7",
-    title: "Read this carefully",
-    body: "The microbiome adds +0.043 over covariates alone — a real but modest independent contribution. Covariates by themselves already reach 0.881. Any claim that \"gut microbiota predict influenza\" must be quoted against that baseline, not against 0.50.",
+    x: 0.6, y: 4.85, w: 5.9, h: 1.6, accent: TEAL,
+    title: "Report the range, not an average", titleSize: 14, bodySize: 11,
+    body: "AUC 0.734\u20130.965 \u00b7 accuracy 0.676\u20130.949 \u00b7 MCC 0.328\u20130.893.\n\nA sample-weighted mean (0.894) would hide October, and its weights come from field-campaign size, not scientific relevance.",
+  });
+  card(s, {
+    x: 6.8, y: 4.85, w: 5.9, h: 1.6, accent: CORAL, fill: "FBEDE7",
+    title: "Two caveats that travel with these numbers", titleSize: 14, bodySize: 11,
+    body: "October specificity is 0.533 \u2014 barely better than chance on negatives.\n\nOnly 165 of 260 samples can be stratified at all: November and December are 100% positive, so AUC is undefined there.",
     bodyColor: "7A2E14",
+  });
+
+  s.addText("Under covariate adjustment instead, the increment is +0.043 (L2-LR) to +0.105 (SVM-RBF) \u2014 model-dependent, which is why stratification is the primary estimate.", {
+    x: 0.6, y: 6.55, w: 11.8, h: 0.3, margin: 0, fontFace: BODY, fontSize: 10.5, color: MUTED, italic: true,
   });
 }
 
@@ -845,7 +856,7 @@ divider("05", "Biological Findings", "Which taxa carry the signal — and what t
     "SVM-RBF is the primary model — AUC 0.839, MCC 0.531 — significantly beating Random Forest (p = 0.021), XGBoost (p = 0.0016) and L1-LR (p < 0.001) among 17 models compared.",
     "The signal is partly nonlinear: the RBF kernel gains 0.073 AUC over a linear one, and several taxa act only in combination.",
     "Nine taxa survive three independent selection methods; Candidatus Arthromitus (SFB) has independent immunological support.",
-    "Sampling season is a serious confounder (covariates alone: AUC 0.881). Stratification and a deconfounded subset both leave signal: the microbiome's independent contribution brackets between +0.043 and +0.177.",
+    "Season is a confounder, so the primary estimate keeps only microbiome features and fixes the month: AUC 0.734 (October) to 0.965 (July), accuracy 0.676 to 0.949. The effect is real but strongly season-dependent.",
     "ExtraTrees scores higher (AUC 0.859) but is worse on the weakest stratum (0.715 vs 0.774); its lead comes only from strata that were already easy.",
     "Conclusions apply to the UC Davis wild-duck cohort only; they do not transfer across hosts or studies.",
   ];

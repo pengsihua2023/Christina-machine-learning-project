@@ -185,8 +185,8 @@ const rowHi = { fill: { color: "E4F0F0" }, bold: true };
 {
   const s = slide("核心结论一览", "执行摘要");
   stat(s, { x: 0.6, y: 1.5, w: 2.85, value: "p=0.0099", label: "信号是真实的", sub: "置换检验，100 次打乱", valueSize: 32 });
-  stat(s, { x: 3.6, y: 1.5, w: 2.85, value: "+0.043", label: "独立贡献", sub: "相对仅协变量的 AUC 增量", color: DARK2 });
-  stat(s, { x: 6.6, y: 1.5, w: 2.85, value: "0.86–0.96", label: "经得起混杂", sub: "同一月份内部的 AUC", valueSize: 30, color: DARK2 });
+  stat(s, { x: 3.6, y: 1.5, w: 2.85, value: "0.73–0.97", label: "固定季节后的效应", sub: "AUC，模型中只有菌群", valueSize: 30, color: DARK2 });
+  stat(s, { x: 6.6, y: 1.5, w: 2.85, value: "+0.04–0.11", label: "相对协变量的增量", sub: "量级依赖模型选择", valueSize: 28, color: DARK2 });
   stat(s, { x: 9.6, y: 1.5, w: 3.1, value: "9", label: "个 Biomarker", sub: "三套独立方法一致", color: MOSS });
 
   s.addText("这里刻意不把模型分数放在头条：17 个模型中最好的四个在统计上无法区分（AUC 0.834–0.859），因此任何单一分数都不是这项发现的属性。", {
@@ -622,31 +622,42 @@ divider("04", "信号是真的吗？", "置换检验、混杂因子与分层再�
   });
 }
 
-// ================================================================ 22 ABLATION
+// ================================================================ 22 ABLATION (stratified)
 {
-  const s = slide("菌群到底贡献了多少？", "有效性 · 消融");
-
-  const bars = [
-    ["仅协变量", 0.881, "季节、地点、物种、性别、月份", DARK2],
-    ["仅菌群", 0.766, "70 个 CLR 特征", TEAL],
-    ["菌群 + 协变量", 0.924, "合并模型", MOSS],
-  ];
-  bars.forEach((b, i) => {
-    const y = 1.75 + i * 1.15;
-    const wMax = 7.6, wBar = wMax * (b[1] - 0.5) / 0.45;
-    s.addText(b[0], { x: 0.6, y, w: 3.2, h: 0.35, margin: 0, fontFace: HEAD, fontSize: 14, bold: true, color: INK });
-    s.addText(b[2], { x: 0.6, y: y + 0.34, w: 3.2, h: 0.3, margin: 0, fontFace: BODY, fontSize: 10.5, color: MUTED });
-    s.addShape(pres.shapes.RECTANGLE, { x: 3.95, y: y + 0.05, w: wMax, h: 0.52, fill: { color: "E8EEF0" } });
-    s.addShape(pres.shapes.RECTANGLE, { x: 3.95, y: y + 0.05, w: wBar, h: 0.52, fill: { color: b[3] } });
-    s.addText(b[1].toFixed(3), { x: 11.7, y: y + 0.07, w: 1.0, h: 0.45, margin: 0, fontFace: HEAD, fontSize: 17, bold: true, color: b[3] });
+  const s = slide("\u56fa\u5b9a\u5b63\u8282\u540e\u7684\u83cc\u7fa4\u6548\u5e94", "\u6709\u6548\u6027 \u00b7 \u4e3b\u4f30\u8ba1");
+  s.addText("\u5b63\u8282\u662f\u6df7\u6742\u56e0\u5b50\uff0c\u4e0d\u662f\u6211\u4eec\u611f\u5174\u8da3\u7684\u66b4\u9732\u2014\u2014\u56e0\u6b64\u5b83\u4e0d\u8be5\u8fdb\u5165\u6a21\u578b\u3002\u6211\u4eec\u6539\u4e3a\u56fa\u5b9a\u6708\u4efd\u3001\u53ea\u5728\u5c42\u5185\u6bd4\u8f83\u3002\u6a21\u578b\u4e2d\u9664\u4e86 70 \u4e2a CLR \u7279\u5f81\u4e4b\u5916\u522b\u65e0\u4ed6\u7269\u3002", {
+    x: 0.6, y: 1.42, w: 12.1, h: 0.5, margin: 0, fontFace: BODY, fontSize: 12.5, color: MUTED, valign: "top",
   });
-  s.addText("AUC （条形起点 = 0.50）", { x: 3.95, y: 5.15, w: 4, h: 0.3, margin: 0, fontFace: BODY, fontSize: 10, color: MUTED });
+  table(s, [
+    [th("\u5206\u5c42"), th("n"), th("AUC"), th("\u51c6\u786e\u7387"), th("\u57fa\u7ebf"), th("\u7279\u5f02\u5ea6"), th("MCC")],
+    [{ text: "\u5168\u90e8\u6837\u672c\uff08\u672a\u5206\u5c42\uff09", options: { italic: true, color: MUTED } },
+     { text: "260", options: { italic: true, color: MUTED } }, { text: "0.833", options: { italic: true, color: MUTED } },
+     { text: "0.772", options: { italic: true, color: MUTED } }, { text: "0.581", options: { italic: true, color: MUTED } },
+     { text: "0.703", options: { italic: true, color: MUTED } }, { text: "0.530", options: { italic: true, color: MUTED } }],
+    [{ text: "7 \u6708", options: rowHi }, { text: "86", options: rowHi }, { text: "0.965", options: rowHi },
+     { text: "0.949", options: rowHi }, { text: "0.605", options: rowHi }, { text: "0.929", options: rowHi }, { text: "0.893", options: rowHi }],
+    ["8 \u6708", "37", "0.910", "0.838", "0.676", "0.667", "0.618"],
+    [{ text: "10 \u6708", options: { fill: { color: "FBEDE7" }, bold: true } },
+     { text: "42", options: { fill: { color: "FBEDE7" } } }, { text: "0.734", options: { fill: { color: "FBEDE7" }, bold: true, color: CORAL } },
+     { text: "0.676", options: { fill: { color: "FBEDE7" }, bold: true, color: CORAL } }, { text: "0.571", options: { fill: { color: "FBEDE7" } } },
+     { text: "0.533", options: { fill: { color: "FBEDE7" }, bold: true, color: CORAL } }, { text: "0.328", options: { fill: { color: "FBEDE7" }, bold: true, color: CORAL } }],
+    ["7 \u6708 + 8 \u6708", "123", "0.959", "0.930", "0.626", "0.896", "0.850"],
+  ], { y: 2.0, colW: [3.5, 1.2, 1.5, 1.7, 1.5, 1.35, 1.35], rowH: 0.42, fontSize: 11 });
 
   card(s, {
-    x: 0.6, y: 5.55, w: 12.1, h: 1.15, accent: CORAL, fill: "FBEDE7",
-    title: "这一页请仔细读",
-    body: "菌群在协变量之上带来 +0.043 的增量——真实但有限的独立贡献。协变量本身就已达到 0.881。任何「肠道菌群可预测流感」的表述，都必须相对这条基线陈述，而不是相对 0.50。",
+    x: 0.6, y: 4.85, w: 5.9, h: 1.6, accent: TEAL,
+    title: "\u62a5\u533a\u95f4\uff0c\u4e0d\u62a5\u5e73\u5747\u503c", titleSize: 14, bodySize: 11,
+    body: "AUC 0.734\u20130.965 \u00b7 \u51c6\u786e\u7387 0.676\u20130.949 \u00b7 MCC 0.328\u20130.893\u3002\n\n\u6837\u672c\u91cf\u52a0\u6743\u5e73\u5747\uff080.894\uff09\u4f1a\u63a9\u76d6 10 \u6708\uff0c\u800c\u4e14\u5b83\u7684\u6743\u91cd\u6765\u81ea\u91c7\u6837\u6d3b\u52a8\u7684\u89c4\u6a21\uff0c\u4e0d\u662f\u79d1\u5b66\u610f\u4e49\u3002",
+  });
+  card(s, {
+    x: 6.8, y: 4.85, w: 5.9, h: 1.6, accent: CORAL, fill: "FBEDE7",
+    title: "\u5fc5\u987b\u4e0e\u8fd9\u4e9b\u6570\u5b57\u540c\u884c\u7684\u4e24\u6761\u9650\u5236", titleSize: 14, bodySize: 11,
+    body: "10 \u6708\u7684\u7279\u5f02\u5ea6\u53ea\u6709 0.533\u2014\u2014\u5bf9\u9634\u6027\u6837\u672c\u51e0\u4e4e\u7b49\u540c\u4e8e\u731c\u3002\n\n260 \u4e2a\u6837\u672c\u4e2d\u53ea\u6709 165 \u4e2a\u80fd\u8fdb\u5165\u5206\u5c42\u5206\u6790\uff1a11 \u6708\u4e0e 12 \u6708 100% \u9633\u6027\uff0cAUC \u5728\u90a3\u91cc\u65e0\u5b9a\u4e49\u3002",
     bodyColor: "7A2E14",
+  });
+
+  s.addText("\u82e5\u6539\u7528\u534f\u53d8\u91cf\u8c03\u6574\uff0c\u589e\u91cf\u4e3a +0.043\uff08L2-LR\uff09\u81f3 +0.105\uff08SVM-RBF\uff09\u2014\u2014\u4f9d\u8d56\u6a21\u578b\u9009\u62e9\uff0c\u8fd9\u6b63\u662f\u4e3b\u4f30\u8ba1\u91c7\u7528\u5206\u5c42\u7684\u539f\u56e0\u3002", {
+    x: 0.6, y: 6.55, w: 11.8, h: 0.3, margin: 0, fontFace: BODY, fontSize: 10.5, color: MUTED, italic: true,
   });
 }
 
@@ -845,7 +856,7 @@ divider("05", "生物学发现", "哪些菌携带信号——以及方法之间�
     "SVM-RBF 是主模型——AUC 0.839、MCC 0.531——在 17 个模型的比较中显著优于随机森林（p = 0.021）、XGBoost（p = 0.0016）与 L1-LR（p < 0.001）。",
     "信号部分来自非线性：RBF 核比线性核多出 0.073 的 AUC，且若干菌只在组合中起作用。",
     "九个菌通过了三套独立筛选方法的交叉验证；其中 Candidatus Arthromitus（SFB）有独立的免疫学证据支持。",
-    "采样季节是严重的混杂因子（仅协变量即达 AUC 0.881）。分层与去混杂子集都仍留有信号：菌群的独立贡献落在 +0.043 到 +0.177 这个区间内。",
+    "季节是混杂因子，因此主估计只保留菌群特征并固定月份：AUC 从 10 月的 0.734 到 7 月的 0.965，准确率 0.676 至 0.949。效应真实存在，但强烈依赖季节。",
     "ExtraTrees 分数更高（AUC 0.859），但在最弱分层上更差（0.715 对 0.774）——其领先只来自本已容易的分层。",
     "结论仅适用于 UC Davis 野鸭队列，不可跨宿主或跨研究外推。",
   ];

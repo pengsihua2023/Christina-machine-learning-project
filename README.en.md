@@ -284,18 +284,61 @@ confounding.** However, the effect is highly heterogeneous across seasons (0.668
 0.964); this heterogeneity must be reported honestly rather than cherry-picking the
 0.944 from Jul+Aug.
 
-### 4.4 Feature-set ablation
+### 4.4 The primary estimate of the microbiome effect: stratification, not model adjustment
+
+**The research question is the effect of the microbiome on infection. The covariates (season, site, species, sex) are not the exposure of interest and therefore do not belong in the model.** They are, however, confounders — season influences both microbiome composition and infection risk — and cannot simply be ignored.
+
+There are two ways to handle a confounder:
+
+| Approach | What is in the model | Result here |
+|---|---|---|
+| Model adjustment | microbiome + covariates | increment +0.043 (L2-LR) to +0.105 (SVM-RBF), **depends on model choice** |
+| **Stratification** ✅ | **microbiome only** | see below, **independent of model choice** |
+
+The primary analysis uses **stratification**: fix the sampling month and compare only within strata. The model contains nothing but the 70 CLR features throughout.
+
+#### Per-stratum results (SVM-RBF, microbiome only)
+
+| Stratum | n | Pos rate | AUC | Accuracy | Baseline acc | Gain | Sens. | Spec. | MCC |
+|---|---|---|---|---|---|---|---|---|---|
+| *All samples (unstratified)* | *260* | *0.58* | *0.833* | *0.772* | *0.581* | *+0.192* | *0.823* | *0.703* | *0.530* |
+| **July** | 86 | 0.60 | **0.965** | **0.949** | 0.605 | +0.344 | 0.962 | 0.929 | **0.893** |
+| August | 37 | 0.68 | 0.910 | 0.838 | 0.676 | +0.162 | 0.920 | 0.667 | 0.618 |
+| **October** | 42 | 0.57 | **0.734** | **0.676** | 0.571 | +0.105 | 0.783 | **0.533** | **0.328** |
+| Jul+Aug (same season) | 123 | 0.63 | 0.959 | 0.930 | 0.626 | +0.304 | 0.951 | 0.896 | 0.850 |
+
+**This is how it should be reported:**
 
 ```
-Covariates only (season/site/species/sex/month)  AUC 0.881 ± 0.037
-Microbiome only                                  AUC 0.766 ± 0.054
-Microbiome + covariates                          AUC 0.924 ± 0.030
+AUC        0.734 (October) - 0.965 (July)
+Accuracy   0.676 - 0.949        (against baselines 0.571 - 0.676)
+MCC        0.328 - 0.893
 ```
 
-The microbiome contributes independently over the covariates (+0.043). **Note, however,
-that covariates alone reach 0.881 — this is the "confounder baseline."** Any claim about
-the predictive value of the microbiome must be stated relative to this baseline, or must
-explicitly separate the two contributions.
+#### Three things that must be stated alongside
+
+**1. Stratifying raises the AUC rather than lowering it** (0.833 unstratified → 0.73–0.97 within strata). This is not a contradiction but Simpson-style attenuation: pooling strata with different base rates dilutes within-stratum discrimination. Part of the unstratified 0.833 is spent distinguishing seasons — the microbiome alone predicts November–December sampling at AUC 0.840. **So 0.833 is neither a clean microbiome effect nor the best estimate.**
+
+**2. Do not report the weighted average.** Weighting the three strata by sample size gives AUC 0.894 / accuracy 0.855, but **the strata differ by 0.231 AUC and the average hides October's failure**; the weights are set by sampling effort (July is large only because that field campaign was large), not by scientific relevance. The value is retained in `results/stratified_effect.json` for reference only.
+
+**3. Only 165 of 260 samples can enter a stratified analysis.** November (n=27) and December (n=18) are entirely positive, leaving no negatives within the stratum and AUC mathematically undefined; January (n=50) has only 5 positives and is unstable. **95 samples cannot enter any stratified analysis.**
+
+#### The weakest stratum: October
+
+AUC 0.734, accuracy 0.676 (baseline 0.571), **specificity only 0.533**, MCC 0.328. **In October the model has almost no ability to identify negatives.** This stratum must be reported next to July's 0.965; quoting only the strongest stratum would be selective reporting.
+
+#### Secondary analysis: covariate adjustment
+
+If the question instead becomes "given that season and site are already known, how much does the microbiome add?" — a practical question for surveillance deployment, where those covariates are free — then model adjustment applies:
+
+| Model | Covariates only | Microbiome only | Both | Increment |
+|---|---|---|---|---|
+| L2-LR | 0.881 | 0.766 | 0.924 | +0.043 |
+| SVM-RBF | 0.849 | 0.835 | 0.954 | **+0.105** |
+| ExtraTrees | 0.903 | 0.858 | 0.980 | +0.077 |
+
+The increment is positive under all three models, so its direction is robust, but its magnitude depends on model choice (+0.043 to +0.105). **That dependence is precisely why the primary analysis uses stratification instead.** Note that L2-LR, being linear, is penalised on microbiome features that carry nonlinear structure while losing nothing on one-hot covariates, and therefore systematically understates the increment.
+
 
 ### 4.5 Deconfounding sensitivity analysis: excluding November, December and January
 
@@ -536,6 +579,7 @@ and tree models performing comparably.
 | `validate_extratrees.py` | Subjects ExtraTrees to the same validation as SVM-RBF |
 | `deconfound_analysis.py` | Deconfounding sensitivity analysis (drops Nov/Dec/Jan) |
 | `site_generalization.py` | Leave-one-site-out generalization + season-fixed control |
+| `stratified_effect.py` | **Stratified effect estimate (primary microbiome estimate)** |
 | `svm_analysis.py` | SVM grid expansion + permutation importance |
 | `dna_embedding.py` | DNABERT-2 / NT-v2 sequence embedding (alternative feature route, not used here) |
 
@@ -579,6 +623,7 @@ Season | Age | Sex | Feeding | Species | Location | month | <feature columns>
 | `month_stratified.csv` / `confound_check.csv` | Confounding analyses |
 | `deconfound_summary.json` / `deconf_*.csv` | Deconfounding sensitivity analysis |
 | `site_generalization.json` / `site_*.csv` | Cross-site generalization |
+| `stratified_effect.csv` / `.json` | Per-stratum effect (AUC/acc/sens/spec/MCC) |
 | `permutation_null.txt` / `summary.json` | Permutation null distribution and summary |
 | `summary_plots.png` | ROC + volcano + stability-selection triptych |
 
@@ -596,6 +641,7 @@ python3 explore_models.py            # → results/model_exploration.csv (round 
 python3 validate_extratrees.py       # → results/et_* (ExtraTrees validation)
 python3 deconfound_analysis.py       # → results/deconf_* (deconfounding sensitivity)
 python3 site_generalization.py       # → results/site_* (cross-site generalization)
+python3 stratified_effect.py         # → results/stratified_effect.* (primary estimate)
 python3 svm_analysis.py              # → results/svm_*
 ```
 
@@ -655,7 +701,10 @@ cross_val_score(make_pipeline(StandardScaler(),
    selection frequencies are only 0.105 / 0.005 and they fall outside the intersection —
    a consequence of collinearity, not a lack of biological meaning (see §6.2).
 
-5. **Sampling season is a confounder that cannot be ignored**; covariates alone reach
+5. **The primary estimate of the microbiome effect uses stratification, not model
+   adjustment** (§4.4): with only microbiome features in the model and sampling month
+   held fixed, AUC ranges 0.734 (October) to 0.965 (July) and accuracy 0.676 to 0.949.
+   Sampling season remains a confounder that cannot be ignored; covariates alone reach
    AUC 0.881. Any statement about the predictive value of the microbiome must be framed
    relative to this baseline and must report the heterogeneity of the effect across
    seasons.
