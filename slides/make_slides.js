@@ -240,7 +240,7 @@ const rowHi = { fill: { color: "E4F0F0" }, bold: true };
   });
 
   const items = [
-    ["Baselines are not 0.5", "58% of samples are positive, so always-guessing-Pos already scores accuracy 0.581 \u2014 and PR-AUC 0.581 too. Only ROC-AUC (0.50), MCC (0) and balanced accuracy (0.50) have clean baselines.", CORAL],
+    ["Baselines are not 0.5", "58% of samples are positive, so always-guessing-Pos already scores accuracy 0.581 \u2014 and PR-AUC 0.581 too. Only ROC-AUC (0.50), MCC (0) and balanced accuracy (0.50) have clean baselines.\n\nThroughout this deck, \"AUC\" on its own always means ROC-AUC.", CORAL],
     ["AUC ignores the threshold, accuracy does not", "The same predictions give accuracy 0.69\u20130.77 depending on where the cut-off sits. AUC measures ranking quality, so it is the metric for comparing models.", CORAL],
     ["MCC is the one to trust under imbalance", "It uses all four cells of the confusion matrix and has a baseline of 0. Accuracy and F1 both reward simply guessing the majority class.", TEAL],
     ["p governs one test, FDR governs a batch", "Across 70 taxa, pure noise still yields ~3.5 hits at p<0.05. Of our 19 hits at FDR<0.05, about 1 is expected to be false.", TEAL],
@@ -250,7 +250,7 @@ const rowHi = { fill: { color: "E4F0F0" }, bold: true };
   items.forEach((it, i) => {
     const col = i % 2, row = Math.floor(i / 2);
     card(s, {
-      x: 0.6 + col * 6.25, y: 1.95 + row * 1.62, w: 5.9, h: 1.45,
+      x: 0.6 + col * 6.25, y: 1.88 + row * 1.70, w: 5.9, h: 1.56,
       accent: it[2], fill: it[2] === CORAL ? "FBEDE7" : W,
       title: `${i + 1}.  ${it[0]}`, titleSize: 13,
       body: it[1], bodySize: 10.5,

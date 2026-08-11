@@ -823,6 +823,7 @@ Each entry is anchored to a measured value from this project where possible. Sec
 
 | Term | One line | Value here |
 |---|---|---|
+| **AUC** | Generic term for "area under the curve" — always ask *which* curve. **Throughout this document, a bare "AUC" means ROC-AUC** | — |
 | **ROC-AUC** | Probability that a random positive scores above a random negative. **Threshold-independent**, baseline 0.5 | Primary model 0.835; stratified 0.734–0.965 |
 | **PR-AUC** | Area under precision-recall; ignores TN, more sensitive when positives are rare. **Baseline is the positive rate**, not 0.5 | 0.871 (baseline 0.581) |
 | **MCC** | Matthews correlation coefficient, using all four confusion-matrix cells. **Baseline 0**, most reliable under imbalance | Primary model 0.535; July stratum 0.893 |
