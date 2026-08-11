@@ -170,7 +170,7 @@ ExtraTrees vs SVM-RBF     Δ=+0.023   wins 14/25   Wilcoxon p=0.0409   paired t 
 
 **Note that indistinguishability is not transitive.** The two leaders, ExtraTrees and SVM-RBF, cannot be separated (p=0.085); SVM-RBF, the ensemble and SVM-poly are mutually indistinguishable (p=0.360–0.609); but ExtraTrees does separate from the ensemble and SVM-poly (p=0.005 / 0.003). **No consistent ranking therefore exists among the leaders**, whose AUCs span 0.825–0.858, inside the ±0.04–0.06 fold-to-fold spread. **Model choice therefore cannot be decided by AUC** — only by error structure and robustness on weak strata (§3.3).
 
-The one genuinely controlled and genuinely decisive comparison is the kernel ablation: **SVM-RBF vs SVM-linear, Δ=+0.080, winning 24 of 25 folds, Wilcoxon p<0.0001** — same model family, only the kernel differs (§6.3).
+The one genuinely controlled and genuinely decisive comparison is the kernel ablation: **SVM-RBF vs SVM-linear, Δ=+0.080, winning 24 of 25 folds, Wilcoxon p<0.0001** — same model family, only the kernel differs (§6.4).
 
 ### 3.3 On ExtraTrees and the choice of primary model
 
@@ -203,7 +203,7 @@ Rank agreement     Spearman rho = 0.738 (p=3.3e-13) against SVM-RBF importance
                    Top-15 overlap 10/15                                           OK
 ```
 
-The rank agreement shows the **biomarker conclusions do not depend on model choice** — under ExtraTrees, *Veillonella*, *Rothia*, *Candidatus Arthromitus*, *Staphylococcus*, and *Lawsonella* still rank near the top. That strengthens §6.1.
+The rank agreement shows the **biomarker conclusions do not depend on model choice** — under ExtraTrees, *Veillonella*, *Rothia*, *Candidatus Arthromitus*, *Staphylococcus*, and *Lawsonella* still rank near the top. That strengthens §6.2.
 
 **Final decision: SVM-RBF remains the primary model.** The grounds are no longer merely "p=0.085 is not significant" but the measured fact that ExtraTrees performs worse on the weakest stratum.
 
@@ -369,7 +369,7 @@ Spearman rho on t-statistics = 0.879 (p = 2.7e-21)
 Features significant in both   18
 ```
 
-The strongest hits in the subset are *Veillonella* (t = −14.4, FDR = 3.7e-29), *Rothia* (t = −12.6), Mycoplasmataceae, *Prevotella* and *Streptococcus*. **Note that *Veillonella* and *Prevotella* are precisely the two genera that collinearity had pushed out of the nine-taxon intersection** (§6.2) — after deconfounding they become the strongest signals, confirming that their exclusion was a methodological artefact rather than a biological conclusion.
+The strongest hits in the subset are *Veillonella* (t = −14.4, FDR = 3.7e-29), *Rothia* (t = −12.6), Mycoplasmataceae, *Prevotella* and *Streptococcus*. **Note that *Veillonella* and *Prevotella* are precisely the two genera that collinearity had pushed out of the nine-taxon intersection** (§6.3) — after deconfounding they become the strongest signals, confirming that their exclusion was a methodological artefact rather than a biological conclusion.
 
 **Two limits that must be reported alongside this:**
 
@@ -513,7 +513,52 @@ Until then, any claim about cross-season deployment — positive or negative —
 
 ## 6. Biological Findings
 
-### 6.1 Intersection of three independent methods
+### 6.1 The three steps behind differential abundance
+
+"Differential abundance" is not a single step but the table produced by the pipeline below. Each stage solves one problem:
+
+```
+raw counts, 70 taxa x 260 samples
+   │
+   │  (1) CLR transform -- makes "how much difference" a meaningful question
+   │      Raw counts are distorted by sequencing depth and by the other taxa
+   │      competing for a fixed total; after CLR each value is a log deviation
+   │      from that sample's own average
+   ▼
+70 taxa x 260 CLR values
+   │
+   │  (2) Welch t-test -- one test per taxon (positive vs negative group)
+   │      Does not assume equal variances (151 vs 109 here, with differing
+   │      within-group dispersion). Returns t and p; the sign of t is the direction
+   ▼
+70 t-values + 70 p-values
+   │
+   │  (3) BH-FDR correction -- accounts for having run 70 tests
+   │      Pure noise alone would yield about 3.5 hits at p<0.05
+   ▼
+70 FDR values  --  keep FDR < 0.05  -->  19 differentially abundant taxa
+                                          (9 up in positives, 10 down)
+```
+
+**Worked example, *Rothia*:**
+
+| Step | Value |
+|---|---|
+| (1) Raw counts | Positive group mean 12.0, negative 78.9 (depth-distorted, not directly comparable) |
+| (1) After CLR | Positive **−0.383**, negative **+1.251**, difference **−1.633** |
+| (2) Welch t | t = −5.83, p = 2.5e-08 |
+| (3) BH-FDR | FDR = 1.8e-06 |
+| **Verdict** | **FDR < 0.05 → differentially abundant, direction Pos↓** |
+
+**The correction does real work**: 5 of the 70 taxa have p<0.05 but FDR≥0.05. Uncorrected they would be reported as findings; they are far more likely to be the luck of running 70 tests, and are discarded.
+
+BH-FDR is used rather than Bonferroni because microbiome features are strongly correlated and Bonferroni (threshold 0.0007 over 70 tests) would be strict enough to find almost nothing. FDR controls the proportion of false positives *among the reported hits* — roughly 1 of the 19 is expected to be a false positive.
+
+The result table `results/differential_abundance.csv` has one row per taxon with `t / p / FDR / direction / mean_clr_Pos / mean_clr_Neg / prevalence`.
+
+**A note on method choice**: this project uses the basic CLR + Welch t + BH-FDR combination rather than the more specialised ANCOM-BC, MaAsLin2 or ALDEx2. The basic route is fully transparent and reproducible, and differential abundance is only one of three selection methods here (§6.2–6.3), so no conclusion rests on it alone. Re-running with ANCOM-BC would be a reasonable supplementary analysis if a reviewer asks for it.
+
+### 6.2 Intersection of three independent methods
 
 Cross-referencing SVM permutation importance, L1 stability selection (200 bootstraps,
 C=0.1), and differential abundance (CLR + Welch t + BH-FDR), **nine features are hit by
@@ -536,7 +581,7 @@ Overall differential abundance: **19 of 70 features at FDR < 0.05**.
 positive group — this genus induces Th17 and IgA responses, an independent line of
 immunological support.
 
-### 6.2 Disagreements between methods are equally informative
+### 6.3 Disagreements between methods are equally informative
 
 - ***Veillonella***: ranks 2nd in permutation importance and is **positive in 100% of the
   25 folds**, with FDR = 2.3e-05, yet its **L1 selection frequency is only 0.105**. This
@@ -547,7 +592,7 @@ immunological support.
   entirely non-significant. **They act through nonlinear interactions that univariate
   tests cannot capture.**
 
-### 6.3 Genuine nonlinear structure is present
+### 6.4 Genuine nonlinear structure is present
 
 Two independent lines of evidence:
 
@@ -698,7 +743,7 @@ cross_val_score(make_pipeline(StandardScaler(),
    *Veillonella* and *Prevotella* are significantly depleted in positives
    (FDR 2.3e-05 / 3.6e-05) and *Veillonella* ranks 2nd in SVM importance, yet their L1
    selection frequencies are only 0.105 / 0.005 and they fall outside the intersection —
-   a consequence of collinearity, not a lack of biological meaning (see §6.2).
+   a consequence of collinearity, not a lack of biological meaning (see §6.3).
 
 5. **The primary estimate of the microbiome effect uses stratification, not model
    adjustment** (§4.4): with only microbiome features in the model and sampling month

@@ -158,7 +158,7 @@ ExtraTrees vs SVM-RBF     Δ=+0.023   14/25 折胜   Wilcoxon p=0.0409   配对t
 
 **结论：AUC 不足以决定主模型。** 领先者的 AUC 落在 0.825–0.858，处于 ±0.04–0.06 的折间波动内；真正的依据见 §3.3。
 
-唯一真正受控且决定性的对比是核函数消融：**SVM-RBF vs SVM-linear，Δ=+0.080，25 折中 24 折胜，Wilcoxon p<0.0001**——同一模型族，只换核函数（§6.3）。
+唯一真正受控且决定性的对比是核函数消融：**SVM-RBF vs SVM-linear，Δ=+0.080，25 折中 24 折胜，Wilcoxon p<0.0001**——同一模型族，只换核函数（§6.4）。
 
 ### 3.3 关于 ExtraTrees 与主模型的选择
 
@@ -191,7 +191,7 @@ ExtraTrees 在 AUC（0.858）、PR-AUC（0.891）、MCC（0.542）三项上均�
             Top-15 重合 10/15                                              ✓
 ```
 
-排名一致性说明**biomarker 结论不依赖模型选择**——换成 ExtraTrees，*Veillonella*、*Rothia*、*Candidatus Arthromitus*、*Staphylococcus*、*Lawsonella* 依然排在前列。这反过来加强了 §6.1 的结论。
+排名一致性说明**biomarker 结论不依赖模型选择**——换成 ExtraTrees，*Veillonella*、*Rothia*、*Candidatus Arthromitus*、*Staphylococcus*、*Lawsonella* 依然排在前列。这反过来加强了 §6.2 的结论。
 
 **最终决定：主模型维持 SVM-RBF。** 依据不再只是"p=0.085 不显著"，而是 ExtraTrees 在最弱分层上实测更差。
 
@@ -344,7 +344,7 @@ t 统计量 Spearman ρ = 0.879 (p = 2.7e-21)
 两边同时显著的特征   18 个
 ```
 
-子集中最显著的前几名：*Veillonella*（t = −14.4，FDR = 3.7e-29）、*Rothia*（t = −12.6）、Mycoplasmataceae、*Prevotella*、*Streptococcus*。**值得注意的是，*Veillonella* 与 *Prevotella* 正是此前因共线性被 L1 排除在九菌交集之外的两个属**（§6.2）——去混杂后它们成为最强信号，说明当初把它们排除在交集外确实只是方法学产物，而非生物学结论。
+子集中最显著的前几名：*Veillonella*（t = −14.4，FDR = 3.7e-29）、*Rothia*（t = −12.6）、Mycoplasmataceae、*Prevotella*、*Streptococcus*。**值得注意的是，*Veillonella* 与 *Prevotella* 正是此前因共线性被 L1 排除在九菌交集之外的两个属**（§6.3）——去混杂后它们成为最强信号，说明当初把它们排除在交集外确实只是方法学产物，而非生物学结论。
 
 **必须同时报告的两条限制：**
 
@@ -464,7 +464,50 @@ Species 层完全无注释，55 个特征无 Genus 注释。生物学解释只�
 
 ## 6. 生物学发现
 
-### 6.1 三套独立方法的交集
+### 6.1 差异丰度分析的三步流程
+
+「差异丰度」（differential abundance）不是某个单一步骤，而是下面这条流水线跑完后得到的那张表。三个环节各自解决一件事：
+
+```
+70 个菌 × 260 个样本的原始计数
+   │
+   │  ① CLR 变换 ── 让「差多少」这个问题有意义
+   │     原始计数受测序深度与其他菌挤压的影响，不可直接相减；
+   │     CLR 后每个值表示「相对于该样本自身平均水平的对数偏离」
+   ▼
+70 个菌 × 260 个 CLR 值
+   │
+   │  ② Welch t 检验 ── 对每个菌各做一次（阳性组 vs 阴性组）
+   │     不假设两组方差相等（本项目 151 vs 109，组内离散度也不同）
+   │     输出 t 与 p；t 的正负即效应方向
+   ▼
+70 个 t 值 + 70 个 p 值
+   │
+   │  ③ BH-FDR 校正 ── 处理「做了 70 次检验」
+   │     70 次检验中即使全是噪声也会有约 3.5 个 p<0.05
+   ▼
+70 个 FDR  ──  取 FDR < 0.05  ──▶  19 个差异丰度菌（9 个 Pos↑，10 个 Pos↓）
+```
+
+**以 *Rothia* 为例走完全程：**
+
+| 步骤 | 数值 |
+|---|---|
+| ① 原始计数 | 阳性组均值 12.0，阴性组均值 78.9（受深度影响，不可直接比较） |
+| ① CLR 之后 | 阳性组 **−0.383**，阴性组 **+1.251**，差 **−1.633** |
+| ② Welch t | t = −5.83，p = 2.5e-08 |
+| ③ BH-FDR | FDR = 1.8e-06 |
+| **判定** | **FDR < 0.05 → 差异丰度菌，方向 Pos↓** |
+
+**校正确实起了作用**：70 个菌中有 5 个 p<0.05 但 FDR≥0.05——按未校正标准会被当成发现，实际很可能是 70 次检验中撞上的运气，已被剔除。
+
+选择 BH-FDR 而非 Bonferroni，是因为菌群特征高度相关，Bonferroni（70 次检验阈值降到 0.0007）会严到几乎发现不了任何东西。FDR 控制的是「在宣称显著的结果中假阳性占多大比例」——19 个结果中预期约 1 个为假阳性。
+
+结果表 `results/differential_abundance.csv` 每行一个菌，含 `t / p / FDR / direction / mean_clr_Pos / mean_clr_Neg / prevalence`。
+
+**方法学说明**：本项目使用 CLR + Welch t + BH-FDR 这一基础组合，而非领域内更精细的 ANCOM-BC、MaAsLin2 或 ALDEx2。理由是前者完全透明、易于复现，且本项目并不单独依赖差异丰度——它只是三套筛选方法之一（见 §6.2 与 §6.3），交叉验证降低了对任一方法的依赖。若审稿人要求，改用 ANCOM-BC 复核是合理的补充分析。
+
+### 6.2 三套独立方法的交集
 
 将 SVM permutation importance、L1 稳定性选择（200 次 bootstrap，C=0.1）、差异丰度（CLR + Welch t + BH-FDR）三套方法交叉比对，**9 个特征被三者同时命中**，构成最可靠的 biomarker 集合：
 
@@ -483,12 +526,12 @@ Species 层完全无注释，55 个特征无 Genus 注释。生物学解释只�
 
 *Candidatus Arthromitus*（分节丝状菌，SFB）在阳性组升高——该菌诱导 Th17 与 IgA 应答，有独立的免疫学文献支撑。
 
-### 6.2 方法间分歧同样有信息量
+### 6.3 方法间分歧同样有信息量
 
 - ***Veillonella***：permutation importance 排名第 2 且 **25 折中 100% 为正**，FDR = 2.3e-05 极显著，但 **L1 频率仅 0.105**。典型共线性表现——L1 在一组相关特征中只保留一个。**不能因 L1 未选中而排除它。**
 - ***Moraxella* / *Fusibacter* / *Cetobacterium***：permutation importance 不低（0.008–0.009，为正比例 0.88），但单变量 FDR 分别为 0.87 / 0.90 / 0.97，完全不显著。**它们通过非线性交互起作用，单变量检验无法捕捉。**
 
-### 6.3 存在真实的非线性结构
+### 6.4 存在真实的非线性结构
 
 两条独立证据：
 
@@ -620,7 +663,7 @@ cross_val_score(make_pipeline(StandardScaler(),
 3. **菌群中存在真实的非线性结构。** RBF 核相对线性核有 0.080 的 AUC 优势（24/25 折胜，p<0.0001，本项目最强的单项证据），且部分重要特征在单变量检验中完全不显著。
 
 4. **9 个特征通过三套独立方法的交叉验证**：*Rothia*、*Staphylococcus*、*Lawsonella* 在阳性组降低，*Candidatus Arthromitus*(SFB)、*Varibaculum*、*Psittacicella* 及一个未定属 Ruminococcaceae 升高（另含 2 个未注释特征）。
-   *Veillonella* 与 *Prevotella* 虽在阳性组显著降低（FDR 2.3e-05 / 3.6e-05）且 *Veillonella* 的 SVM 重要性排名第 2，但 L1 选中频率仅 0.105 / 0.005，未进入交集——这是共线性导致的，不代表其无生物学意义（详见 §6.2）。
+   *Veillonella* 与 *Prevotella* 虽在阳性组显著降低（FDR 2.3e-05 / 3.6e-05）且 *Veillonella* 的 SVM 重要性排名第 2，但 L1 选中频率仅 0.105 / 0.005，未进入交集——这是共线性导致的，不代表其无生物学意义（详见 §6.3）。
 
 5. **菌群效应的主估计采用分层而非模型调整**（§4.4）：模型中只有菌群，固定采样月份后 AUC 0.734（10 月）至 0.965（7 月），accuracy 0.676–0.949。采样季节是不可忽视的混杂因子，单独使用协变量即可达 AUC 0.881。任何关于菌群预测价值的表述都必须相对此基线，并报告效应在季节间的异质性。
 
