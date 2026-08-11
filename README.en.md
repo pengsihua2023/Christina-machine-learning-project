@@ -6,6 +6,8 @@ modeling, and evaluation workflow, the conclusions, and all known limitations.
 
 *(Chinese version: `README.md`)*
 
+> **Unfamiliar with the statistical terms used here?** See **[§10 Glossary](#10-glossary)** at the end — CLR, Welch t, BH-FDR, L1 stability selection, MCC, label leakage and others, each in one line with a measured value from this project.
+
 ---
 
 ## 1. Data
@@ -777,3 +779,70 @@ cross_val_score(make_pipeline(StandardScaler(),
   Jan+Oct), and the covariate ablation
 - The limitations section should cover all eight items in §5, especially §5.7 (multiple comparison) and §5.8 (spatial confounding)
 - The full 17-model table must be given; reporting only the winner is selective reporting
+
+---
+
+## 10. Glossary
+
+Each entry is anchored to a measured value from this project where possible. Sections in brackets give the fuller treatment.
+
+### 10.1 Data and transformation
+
+| Term | One line | Value here |
+|---|---|---|
+| **Compositional data** | Every sample sums to a fixed total (rarefied to 5000 reads), so a taxon "increasing" may only mean others decreased and pushed it up — raw abundances are not independent | 90.2% of cells are zero |
+| **Prevalence filter** | Drop taxa present in only a handful of samples. **Label-blind** — denoising, not feature selection | ≥10% takes 275 features to 70 (§2.2) |
+| **CLR transform**<br>Centered Log-Ratio | Log each abundance, subtract that sample's mean log, giving a log deviation from the sample's own average so taxa become independently comparable | *Rothia* count 12 → CLR −0.383 (§6.1) |
+| **Pseudocount** | `log(0)` is undefined, so a small constant is added first. 0.5 comes from continuity correction and stays below the smallest observable count of 1 | Sensitivity: AUC moves <0.007 across 0.1–2.0 |
+| **p/n** | Feature-to-sample ratio; indicates whether this is a high-dimensional problem | 70/260 ≈ 0.27, so no PCA needed |
+
+### 10.2 Statistical testing
+
+| Term | One line | Value here |
+|---|---|---|
+| **Differential abundance** | Test each taxon for a between-group difference. **Not one step but the output of the CLR + Welch t + BH-FDR pipeline** (§6.1) | 19 of 70 taxa at FDR<0.05 |
+| **Welch t-test** | A t-test that **does not assume equal variances**. Should be the default whenever group sizes differ | 151 positive vs 109 negative, so required |
+| **BH-FDR** | Benjamini–Hochberg false discovery rate correction for running many tests. Controls the **share of false positives among reported hits** | Discards 5 taxa with p<0.05 but FDR≥0.05 |
+| **Bonferroni** | Stricter correction controlling the chance of any error at all; too strict when features correlate | Threshold falls to 0.0007 over 70 tests |
+| **Permutation test** | Shuffle labels, rerun the whole pipeline, build a null. **Rules out overfitting, not confounding** | Observed 0.743 vs null 0.501, p=0.0099 (§4.1) |
+
+### 10.3 Models and regularisation
+
+| Term | One line | Value here |
+|---|---|---|
+| **L1 regularisation** (Lasso) | Penalises the **sum of absolute coefficients**, driving unimportant ones to **exactly zero** — hence usable as a feature selector | At C=0.1, only 18 of 70 stay non-zero |
+| **L2 regularisation** (Ridge) | Penalises the **sum of squares**; shrinks but never zeroes, so all features survive | 70/70 non-zero |
+| **Elastic Net** | Weighted mix of L1 and L2, with a grouping effect on collinear features | AUC 0.770, no better than L1-LR's 0.772 |
+| **L1 stability selection** | Refit L1 on 200 bootstrap subsamples (80% each) and count how often each taxon is selected, yielding a list robust to sample perturbation | 13 taxa at frequency ≥0.7 (§6.2) |
+| **Selection frequency**<br>("L1 frequency") | Share of those 200 runs selecting the taxon. **Measures stability of inclusion, not importance or effect size** | *Rothia* 0.995 (199/200) |
+| **Permutation importance** | Shuffle one feature in the validation fold and measure the AUC drop. **Gives no direction of effect** | *Veillonella* ranks 2nd, positive in 100% of 25 folds |
+
+### 10.4 Evaluation and metrics
+
+| Term | One line | Value here |
+|---|---|---|
+| **ROC-AUC** | Probability that a random positive scores above a random negative. **Threshold-independent**, baseline 0.5 | Primary model 0.835; stratified 0.734–0.965 |
+| **PR-AUC** | Area under precision-recall; ignores TN, more sensitive when positives are rare. **Baseline is the positive rate**, not 0.5 | 0.871 (baseline 0.581) |
+| **MCC** | Matthews correlation coefficient, using all four confusion-matrix cells. **Baseline 0**, most reliable under imbalance | Primary model 0.535; July stratum 0.893 |
+| **Balanced accuracy** | (sensitivity + specificity) / 2, baseline 0.5 | Primary model 0.764 |
+| **Nested CV** | Outer loop estimates performance, inner loop tunes; they never share folds. **The reported AUC carries no tuning bias** | Outer 5×5=25, inner 4 (§3.1) |
+| **GroupKFold / LOLO** | Split by a grouping variable so no group spans train and test; tests cross-group generalisation | By site: AUC 0.443 (§4.6) |
+
+### 10.5 Bias and confounding
+
+| Term | One line | Example here |
+|---|---|---|
+| **Label leakage** | In one line: **the model peeked at the answer**. Four kinds, each needing a different detector | see below |
+| ├ (1) Content leakage | A feature *is* the label or a deterministic function of it | `CoreGroup`=`Duck_Pos` → AUC 1.000. **Invisible to permutation testing**; caught by column audit (§2.1) |
+| ├ (2) Supervised process leakage | Labels were used in preprocessing done outside the folds | Measured: null distribution rises to 0.589, max 0.702 |
+| ├ (3) Unsupervised process leakage | Preprocessing ignores labels but still sees validation-fold data | Global prevalence filter → 0.004–0.015 inflation (note in §3.2) |
+| └ (4) Selection bias | The leak is in the act of *choosing* | Best-of-17 model, flat-CV tuning (§5.7) |
+| **Confounder** | A third variable affecting both exposure and outcome. **Not leakage** — it is genuinely available at prediction time | Sampling month: covariates alone reach AUC 0.881 (§4.2) |
+| **Stratification** | Hold the confounder fixed and compare within strata. **Only microbiome stays in the model** — this project's primary estimate | July AUC 0.965, October 0.734 (§4.4) |
+
+### 10.6 The line between leakage and confounding
+
+> **Leaked information does not exist at prediction time** (you cannot know `CoreGroup` before deciding whether a bird is infected);
+> **confounded information does** (you obviously know what month it is).
+>
+> The first must be deleted; the second must be handled — by stratification or adjustment, not deletion.
