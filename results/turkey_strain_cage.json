@@ -1,0 +1,77 @@
+{
+  "project": "PRJNA644054",
+  "n": 45,
+  "n_perm": 300,
+  "strain_isolator_batch_collinear": true,
+  "nominal_strain_effect": {
+    "label": "CKPA vs TKMN（n=32）",
+    "n": 32,
+    "AUC": 0.9125,
+    "null_mean": 0.4977083333333333,
+    "null_sd": 0.13570246283741091,
+    "null_max": 0.8515625,
+    "p_value": 0.0033222591362126247,
+    "n_perm": 300
+  },
+  "pure_cage_effect": [
+    {
+      "label": "隔离器 3 vs 4（同 CKPA、同 10-30 批次）",
+      "n": 16,
+      "AUC": 0.91875,
+      "null_mean": 0.5057291666666667,
+      "null_sd": 0.1910507256576262,
+      "null_max": 0.9375,
+      "p_value": 0.006644518272425249,
+      "n_perm": 300
+    },
+    {
+      "label": "隔离器 5 vs 6（同 TKMN、同 11-06 批次）",
+      "n": 16,
+      "AUC": 0.90625,
+      "null_mean": 0.4969791666666667,
+      "null_sd": 0.20006669352403186,
+      "null_max": 1.0,
+      "p_value": 0.016611295681063124,
+      "n_perm": 300
+    },
+    {
+      "label": "隔离器 1 vs 2（同 Mock、同 10-30 批次）",
+      "n": 13,
+      "AUC": 0.9,
+      "null_mean": 0.49083333333333334,
+      "null_sd": 0.22132551285129531,
+      "null_max": 0.96875,
+      "p_value": 0.03322259136212625,
+      "n_perm": 300
+    }
+  ],
+  "pure_cage_mean_auc": 0.9083333333333333,
+  "pure_cage_n_significant": 3,
+  "infection_effect": {
+    "label": "感染 vs 对照（n=45，全队列）",
+    "n": 45,
+    "AUC": 0.9674479166666667,
+    "null_mean": 0.5010069444444446,
+    "null_sd": 0.1285755391152493,
+    "null_max": 0.90625,
+    "p_value": 0.0033222591362126247,
+    "n_perm": 300
+  },
+  "per_contrast_da": [
+    {
+      "contrast": "CKPA 内 3vs4",
+      "n_sig": 0,
+      "n_tested": 62
+    },
+    {
+      "contrast": "TKMN 内 5vs6",
+      "n_sig": 1,
+      "n_tested": 62
+    },
+    {
+      "contrast": "Mock 内 1vs2",
+      "n_sig": 3,
+      "n_tested": 62
+    }
+  ]
+}
