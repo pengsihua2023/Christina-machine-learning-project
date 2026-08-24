@@ -28,7 +28,7 @@ import warnings
 import numpy as np
 import pandas as pd
 from sklearn.metrics import (accuracy_score, average_precision_score,
-                             balanced_accuracy_score, confusion_matrix,
+                             balanced_accuracy_score, confusion_matrix, f1_score,
                              matthews_corrcoef, recall_score, roc_auc_score)
 from sklearn.model_selection import (GridSearchCV, LeaveOneOut,
                                      RepeatedStratifiedKFold, StratifiedKFold,
@@ -77,6 +77,10 @@ def nested_cv(X, y, prevalence, n_splits=5, n_repeats=10):
         "balanced_acc": balanced_accuracy_score(yv, yh),
         "sensitivity": recall_score(yv, yh),
         "specificity": recall_score(yv, yh, pos_label=0),
+        "precision": tp / max(tp + fp, 1),
+        "F1": f1_score(yv, yh, zero_division=0),
+        # 全猜阳性时 precision=阳性率、recall=1，故基线 F1 = 2r/(r+1)
+        "baseline_F1": float(2 * y.mean() / (y.mean() + 1)),
         "MCC": matthews_corrcoef(yv, yh),
         "confusion": {"TN": int(tn), "FP": int(fp), "FN": int(fn), "TP": int(tp)},
         "best_params": pd.Series(chosen).value_counts().index[0],
@@ -137,7 +141,9 @@ def main():
     res = nested_cv(X, y, args.prevalence)
     for k, lbl in [("AUC", "ROC-AUC"), ("PR_AUC", "PR-AUC"), ("accuracy", "Accuracy"),
                    ("baseline_acc", "基线 accuracy"), ("balanced_acc", "平衡准确率"),
-                   ("sensitivity", "灵敏度"), ("specificity", "特异度"), ("MCC", "MCC")]:
+                   ("sensitivity", "灵敏度"), ("specificity", "特异度"),
+                   ("precision", "精确率"), ("F1", "F1"),
+                   ("baseline_F1", "基线 F1"), ("MCC", "MCC")]:
         print(f"  {lbl:<16} {res[k]:.3f}")
     c = res["confusion"]
     print(f"  混淆矩阵（折外合并，已除以重复次数 10）: "

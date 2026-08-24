@@ -22,7 +22,10 @@
       "FN": 22,
       "TP": 328
     },
-    "best_params": "{'clf__C': 1.0, 'clf__gamma': 'scale'}"
+    "best_params": "{'clf__C': 1.0, 'clf__gamma': 'scale'}",
+    "precision": 0.830379746835443,
+    "F1": 0.8805369127516778,
+    "baseline_F1": 0.813953488372093
   },
   "turkey_only_n45": {
     "n": 45,
@@ -42,7 +45,10 @@
       "FN": 21,
       "TP": 299
     },
-    "best_params": "{'clf__C': 1.0, 'clf__gamma': 'scale'}"
+    "best_params": "{'clf__C': 1.0, 'clf__gamma': 'scale'}",
+    "precision": 0.8768328445747801,
+    "F1": 0.9046898638426626,
+    "baseline_F1": 0.8311688311688311
   },
   "loo_auc": 0.9732142857142857,
   "permutation": {
