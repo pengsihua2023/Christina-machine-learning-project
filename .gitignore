@@ -16,3 +16,6 @@ Thumbs.db
 slides/png/
 slides/png_zh/
 slides/*.pdf
+
+# 家禽队列幻灯片渲染产物
+slides/png_poultry/
