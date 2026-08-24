@@ -1,0 +1,107 @@
+========================================================================================
+[A] 队列内部的混杂结构
+========================================================================================
+
+A1. 隔离器 × 感染状态
+Influenza  Neg  Pos
+Isolator           
+1            8    0
+2            5    0
+3            0    8
+4            0    8
+5            0    8
+6            0    8
+
+  → 完全共线：每个隔离器只含一种感染状态
+    这是实验设计使然（对照与感染分笼饲养），但代价是隔离器效应与感染效应在统计上不可分离。
+
+A2. DNA 提取批次 × 感染状态
+Influenza       Neg  Pos
+ExtractionDate          
+18-10-30         13   16
+18-11-06          0   16
+
+  → 18-11-06 批次的 16 个样本全部为阳性：部分共线，属批次效应。
+
+A3. 性别 × 感染状态（对照：无混杂的变量长什么样）
+Influenza  Neg  Pos
+sex                
+female       7   13
+male         6   19
+
+  → 分布均衡；菌群预测性别 AUC 0.454（作为阴性对照）
+
+A4. 决定性检验：在感染状态相同的鸟之间，菌群能否分辨隔离器？
+    若能，说明存在笼效应，则组间差异中必然混有它。
+  阳性组（隔离器 3/4/5/6，各 8 只）
+     折外准确率 0.719   随机基线 0.250   多数类基线 0.250  ← 笼效应强
+  阴性组（隔离器 1 号 8 只、2 号 5 只）
+     折外准确率 0.923   随机基线 0.500   多数类基线 0.615
+
+A5. 菌群与批次变量的关联
+  菌群 → 预测 DNA 提取批次   AUC 0.921
+  仅在阳性组内（感染状态固定，两批次各 16 个）  AUC 0.940   ← 批次效应真实存在
+
+A6. 不可用作协变量的变量：感染的后果
+  Bursa_Weight_g               阳性 0.41   阴性 0.58   Welch p=0.0001
+  Bird_weight.g.               阳性 2.93   阴性 3.44   Welch p=0.0288
+  Bursa.BodyWeight.Ratio1000   阳性 2.93   阴性 3.44   Welch p=0.0288
+
+  → 法氏囊重量在阳性组显著更低，这是感染导致的免疫器官萎缩，属**结局/中介变量**，绝不可作为特征或协变量。
+  [数据质量] Bird_weight.g. 与 Bursa.BodyWeight.Ratio1000 数值完全相同，且均值 ~2.9「克」对火鸡不合理——原始元数据疑似串列，宜向数据提供方核实。
+
+========================================================================================
+[B] 驱动预测的菌：permutation importance 与差异丰度
+========================================================================================
+
+B1. Permutation importance（折内计算，3×5 折，每折打乱 30 次）
+    折 5/15 ...
+    折 10/15 ...
+    折 15/15 ...
+
+B2. 差异丰度（CLR + Welch t + BH-FDR）
+  62 个特征中 19 个 FDR<0.05（11 个 Pos↑，8 个 Pos↓）
+
+B3. 笼效应污染检查（本队列特有）
+    对每个菌，在【阳性组内部】按隔离器做单因素方差分析。
+    若某菌在同为阳性的四个隔离器之间也显著不同，说明它受笼效应驱动。
+  62 个特征中 18 个在阳性组内部即因隔离器显著不同（FDR<0.05）
+
+B4. 驱动预测的菌 —— Top 15（按 permutation importance 排序）
+                      Genus              Family  importance_mean  frac_folds_positive direction       t    FDR  cage_confounded
+           Negativibacillus     Ruminococcaceae           0.0133               0.4000      Pos↑  5.8676 0.0000             True
+                      HT002    Lactobacillaceae           0.0130               0.5333      Pos↓ -3.8923 0.0057            False
+                Pediococcus    Lactobacillaceae           0.0129               0.1333      Pos↑  4.3174 0.0010            False
+                    UCG-009   Butyricicoccaceae           0.0107               0.3333      Pos↓ -2.2858 0.0975             True
+                Tissierella           Family_XI           0.0079               0.0667      Pos↑  4.8212 0.0004             True
+                        NaN    Lactobacillaceae           0.0064               0.4000      Pos↓ -4.1476 0.0017            False
+           Faecalibacterium     Ruminococcaceae           0.0052               0.2000      Pos↓ -3.5141 0.0069             True
+             Flavonifractor    Oscillospiraceae           0.0036               0.2000      Pos↑  0.7267 0.5863            False
+               Turicibacter Erysipelotrichaceae           0.0033               0.1333      Pos↓ -0.8421 0.5431            False
+             Incertae_Sedis      Incertae_Sedis           0.0030               0.0667      Pos↑  3.2008 0.0105             True
+[Ruminococcus]_gnavus_group     Lachnospiraceae           0.0027               0.0667      Pos↑  0.9104 0.5431            False
+             Incertae_Sedis      Incertae_Sedis           0.0022               0.2000      Pos↓ -2.5990 0.0499            False
+                  Weissella    Lactobacillaceae           0.0020               0.3333      Pos↓ -3.5610 0.0087            False
+             Incertae_Sedis      Incertae_Sedis           0.0019               0.2000      Pos↑  0.8195 0.5431            False
+                        NaN         Bacillaceae           0.0017               0.1333      Pos↓ -1.7092 0.2023            False
+
+  两法一致（FDR<0.05 且重要性>0）共 11 个，其中：
+    未被笼效应污染: 7 个   ← 可作为候选 biomarker
+    受笼效应污染:   4 个   ← 无法区分是感染还是同笼所致
+
+  未受污染的候选（按重要性）:
+               Genus             Family direction  importance_mean       t    FDR
+               HT002   Lactobacillaceae      Pos↓           0.0130 -3.8923 0.0057
+         Pediococcus   Lactobacillaceae      Pos↑           0.0129  4.3174 0.0010
+                 NaN   Lactobacillaceae      Pos↓           0.0064 -4.1476 0.0017
+      Incertae_Sedis     Incertae_Sedis      Pos↓           0.0022 -2.5990 0.0499
+           Weissella   Lactobacillaceae      Pos↓           0.0020 -3.5610 0.0087
+Escherichia-Shigella Enterobacteriaceae      Pos↑           0.0015  5.6379 0.0004
+         Pseudomonas   Pseudomonadaceae      Pos↑           0.0000  3.4870 0.0057
+
+B5. 与主队列（野鸭）九菌交集的重叠
+         Genus direction  importance_mean      t    FDR  cage_confounded
+Staphylococcus      Pos↑          -0.0008 0.9689 0.5322            False
+  （鸭队列九菌：Rothia↓、Staphylococcus↓、Lawsonella↓、Candidatus Arthromitus↑、Varibaculum↑、Psittacicella↑ 及两个未注释特征）
+
+结果已写入 results/turkey_*.csv 与 turkey_confounding_biomarkers.json

@@ -1,0 +1,64 @@
+{
+  "project": "PRJNA644054",
+  "n": 45,
+  "n_pos": 32,
+  "prevalence": 0.1,
+  "isolator_perfectly_confounded": true,
+  "microbiome_predicts_sex": 0.45400000000000007,
+  "cage_effect": {
+    "group_1": {
+      "n": 32,
+      "n_isolators": 4,
+      "accuracy": 0.71875,
+      "chance": 0.25,
+      "majority": 0.25
+    },
+    "group_0": {
+      "n": 13,
+      "n_isolators": 2,
+      "accuracy": 0.9230769230769231,
+      "chance": 0.5,
+      "majority": 0.6153846153846154
+    }
+  },
+  "microbiome_predicts_extraction_batch": 0.9206666666666666,
+  "microbiome_predicts_batch_within_positives": 0.94,
+  "bird_weight_duplicates_ratio": true,
+  "outcome_variables": [
+    {
+      "variable": "Bursa_Weight_g",
+      "pos_mean": 0.40969062500000003,
+      "neg_mean": 0.5785538461538462,
+      "welch_p": 0.00013509530423204484
+    },
+    {
+      "variable": "Bird_weight.g.",
+      "pos_mean": 2.926737701875,
+      "neg_mean": 3.438270034384615,
+      "welch_p": 0.028831609308516068
+    },
+    {
+      "variable": "Bursa.BodyWeight.Ratio1000",
+      "pos_mean": 2.926737684375,
+      "neg_mean": 3.438270015384615,
+      "welch_p": 0.028831610059968496
+    }
+  ],
+  "differential_abundance": {
+    "n_tested": 62,
+    "n_sig": 19
+  },
+  "cage_confounded_features": 18,
+  "concordant_clean": 7,
+  "concordant_cage_confounded": 4,
+  "duck_overlap": [
+    {
+      "Genus": "Staphylococcus",
+      "direction": "Pos↑",
+      "importance_mean": -0.0008289241622574902,
+      "t": 0.9689171918027174,
+      "FDR": 0.5322337360644402,
+      "cage_confounded": false
+    }
+  ]
+}
