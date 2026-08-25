@@ -44,7 +44,8 @@ COHORTS = {
     "Swan":   {"species": ["WhooperSwan"], "model": False},
 }
 
-TABULAR_SPACES = ["alpha", "core", "pcoa_bray", "pcoa_aitch", "eco_all", "genus"]
+TABULAR_SPACES = ["alpha", "core", "pcoa_bray", "pcoa_aitch",
+                  "eco_pure", "eco_bray", "eco_all", "genus"]
 KERNEL_SPACES = ["dist_bray", "dist_aitch"]
 ALL_SPACES = TABULAR_SPACES + KERNEL_SPACES
 
@@ -55,8 +56,18 @@ SPACE_LABEL = {
     "pcoa_aitch": "群落结构 PCoA（Aitchison，折内）",
     "dist_bray":  "群落结构核（Bray）",
     "dist_aitch": "群落结构核（Aitchison）",
-    "eco_all":    "生态合并（α + 核心 + PCoA）",
+    "eco_pure":   "纯生态（α + 核心）",
+    "eco_bray":   "纯生态 + 结构（α + 核心 + Bray）",
+    "eco_all":    "α + 核心 + Aitchison（含分类学信息）",
     "genus":      "属丰度 CLR（既有模型，参照）",
+}
+
+# 组合空间的成分。eco_pure 只含逐样本的生态摘要统计量，因此是唯一
+# 既属纯生态、又能跨宿主迁移的组合（PCoA 轴是队列内定义的，跨不过去）。
+COMPOSITE = {
+    "eco_pure": ("alpha", "core"),
+    "eco_bray": ("alpha", "core", "pcoa_bray"),
+    "eco_all":  ("alpha", "core", "pcoa_aitch"),
 }
 
 C_GRID = [0.1, 1.0, 10.0]
@@ -102,8 +113,8 @@ def build_tabular(space, d, tr, te, k_pcoa=10):
         p.fit(d.counts[tr])
         return p.transform(d.counts[tr]), p.transform(d.counts[te])
 
-    if space == "eco_all":
-        parts = [build_tabular(s, d, tr, te) for s in ("alpha", "core", "pcoa_aitch")]
+    if space in COMPOSITE:
+        parts = [build_tabular(s, d, tr, te) for s in COMPOSITE[space]]
         return (np.hstack([a for a, _ in parts]),
                 np.hstack([b for _, b in parts]))
 
@@ -247,9 +258,14 @@ def _shuffled(d, seed):
 
 def _transfer_matrices(space, src, dst):
     """构造跨宿主的 (Xtr, Xte)，若该特征空间无法跨队列则返回 None。"""
-    if space in KERNEL_SPACES or space in ("pcoa_bray", "pcoa_aitch", "eco_all"):
+    if space in KERNEL_SPACES or space in ("pcoa_bray", "pcoa_aitch",
+                                            "eco_bray", "eco_all"):
         # 距离矩阵与 PCoA 轴都是队列内定义的，跨队列没有共同坐标系
         return None
+    if space == "eco_pure":
+        parts = [_transfer_matrices(s, src, dst) for s in COMPOSITE["eco_pure"]]
+        return (np.hstack([a for a, _ in parts]),
+                np.hstack([b for _, b in parts]))
     if space == "genus":
         p = mb.PrevalenceCLR()
         p.fit(src.counts)                       # 只用源队列拟合
@@ -388,10 +404,10 @@ def main():
     print("[3] 跨宿主迁移：整队列训练 → 整队列测试")
     print("=" * 92)
     print("  这是本轮分析的核心问题。距离核与 PCoA 无法跨队列（坐标系是队列内定义的），")
-    print("  因此只有 α 多样性、核心保留度、属丰度三者可比。")
+    print("  因此可比的是：α 多样性、核心保留度、二者的合并（纯生态），以及属丰度。")
     pairs = [("Duck", "Turkey"), ("Turkey", "Duck"),
              ("Duck", "Swan"), ("Turkey", "Swan")]
-    spaces = ["alpha", "core", "genus"]
+    spaces = ["alpha", "core", "eco_pure", "genus"]
     block = {}
     for sp in spaces:
         print(f"\n  {SPACE_LABEL[sp]}")
