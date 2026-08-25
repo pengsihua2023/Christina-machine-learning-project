@@ -3,8 +3,10 @@
  *   node slides/make_poultry_slides.js
  * 输出: slides/Poultry_Cohort_Results_ZH.pptx
  *
- * 内容：PRJNA644054（火鸡 45）单独建模，与其并入 PRJNA379944（鸡 6）后的对照。
- * 所有数字取自 results/poultry_cohort.json，与 summary_Chicken_51_sample.md 一致。
+ * 内容：PRJNA644054（火鸡 45）单独建模，与其并入 PRJNA379944（鸡 6）后的对照，
+ * 以及火鸡队列内部的混杂结构（隔离器 / 提取批次 / 纯笼效应）与驱动预测的菌。
+ * 所有数字取自 results/poultry_cohort.json、turkey_confounding_biomarkers.json、
+ * turkey_strain_cage.json，与 summary_Chicken_51_sample.md、summary_Turkey_45_sample.md 一致。
  */
 const pptxgen = require("pptxgenjs");
 const path = require("path");
@@ -123,11 +125,11 @@ const warn = { fill: { color: "FBEDE7" }, bold: true, color: CORAL };
   s.addText("PRJNA644054（火鸡 45）与 PRJNA379944（鸡 6）的对照分析", {
     x: 1.0, y: 4.35, w: 11.3, h: 0.45, margin: 0, fontFace: BODY, fontSize: 17, color: TEALL });
   s.addShape(pres.shapes.RECTANGLE, { x: 1.0, y: 5.05, w: 3.6, h: 0.04, fill: { color: MOSS } });
-  s.addText("结论：合并使五项指标全部下降，建议不要合并", {
+  s.addText("结论：合并使五项指标全部下降；但火鸡队列内部的笼效应与感染效应同量级", {
     x: 1.0, y: 5.25, w: 11.3, h: 0.4, margin: 0, fontFace: BODY, fontSize: 14, color: MOSS });
   s.addText("佐治亚大学 · 公共卫生学院", { x: 1.0, y: 6.72, w: 7, h: 0.4, margin: 0,
     fontFace: BODY, fontSize: 12, color: W });
-  s.addText("summary_Chicken_51_sample.md ｜ poultry_cohort.py", {
+  s.addText("summary_Chicken_51_sample.md ｜ summary_Turkey_45_sample.md", {
     x: 5.5, y: 6.72, w: 6.8, h: 0.4, margin: 0, fontFace: BODY, fontSize: 11,
     color: TEALL, align: "right" });
 }
@@ -146,13 +148,13 @@ const warn = { fill: { color: "FBEDE7" }, bold: true, color: CORAL };
 
   card(s, { x: 0.6, y: 3.38, w: 6.0, h: 1.72, accent: TEAL,
     title: "我们做了什么",
-    body: "对火鸡队列（PRJNA644054，n=45）单独建模，再与并入鸡队列（PRJNA379944，n=6）后的 51 样本队列对照。两者用完全相同的无泄漏流程：原始计数 + PrevalenceCLR 折内拟合，嵌套 CV（外层 5×10，内层 4 折）。" });
+    body: "对火鸡队列 PRJNA644054（n=45）单独建模，再与并入鸡队列 PRJNA379944（n=6）后的 51 样本队列对照。两者用完全相同的无泄漏流程：原始计数 + PrevalenceCLR 折内拟合，嵌套 CV（外层 5×10，内层 4 折）。" });
   card(s, { x: 6.9, y: 3.38, w: 5.8, h: 1.72, accent: MOSS,
-    title: "结论",
-    body: "合并没有带来任何收益。批次检查显示两个 project 的菌群完全可分（AUC 1.000），但 project 归属与感染状态无关（0.499）——那 6 个鸡样本对模型是纯噪声。" });
+    title: "两个结论",
+    body: "（1）合并没有带来任何收益，6 个鸡样本对模型是纯噪声。\n（2）但火鸡队列单独也不能直接解读：隔离器与感染状态完全共线，纯笼效应平均 AUC 0.908，与感染效应 0.967 同量级。" });
 
-  caveat(s, { x: 0.6, y: 5.25, w: 12.1, h: 1.0,
-    text: "两条边界：（1）n=51、少数类仅 16，特异度 0.581 的置信区间极宽；（2）流行度 ≥10% 时 p/n = 1.33，已是 p > n 的高维问题——与主队列（鸭，n=260，p/n=0.27）不可直接类比。" });
+  caveat(s, { x: 0.6, y: 5.25, w: 12.1, h: 1.15,
+    text: "三条边界：（1）n=51、少数类仅 16，特异度 0.581 的置信区间极宽。（2）流行度 ≥10% 时 p/n = 1.33，已是 p > n 的高维问题，与主队列的鸭群不可直接类比。（3）AUC 0.930 中有多少来自感染、多少来自笼号，本设计下无法拆分。" });
 }
 
 // ================================================================ 3 队列构成
@@ -354,8 +356,88 @@ divider("01", "建模结果", "两个队列并排，同一套无泄漏流程");
     body: "主队列中采样月份既影响菌群、也影响标签（仅协变量即达 AUC 0.881），那是真正的混杂，必须靠分层处理。\n本队列的批次只影响特征、不影响标签——性质不同，处理方式也不同：混杂要分层，稀释要剔除。" });
 }
 
-// ================================================================ 12 决定性对照
-divider("02", "结论", "合并的代价，以及下一步该做什么");
+// ================================================================ 12 队列内部混杂
+divider("02", "队列内部的混杂", "把火鸡队列单独拿出来后，新的问题出现了");
+
+// ================================================================ 13 隔离器共线
+{
+  const s = slide("隔离器与感染状态完全共线", "混杂结构 · PRJNA644054");
+  s.addText("前面十页只检查了「两个 project 之间」的批次效应。火鸡队列内部还有一层：饲养隔离器。", {
+    x: 0.6, y: 1.42, w: 12.1, h: 0.35, margin: 0, fontFace: BODY, fontSize: 12.5, color: MUTED });
+
+  table(s, [
+    [th("Isolator"), th("阴性"), th("阳性")],
+    ["1", { text: "8", options: hi }, "0"],
+    ["2", { text: "5", options: hi }, "0"],
+    ["3", "0", { text: "8", options: warn }],
+    ["4", "0", { text: "8", options: warn }],
+    ["5", "0", { text: "8", options: warn }],
+    ["6", "0", { text: "8", options: warn }],
+  ], { x: 0.6, y: 1.9, w: 5.1, colW: [1.7, 1.7, 1.7], rowH: 0.42 });
+
+  card(s, { x: 6.2, y: 1.9, w: 6.5, h: 1.72, accent: CORAL, fill: "FBEDE7",
+    title: "DNA 提取批次：独立且部分共线", titleSize: 14, bodySize: 11,
+    body: "18-11-06 批次的 16 个样本全部为阳性。\n\n    菌群 → 预测提取批次              AUC 0.921\n    仅在阳性组内（感染状态固定）      AUC 0.940\n\n第二个数字是关键：固定标签后批次仍高度可预测。",
+    bodyColor: "7A2E14" });
+  card(s, { x: 6.2, y: 3.82, w: 6.5, h: 1.36, accent: MOSS,
+    title: "阴性对照：性别 AUC 0.454", titleSize: 14, bodySize: 11,
+    body: "性别在两组间分布均衡，菌群预测它的 AUC 接近随机。同一套流程作用在无混杂的变量上就得不出信号——前面那些高 AUC 不是方法学假象。" });
+
+  caveat(s, { x: 0.6, y: 5.4, w: 12.1, h: 0.95,
+    text: "每个隔离器只含一种感染状态。这是实验设计使然（对照与感染必须分笼以防交叉感染），但代价是隔离器效应与感染效应在统计上不可分离——没有任何「同笼内既有阳性又有阴性」的样本可供拆解。" });
+}
+
+// ================================================================ 14 纯笼效应
+{
+  const s = slide("纯笼效应与感染效应几乎同量级", "混杂结构 · 决定性检验");
+  s.addText("共线不代表无法量化。CKPA 占据隔离器 3 与 4，因此在 3 vs 4 的对比中，毒株、批次、感染状态全部固定，只有笼号不同。", {
+    x: 0.6, y: 1.42, w: 12.1, h: 0.35, margin: 0, fontFace: BODY, fontSize: 12.5, color: MUTED });
+
+  table(s, [
+    [th("对比"), th("固定条件"), th("n"), th("AUC"), th("零分布最大"), th("p")],
+    ["隔离器 3 vs 4", "同 CKPA、同 10-30、同阳性", "16", { text: "0.919", options: warn }, "0.938", "0.0066"],
+    ["隔离器 5 vs 6", "同 TKMN、同 11-06、同阳性", "16", { text: "0.906", options: warn }, "1.000", "0.0166"],
+    ["隔离器 1 vs 2", "同 Mock、同 10-30、同阴性", "13", { text: "0.900", options: warn }, "0.969", "0.0332"],
+  ], { x: 0.6, y: 1.92, w: 12.1, colW: [2.5, 4.1, 1.0, 1.7, 1.8, 1.0], rowH: 0.46 });
+
+  stat(s, { x: 1.1, y: 3.98, w: 3.4, value: "0.908", label: "纯笼效应平均", sub: "三组对比", color: CORAL });
+  stat(s, { x: 5.0, y: 3.98, w: 3.4, value: "0.967", label: "感染效应", sub: "n=45，全队列" });
+  stat(s, { x: 8.9, y: 3.98, w: 3.4, value: "3 / 3", label: "置换检验显著", sub: "300 次，全部 p<0.05", color: MOSS, valueSize: 36 });
+
+  card(s, { x: 0.6, y: 5.42, w: 5.9, h: 1.18, accent: TEAL,
+    title: "笼效应是多变量的", titleSize: 13.5, bodySize: 10.5,
+    body: "逐菌差异丰度在三组对比中只有 0、1、3 个特征 FDR<0.05——单个菌几乎都不显著，模型却能到 AUC 0.90。同笼鸟的菌群是整体趋同。" });
+  caveat(s, { x: 6.8, y: 5.42, w: 5.9, h: 1.18, size: 10.5,
+    text: "样本量提醒：笼效应基于 n=16 或 13，零分布标准差 0.19–0.22。可以断定 0.908 与 0.967 量级相当，不能断定孰高孰低。" });
+}
+
+// ================================================================ 15 驱动菌
+{
+  const s = slide("驱动预测的菌：多一道笼效应筛查", "生物学 · 差异丰度");
+  s.addText("62 个特征中 19 个 FDR<0.05，与 permutation importance 取交集得 11 个，再剔除在阳性组内部即因隔离器显著不同的，剩 7 个。", {
+    x: 0.6, y: 1.42, w: 12.1, h: 0.35, margin: 0, fontFace: BODY, fontSize: 12.5, color: MUTED });
+
+  table(s, [
+    [th("Genus"), th("Family"), th("方向"), th("importance"), th("t"), th("FDR")],
+    ["HT002", "Lactobacillaceae", { text: "Pos↓", options: hi }, "0.0130", "−3.89", "0.0057"],
+    ["Pediococcus", "Lactobacillaceae", { text: "Pos↑", options: warn }, "0.0129", "+4.32", "0.0010"],
+    ["（未定属）", "Lactobacillaceae", { text: "Pos↓", options: hi }, "0.0064", "−4.15", "0.0017"],
+    ["Incertae_Sedis", "—", { text: "Pos↓", options: hi }, "0.0022", "−2.60", "0.0499"],
+    ["Weissella", "Lactobacillaceae", { text: "Pos↓", options: hi }, "0.0020", "−3.56", "0.0087"],
+    [{ text: "Escherichia-Shigella", options: { bold: true } }, "Enterobacteriaceae",
+     { text: "Pos↑", options: warn }, "0.0015", { text: "+5.64", options: { bold: true, color: CORAL } }, "0.0004"],
+    ["Pseudomonas", "Pseudomonadaceae", { text: "Pos↑", options: warn }, "0.00004", "+3.49", "0.0057"],
+  ], { x: 0.6, y: 1.9, w: 12.1, colW: [2.9, 3.0, 1.4, 1.9, 1.4, 1.5], rowH: 0.37 });
+
+  card(s, { x: 0.6, y: 5.0, w: 5.9, h: 1.45, accent: MOSS,
+    title: "模式符合免疫学预期", titleSize: 14, bodySize: 11,
+    body: "乳酸菌科四个属中三个在感染组降低，机会致病菌 Escherichia-Shigella 与 Pseudomonas 升高——共生菌减少、机会致病菌扩张的典型菌群失调。" });
+  caveat(s, { x: 6.8, y: 5.0, w: 5.9, h: 1.45, size: 11,
+    text: "被剔除的最强反例：Negativibacillus 的 importance 最高（0.0133）、t=+5.87、FDR<0.0001，单看这两项会认为它是最好的 biomarker。但它在同为阳性的四个隔离器之间也显著不同，无法归因于感染。" });
+}
+
+// ================================================================ 16 结论
+divider("03", "结论", "合并的代价，以及下一步该做什么");
 
 // ================================================================ 13 建议
 {
@@ -363,7 +445,7 @@ divider("02", "结论", "合并的代价，以及下一步该做什么");
   const items = [
     ["合并后五项指标全部下降", "AUC −0.035、Accuracy −0.035、特异度 −0.096、F1 −0.024、MCC −0.071。唯一上升的灵敏度（+0.003）随阳性率虚高，不构成例外。", CORAL],
     ["6 个样本无法支撑任何跨宿主结论", "PRJNA379944 只有 3 阳 3 阴。若目的是检验跨宿主泛化，正确做法是「训练火鸡、测试鸡」而非合并——但 6 个样本也做不了这件事，AUC 会完全由个别样本决定。", CORAL],
-    ["火鸡单独是本项目除主队列外最好的结果", "AUC 0.930、MCC 0.647、F1 0.905。虽然 n=45 很小，但它内部同质（单一宿主、单一中心、单一建库方法），不存在合并带来的技术异质性。", MOSS],
+    ["火鸡单独更好，但那个 0.930 不能当作感染信号来读", "AUC 0.930、MCC 0.647、F1 0.905，且内部同质（单一宿主、单一中心、单一建库方法）。但隔离器与感染状态完全共线，纯笼效应平均 0.908，报告时必须把笼效应一并给出。", CORAL],
   ];
   items.forEach((it, i) => {
     const y = 1.6 + i * 1.72;
@@ -387,14 +469,14 @@ divider("02", "结论", "合并的代价，以及下一步该做什么");
   s.addShape(pres.shapes.RECTANGLE, { x: 0, y: 0, w: SW, h: 0.32, fill: { color: MOSS } });
   s.addText("若火鸡队列要写进论文，尚需补做", { x: 1.0, y: 1.25, w: 11.3, h: 0.8, margin: 0,
     fontFace: HEAD, fontSize: 34, bold: true, color: W });
-  s.addText("n=45、少数类 13，比主队列小 5 倍，需要同等强度的审查", {
+  s.addText("前三项（混杂结构、驱动菌、跨宿主比较）已完成，见第 13–15 页；下面是剩下的", {
     x: 1.0, y: 2.1, w: 11.3, h: 0.4, margin: 0, fontFace: BODY, fontSize: 14, color: MOSS });
 
   const nx = [
-    ["队列内部的混杂结构", "PRJNA644054 是否存在类似主队列「采样月份」的时间或批次结构"],
-    ["Permutation importance 与差异丰度", "找出驱动预测的菌，并给出效应方向"],
-    ["与鸭队列九菌交集是否重叠", "跨宿主一致性的间接证据——若重叠，说明信号不限于单一宿主"],
+    ["拆分笼效应与感染效应需要重做实验", "每个隔离器内同时放阳性与阴性个体。这是设计问题，不是分析问题，现有数据无法补救"],
+    ["在两队列特征交集上重做跨宿主检验", "火鸡只保留 62 个特征，鸭队列九菌中多数根本没进候选池——目前的「不一致」更可能是特征空间不同所致"],
     ["纳入一致性检查", "该队列的 results/ 存档接入 check_consistency.py 与 pre-commit"],
+    ["核实两列体重数据重复的问题", "Bird_weight.g. 与 Bursa.BodyWeight.Ratio1000 数值完全相同，需联系数据提供方"],
   ];
   nx.forEach((n, i) => {
     const y = 2.75 + i * 1.02;
@@ -406,7 +488,7 @@ divider("02", "结论", "合并的代价，以及下一步该做什么");
       fontFace: BODY, fontSize: 11.5, color: MOSS });
   });
 
-  s.addText("完整结果见 summary_Chicken_51_sample.md ｜ 复现：python3 poultry_cohort.py", {
+  s.addText("完整结果见 summary_Chicken_51_sample.md 与 summary_Turkey_45_sample.md ｜ 复现：poultry_cohort.py、turkey_confounding_biomarkers.py、turkey_strain_cage.py", {
     x: 1.0, y: 6.85, w: 11.3, h: 0.4, margin: 0, fontFace: BODY, fontSize: 12, color: TEALL });
 }
 
