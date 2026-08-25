@@ -2,6 +2,8 @@
 
 Sample-level ecological descriptors of the gut microbiome, produced as an alternative feature space to the genus-abundance matrix used in the existing models. All files cover the same **326 samples** and share the `SampleID` key.
 
+> **Modelling results are in `../summary_ecological_models.md`.** Both leakage cautions below are handled there: the baseline core is redefined from training-fold negatives, and the PCoA is fitted inside each fold with held-out samples projected in. A third confounder surfaced during that work and is not visible in these files — sequencing depth predicts infection status at AUC 0.650 in duck and 0.870 in swan, which makes the swan cohort uninterpretable for any richness-based feature.
+
 ---
 
 ## Contents

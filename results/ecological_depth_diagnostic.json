@@ -1,0 +1,176 @@
+{
+  "Duck": {
+    "n": 260,
+    "depth_auc": 0.6502217631690869,
+    "features": {
+      "CoreRetentionProportion": {
+        "auc_alone": 0.6033477124977216,
+        "abs_spearman_depth": 0.16171369917078807
+      },
+      "CoreAbundanceRetention": {
+        "auc_alone": 0.5023695242724346,
+        "abs_spearman_depth": 0.11912021433377701
+      },
+      "CoreTaxaLost": {
+        "auc_alone": 0.6033477124977216,
+        "abs_spearman_depth": 0.16171369917078807
+      },
+      "CoreTaxaPresent": {
+        "auc_alone": 0.6033477124977216,
+        "abs_spearman_depth": 0.16171369917078807
+      },
+      "NonCoreTaxaPresent": {
+        "auc_alone": 0.524940761893189,
+        "abs_spearman_depth": 0.34258422919833126
+      },
+      "TotalTaxaPresent": {
+        "auc_alone": 0.5220244243271159,
+        "abs_spearman_depth": 0.21602472031902506
+      },
+      "CoreMembershipProportion": {
+        "auc_alone": 0.5827206999210158,
+        "abs_spearman_depth": 0.42250814519748775
+      },
+      "Observed_Genera": {
+        "auc_alone": 0.509113554893979,
+        "abs_spearman_depth": 0.12448358874274418
+      },
+      "Chao1_Genus": {
+        "auc_alone": 0.5095996111549912,
+        "abs_spearman_depth": 0.1062467911739169
+      },
+      "Shannon_Genus": {
+        "auc_alone": 0.5129108694331369,
+        "abs_spearman_depth": 0.17503767450125868
+      },
+      "Simpson_Genus": {
+        "auc_alone": 0.5073819794641229,
+        "abs_spearman_depth": 0.15300867478903232
+      },
+      "InvSimpson_Genus": {
+        "auc_alone": 0.5073819794641229,
+        "abs_spearman_depth": 0.15300867478903232
+      },
+      "Pielou_Genus": {
+        "auc_alone": 0.5061668388115925,
+        "abs_spearman_depth": 0.15036854160594143
+      }
+    }
+  },
+  "Turkey": {
+    "n": 45,
+    "depth_auc": 0.5600961538461539,
+    "features": {
+      "CoreRetentionProportion": {
+        "auc_alone": 0.8461538461538461,
+        "abs_spearman_depth": 0.22626179580884737
+      },
+      "CoreAbundanceRetention": {
+        "auc_alone": 0.5048076923076923,
+        "abs_spearman_depth": 0.2684630086858974
+      },
+      "CoreTaxaLost": {
+        "auc_alone": 0.8461538461538461,
+        "abs_spearman_depth": 0.22626179580884737
+      },
+      "CoreTaxaPresent": {
+        "auc_alone": 0.8461538461538461,
+        "abs_spearman_depth": 0.22626179580884737
+      },
+      "NonCoreTaxaPresent": {
+        "auc_alone": 0.5600961538461539,
+        "abs_spearman_depth": 0.06908086914671398
+      },
+      "TotalTaxaPresent": {
+        "auc_alone": 0.7307692307692308,
+        "abs_spearman_depth": 0.12189501921990466
+      },
+      "CoreMembershipProportion": {
+        "auc_alone": 0.6742788461538461,
+        "abs_spearman_depth": 0.29250450134902556
+      },
+      "Observed_Genera": {
+        "auc_alone": 0.7067307692307693,
+        "abs_spearman_depth": 0.03902233242344938
+      },
+      "Chao1_Genus": {
+        "auc_alone": 0.6875,
+        "abs_spearman_depth": 0.10419138361220066
+      },
+      "Shannon_Genus": {
+        "auc_alone": 0.7932692307692308,
+        "abs_spearman_depth": 0.1589696294378087
+      },
+      "Simpson_Genus": {
+        "auc_alone": 0.7860576923076923,
+        "abs_spearman_depth": 0.14401475754291332
+      },
+      "InvSimpson_Genus": {
+        "auc_alone": 0.7860576923076923,
+        "abs_spearman_depth": 0.14401475754291332
+      },
+      "Pielou_Genus": {
+        "auc_alone": 0.78125,
+        "abs_spearman_depth": 0.2575927273526034
+      }
+    }
+  },
+  "Swan": {
+    "n": 15,
+    "depth_auc": 0.8700000000000001,
+    "features": {
+      "CoreRetentionProportion": {
+        "auc_alone": 0.98,
+        "abs_spearman_depth": 0.7121102008901876
+      },
+      "CoreAbundanceRetention": {
+        "auc_alone": 0.56,
+        "abs_spearman_depth": 0.007149243247970777
+      },
+      "CoreTaxaLost": {
+        "auc_alone": 0.9800000000000001,
+        "abs_spearman_depth": 0.7121102008901876
+      },
+      "CoreTaxaPresent": {
+        "auc_alone": 0.98,
+        "abs_spearman_depth": 0.7121102008901876
+      },
+      "NonCoreTaxaPresent": {
+        "auc_alone": 0.96,
+        "abs_spearman_depth": 0.7046724061942343
+      },
+      "TotalTaxaPresent": {
+        "auc_alone": 1.0,
+        "abs_spearman_depth": 0.7715066152593664
+      },
+      "CoreMembershipProportion": {
+        "auc_alone": 0.54,
+        "abs_spearman_depth": 0.2898032200357782
+      },
+      "Observed_Genera": {
+        "auc_alone": 1.0,
+        "abs_spearman_depth": 0.6180679785330948
+      },
+      "Chao1_Genus": {
+        "auc_alone": 1.0,
+        "abs_spearman_depth": 0.5522790409057425
+      },
+      "Shannon_Genus": {
+        "auc_alone": 1.0,
+        "abs_spearman_depth": 0.7131370139850851
+      },
+      "Simpson_Genus": {
+        "auc_alone": 0.98,
+        "abs_spearman_depth": 0.7167116356090705
+      },
+      "InvSimpson_Genus": {
+        "auc_alone": 0.98,
+        "abs_spearman_depth": 0.7167116356090705
+      },
+      "Pielou_Genus": {
+        "auc_alone": 0.94,
+        "abs_spearman_depth": 0.6863273518051947
+      }
+    }
+  }
+}
