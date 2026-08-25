@@ -19,3 +19,7 @@ slides/*.pdf
 
 # 家禽队列幻灯片渲染产物
 slides/png_poultry/
+slides/png_poultry_en/
+
+# PowerPoint 打开文件时生成的锁文件
+slides/~$*.pptx
