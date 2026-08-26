@@ -276,7 +276,7 @@ Combining is the wrong move for this problem. Genus abundance is the better with
 
 ### 7.1 The comparison only makes sense once the criterion is fixed
 
-| Feature space | Duck | p | Turkey | p | Cage / infection | Cage significant | Transfers? |
+| Feature space | Duck | p | Turkey | p | Cage / infection | Cage significant | Transfer duck→turkey<br>(**linear model**, see note) |
 |---|---|---|---|---|---|---|---|
 | α diversity | 0.538 | 0.333 ✗ | 0.748 | 0.070 ✗ | 0.67 | 0/3 | 0.714 — fails its null |
 | **Core retention** | 0.593 | **0.050** | 0.799 | **0.010** | 0.77 | 0/3 | **0.870, p=0.0020** |
@@ -284,6 +284,10 @@ Combining is the wrong move for this problem. Genus abundance is the better with
 | Bray PCoA | 0.661 | **0.005** | 0.813 | **0.005** | 0.72 | 0/3 | structurally impossible |
 | Bray kernel | **0.695** | **0.005** | 0.850 | **0.005** | — | — | structurally impossible |
 | α + core + Bray | 0.674 | **0.005** | **0.854** | **0.005** | 0.68 | 0/3 | structurally impossible |
+
+> **How to read the transfer column**: the figure is the AUC from training on 260 ducks and scoring 45 turkeys, with no turkey data in training at all; the p-value comes from a null built by shuffling the **turkey** labels 500 times (0.0020 means zero of the 500 reached the observed value, the smallest value possible at that permutation count).
+>
+> **This column uses a linear model, unlike the table in §4** — that table uses SVM-RBF throughout for protocol consistency with §1–§3, and the same core retention features reach only 0.469 under RBF. §5.1 established that RBF is the wrong model here, so the linear figures are used in this table.
 
 On within-host AUC alone the Bray-based spaces win. **That comparison is not worth making**, because genus abundance reaches 0.836 and 0.972 and beats every ecological space within host (§1).
 
