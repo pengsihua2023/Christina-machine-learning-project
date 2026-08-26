@@ -272,7 +272,57 @@ Combining is the wrong move for this problem. Genus abundance is the better with
 
 ---
 
-## 7. What to do next
+## 7. Which ecological model to use
+
+### 7.1 The comparison only makes sense once the criterion is fixed
+
+| Feature space | Duck | p | Turkey | p | Cage / infection | Cage significant | Transfers? |
+|---|---|---|---|---|---|---|---|
+| α diversity | 0.538 | 0.333 ✗ | 0.748 | 0.070 ✗ | 0.67 | 0/3 | 0.714 — fails its null |
+| **Core retention** | 0.593 | **0.050** | 0.799 | **0.010** | 0.77 | 0/3 | **0.870, p=0.0020** |
+| α + core | 0.613 | **0.010** | 0.807 | **0.020** | 0.72 | 0/3 | 0.834, p=0.0020 |
+| Bray PCoA | 0.661 | **0.005** | 0.813 | **0.005** | 0.72 | 0/3 | structurally impossible |
+| Bray kernel | **0.695** | **0.005** | 0.850 | **0.005** | — | — | structurally impossible |
+| α + core + Bray | 0.674 | **0.005** | **0.854** | **0.005** | 0.68 | 0/3 | structurally impossible |
+
+On within-host AUC alone the Bray-based spaces win. **That comparison is not worth making**, because genus abundance reaches 0.836 and 0.972 and beats every ecological space within host (§1).
+
+> **If the question is "how well can infection be detected in this cohort", do not use ecological features at all — use genus abundance.** The only reason to prefer an ecological space is to obtain the two properties genus abundance lacks: it must cross hosts, and it must not track isolators. Those are the criteria on which these models should be judged.
+
+### 7.2 Judged on those criteria, core retention wins
+
+**It is the only one that can transfer.** Every Bray-based space is *structurally* unable to cross cohorts — PCoA axes and kernel bandwidths are defined within a cohort, so there is no shared coordinate system. This is not poor performance but impossibility. Among the three that can transfer:
+
+```
+Core retention only    0.870   null max 0.757   p = 0.0020   ← best
+α + core               0.834   null max 0.748   p = 0.0020
+α diversity only       0.714   null max 0.779   p = 0.0140   ← null max exceeds observed; not established
+```
+
+**Adding α diversity makes it worse** (0.870 → 0.834). α fails its own permutation null in both cohorts and again in transfer; it contributes noise.
+
+**It detects infection and not the isolator.** Cage/infection ratio 0.77 with 0/3 contrasts significant (p = 0.22, 0.29, 0.42) against an infection effect of 0.780 (p=0.0066), where genus abundance sits at 0.94 with 3/3 significant.
+
+> α diversity's ratio of 0.67 looks better still, but **a ratio is only readable when the numerator is real signal** — α has no infection signal in either cohort, so its ratio means nothing.
+
+**The mechanism is reportable.** Direction agrees across hosts: `CoreRetentionProportion` lower in infected birds (duck 0.397, turkey 0.154), `CoreTaxaLost` higher (duck 0.603, turkey 0.846). The single feature `CoreRetentionProportion` transfers at 0.846 (selection-corrected p=0.0040) — a quantity that can go in an abstract.
+
+### 7.3 Three usage rules
+
+1. **Use a linear model, not RBF.** Same features: RBF transfers at 0.469, linear at 0.870 (§5.1).
+2. **Do not add α diversity.** It passes none of the checks in this dataset.
+3. **Do not merge with genus abundance.** Transfer falls from 0.800 to 0.490 and the cage ratio returns to 0.95 (§6).
+
+### 7.4 Summary
+
+| Question | Model |
+|---|---|
+| How well can infection be detected in this cohort? | **Genus abundance** (0.836 duck / 0.972 turkey) |
+| Does the finding hold in another host? | **Core retention + linear model** (0.870, p=0.0020) |
+
+---
+
+## 8. What to do next
 
 1. **Replicate Duck → Turkey on a third host.** This is the single highest-value follow-up. The swan cohort cannot serve; another wild cohort is needed.
 2. **Report core retention loss as the transferable quantity**, and use a linear model for cross-host work. §5 settles the mechanism; what remains is confirming it holds in a third host.
@@ -282,7 +332,7 @@ Combining is the wrong move for this problem. Genus abundance is the better with
 
 ---
 
-## 8. Reproduction
+## 9. Reproduction
 
 ```bash
 python3 ecological_models.py                                    # primary
@@ -301,7 +351,7 @@ python3 ecological_cage_check.py --n-perm 300                   # cage vs infect
 
 ---
 
-## 9. Outstanding
+## 10. Outstanding
 
 - [ ] Replicate the Duck → Turkey ecological transfer on a third host cohort
 - [x] ~~Identify which relationship within α + core is doing the transferring~~ → done (§5): core retention loss, carried by a linear model
