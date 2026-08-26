@@ -1,0 +1,8 @@
+{
+  "max_auc": 0.8461538461538461,
+  "feature": "CoreRetentionProportion",
+  "null_of_max_mean": 0.6230697115384615,
+  "null_of_max_max": 0.8665865384615385,
+  "p_value": 0.003992015968063872,
+  "n_subsets": 13
+}

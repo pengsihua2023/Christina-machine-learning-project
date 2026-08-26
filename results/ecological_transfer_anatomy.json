@@ -1,0 +1,302 @@
+{
+  "source": "Duck",
+  "target": "Turkey",
+  "n_src": 260,
+  "n_dst": 45,
+  "n_perm": 300,
+  "baseline": {
+    "all13": 0.8004807692307693,
+    "alpha_only": 0.37499999999999994,
+    "core_only": 0.46875
+  },
+  "dimension_hypothesis": {
+    "比例型（无量纲，5）": {
+      "features": [
+        "Simpson_Genus",
+        "Pielou_Genus",
+        "CoreRetentionProportion",
+        "CoreAbundanceRetention",
+        "CoreMembershipProportion"
+      ],
+      "auc": 0.7283653846153846
+    },
+    "计数型（受核心大小影响，6）": {
+      "features": [
+        "Observed_Genera",
+        "Chao1_Genus",
+        "CoreTaxaPresent",
+        "CoreTaxaLost",
+        "NonCoreTaxaPresent",
+        "TotalTaxaPresent"
+      ],
+      "auc": 0.5913461538461539
+    },
+    "中间型（Shannon/InvSimpson，2）": {
+      "features": [
+        "Shannon_Genus",
+        "InvSimpson_Genus"
+      ],
+      "auc": 0.7475961538461539
+    },
+    "比例型 + 中间型（7）": {
+      "features": [
+        "Simpson_Genus",
+        "Pielou_Genus",
+        "CoreRetentionProportion",
+        "CoreAbundanceRetention",
+        "CoreMembershipProportion",
+        "Shannon_Genus",
+        "InvSimpson_Genus"
+      ],
+      "auc": 0.8197115384615384
+    }
+  },
+  "singles": [
+    {
+      "feature": "Observed_Genera",
+      "auc": 0.27884615384615385,
+      "block": "alpha",
+      "kind": "count_like"
+    },
+    {
+      "feature": "Chao1_Genus",
+      "auc": 0.3245192307692307,
+      "block": "alpha",
+      "kind": "count_like"
+    },
+    {
+      "feature": "Shannon_Genus",
+      "auc": 0.7788461538461539,
+      "block": "alpha",
+      "kind": "intermediate"
+    },
+    {
+      "feature": "Simpson_Genus",
+      "auc": 0.7163461538461539,
+      "block": "alpha",
+      "kind": "scale_free"
+    },
+    {
+      "feature": "InvSimpson_Genus",
+      "auc": 0.71875,
+      "block": "alpha",
+      "kind": "intermediate"
+    },
+    {
+      "feature": "Pielou_Genus",
+      "auc": 0.43749999999999994,
+      "block": "alpha",
+      "kind": "scale_free"
+    },
+    {
+      "feature": "CoreRetentionProportion",
+      "auc": 0.7524038461538461,
+      "block": "core",
+      "kind": "scale_free"
+    },
+    {
+      "feature": "CoreAbundanceRetention",
+      "auc": 0.5048076923076923,
+      "block": "core",
+      "kind": "scale_free"
+    },
+    {
+      "feature": "CoreTaxaLost",
+      "auc": 0.6875,
+      "block": "core",
+      "kind": "count_like"
+    },
+    {
+      "feature": "CoreTaxaPresent",
+      "auc": 0.7379807692307693,
+      "block": "core",
+      "kind": "count_like"
+    },
+    {
+      "feature": "NonCoreTaxaPresent",
+      "auc": 0.5745192307692307,
+      "block": "core",
+      "kind": "count_like"
+    },
+    {
+      "feature": "TotalTaxaPresent",
+      "auc": 0.3918269230769231,
+      "block": "core",
+      "kind": "count_like"
+    },
+    {
+      "feature": "CoreMembershipProportion",
+      "auc": 0.32572115384615385,
+      "block": "core",
+      "kind": "scale_free"
+    }
+  ],
+  "pairs": {
+    "cross_block_median": 0.5588942307692308,
+    "cross_block_max": 0.8617788461538461,
+    "within_block_median": 0.4591346153846154,
+    "within_block_max": 0.8413461538461539,
+    "top": [
+      {
+        "pair": "Observed_Genera + CoreRetentionProportion",
+        "cross_block": true,
+        "auc": 0.8617788461538461
+      },
+      {
+        "pair": "Chao1_Genus + CoreRetentionProportion",
+        "cross_block": true,
+        "auc": 0.8533653846153846
+      },
+      {
+        "pair": "Chao1_Genus + CoreTaxaLost",
+        "cross_block": true,
+        "auc": 0.8485576923076924
+      },
+      {
+        "pair": "Observed_Genera + CoreTaxaLost",
+        "cross_block": true,
+        "auc": 0.844951923076923
+      },
+      {
+        "pair": "CoreAbundanceRetention + CoreTaxaLost",
+        "cross_block": false,
+        "auc": 0.8413461538461539
+      },
+      {
+        "pair": "CoreRetentionProportion + CoreAbundanceRetention",
+        "cross_block": false,
+        "auc": 0.8413461538461539
+      },
+      {
+        "pair": "InvSimpson_Genus + CoreTaxaLost",
+        "cross_block": true,
+        "auc": 0.7764423076923077
+      },
+      {
+        "pair": "InvSimpson_Genus + CoreRetentionProportion",
+        "cross_block": true,
+        "auc": 0.7572115384615384
+      },
+      {
+        "pair": "CoreRetentionProportion + CoreTaxaLost",
+        "cross_block": false,
+        "auc": 0.752403846153846
+      },
+      {
+        "pair": "CoreTaxaLost + NonCoreTaxaPresent",
+        "cross_block": false,
+        "auc": 0.7512019230769231
+      }
+    ]
+  },
+  "selection_corrected": {
+    "observed_max": 0.8617788461538461,
+    "null_of_max_mean": 0.6952924679487179,
+    "null_of_max_sd": 0.05131319714117962,
+    "null_of_max_max": 0.8485576923076923,
+    "p_value": 0.0033222591362126247,
+    "n_subsets": 78
+  },
+  "linear_vs_rbf": {
+    "全部 13": {
+      "rbf": 0.8004807692307693,
+      "linear": 0.8341346153846154
+    },
+    "仅 α": {
+      "rbf": 0.37499999999999994,
+      "linear": 0.7139423076923077
+    },
+    "仅核心": {
+      "rbf": 0.46875,
+      "linear": 0.8701923076923077
+    },
+    "比例型 5": {
+      "rbf": 0.7283653846153846,
+      "linear": 0.783653846153846
+    },
+    "计数型 6": {
+      "rbf": 0.5913461538461539,
+      "linear": 0.8557692307692307
+    }
+  },
+  "direction": [
+    {
+      "feature": "Observed_Genera",
+      "duck_auc": 0.490886445106021,
+      "turkey_auc": 0.2932692307692307,
+      "same_direction": true
+    },
+    {
+      "feature": "Chao1_Genus",
+      "duck_auc": 0.4904003888450088,
+      "turkey_auc": 0.3125,
+      "same_direction": true
+    },
+    {
+      "feature": "Shannon_Genus",
+      "duck_auc": 0.4870891305668631,
+      "turkey_auc": 0.20673076923076922,
+      "same_direction": true
+    },
+    {
+      "feature": "Simpson_Genus",
+      "duck_auc": 0.5073819794641229,
+      "turkey_auc": 0.2139423076923077,
+      "same_direction": false
+    },
+    {
+      "feature": "InvSimpson_Genus",
+      "duck_auc": 0.5073819794641229,
+      "turkey_auc": 0.2139423076923077,
+      "same_direction": false
+    },
+    {
+      "feature": "Pielou_Genus",
+      "duck_auc": 0.49383316118840753,
+      "turkey_auc": 0.21875,
+      "same_direction": true
+    },
+    {
+      "feature": "CoreRetentionProportion",
+      "duck_auc": 0.3966522875022784,
+      "turkey_auc": 0.15384615384615383,
+      "same_direction": true
+    },
+    {
+      "feature": "CoreAbundanceRetention",
+      "duck_auc": 0.4976304757275654,
+      "turkey_auc": 0.5048076923076923,
+      "same_direction": false
+    },
+    {
+      "feature": "CoreTaxaLost",
+      "duck_auc": 0.6033477124977216,
+      "turkey_auc": 0.8461538461538461,
+      "same_direction": true
+    },
+    {
+      "feature": "CoreTaxaPresent",
+      "duck_auc": 0.3966522875022784,
+      "turkey_auc": 0.15384615384615383,
+      "same_direction": true
+    },
+    {
+      "feature": "NonCoreTaxaPresent",
+      "duck_auc": 0.524940761893189,
+      "turkey_auc": 0.43990384615384615,
+      "same_direction": false
+    },
+    {
+      "feature": "TotalTaxaPresent",
+      "duck_auc": 0.4779755756728841,
+      "turkey_auc": 0.2692307692307692,
+      "same_direction": true
+    },
+    {
+      "feature": "CoreMembershipProportion",
+      "duck_auc": 0.41727930007898417,
+      "turkey_auc": 0.32572115384615385,
+      "same_direction": true
+    }
+  ]
+}

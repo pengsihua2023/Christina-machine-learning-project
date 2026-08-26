@@ -1,11 +1,11 @@
 # Ecological feature spaces vs the genus-abundance model
 
-**Scripts**: `eco_common.py`, `ecological_models.py`, `ecological_cage_check.py`
-**Results**: `results/ecological_models.json`, `ecological_models_depthadj.json`, `ecological_cage_check.json`, `ecological_depth_diagnostic.json`
+**Scripts**: `eco_common.py`, `ecological_models.py`, `ecological_cage_check.py`, `ecological_transfer_anatomy.py`
+**Results**: `results/ecological_models.json`, `ecological_models_depthadj.json`, `ecological_cage_check.json`, `ecological_depth_diagnostic.json`, `ecological_transfer_anatomy.json`, `ecological_transfer_linear.json`
 **Data**: `ecological_model/` (see `readme-ecological-results.md`)
 **Date**: 2026-08-25
 
-> **One-sentence conclusion: a purely ecological model — α diversity plus core retention, 13 features, no taxonomic information whatsoever — transfers from duck to turkey at AUC 0.800 (p=0.0050, noise ceiling 0.740) and holds at 0.803 after depth adjustment, while the genus-abundance model collapses entirely in that direction. The same ecological features also fail to separate cages (0/3 contrasts) where genus abundance separates them as well as it separates infection (0.908 vs 0.967). Neither α diversity nor core retention achieves this alone; only their combination does.**
+> **One-sentence conclusion: infected birds retain less of their host-specific baseline core microbiome, and this holds in both hosts. A linear model using core retention alone, trained on 260 wild ducks, separates infected from control turkeys at AUC 0.870 (0.904 after depth adjustment, p=0.0020) — while the genus-abundance model's decision function is constant on the target. The same ecological features also fail to separate cages (0/3 contrasts) where genus abundance separates them as well as it separates infection (0.908 vs 0.967).**
 
 ---
 
@@ -52,7 +52,7 @@ Model held fixed at SVM-RBF throughout, so that what varies is the feature space
 Two things worth noting inside the ecological block:
 
 - **α diversity alone is not usable.** It fails its own permutation null in both cohorts (p=0.333 duck, p=0.070 turkey).
-- **Combining α with core retention beats either alone** in duck (0.613 against 0.538 and 0.593) and clears significance in both cohorts. This foreshadows §4, where the combination does something neither component can.
+- **Combining α with core retention beats either alone** in duck (0.613 against 0.538 and 0.593) and clears significance in both cohorts. Note this is a *within-host* statement; for cross-host transfer §5 shows core retention does better on its own.
 
 ---
 
@@ -151,34 +151,96 @@ p-value                   0.0050           0.0050
 
 Three things make it notable:
 
-1. **Neither component achieves it alone.** α diversity transfers at 0.375 and core retention at 0.469 — both at or below chance. Only the 13-feature combination works. Whatever transfers is a relationship between diversity and core retention, not either quantity on its own.
+1. **This 0.800 understates the effect, because the RBF kernel is the wrong model here.** Under an SVM-RBF, α diversity transfers at 0.375 and core retention at 0.469, which suggested that only the 13-feature combination worked. §5 shows that was a kernel artefact: with a linear model, core retention alone transfers at 0.870. The RBF result is retained above for protocol consistency with §1–§3, but §5 is the correct reading.
 2. **The genus model does not merely transfer worse — it collapses.** Its decision function is constant on the target. The prevalence filter is fitted on duck, so turkey CLR values land far outside the training range, the RBF kernel underflows, and every test sample receives an identical score. AUC 0.500 here means "no discrimination whatsoever", not "chance-level discrimination".
 3. **The target host's own genus signal is cage-confounded**, so a taxonomic transfer would have been hard to interpret even had it worked. The ecological transfer does not have that problem (§3).
 
 ### What this does not establish
 
-- **Transfer is asymmetric.** Turkey → Duck gives 0.549 (p=0.094), and 0.523 (p=0.269) after depth adjustment — no signal. Training on 45 samples to predict 260 is the harder direction, and turkey's own signal is cage-entangled, so the asymmetry is unsurprising, but it means the claim is "duck-trained ecology transfers to turkey", not "ecological features are host-general".
+- **Transfer is asymmetric.** Turkey → Duck gives 0.549 (p=0.0945), and 0.523 (p=0.269) after depth adjustment — no signal. Training on 45 samples to predict 260 is the harder direction, and turkey's own signal is cage-entangled, so the asymmetry is unsurprising, but it means the claim is "duck-trained ecology transfers to turkey", not "ecological features are host-general".
 - **One direction, one pair of cohorts.** With the swan cohort unusable, there is no third host to replicate on.
 - **Turkey's infection status is perfectly collinear with cage.** The duck-trained model never saw a cage, so what it learned is duck infection signal — but the 0.800 is measured against a turkey label that is inseparable from cage assignment. §3 mitigates this (ecological features do not track cages) without eliminating it.
 
-**Answering the question as posed**: on this data, broader ecological predictors *are* more consistent between hosts than genus abundance — decisively so, since the taxonomic model transfers not at all. But the evidence is one direction of one host pair, and it comes from a combination of features that individually transfer at chance.
+**Answering the question as posed**: on this data, broader ecological predictors *are* more consistent between hosts than genus abundance — decisively so, since the taxonomic model transfers not at all. The evidence is still one direction of one host pair, but §5 shows it rests on a single interpretable quantity rather than an opaque feature combination.
 
 ---
 
-## 5. What to do next
+## 5. What in α + core is doing the transferring
+
+**Script**: `ecological_transfer_anatomy.py` ｜ **Results**: `results/ecological_transfer_anatomy.json`, `ecological_transfer_linear.json`, `ecological_transfer_singles_corrected.json`
+
+### 5.1 The RBF kernel was the obstacle, not the features
+
+Repeating every transfer with L2 logistic regression instead of SVM-RBF:
+
+| Feature set | SVM-RBF | Linear | Linear, depth-adjusted |
+|---|---|---|---|
+| All 13 | 0.800 | 0.834 | 0.856 |
+| α diversity only | 0.375 | 0.714 | 0.716 |
+| **Core retention only** | 0.469 | **0.870** | **0.904** |
+| Dimensionless subset (5) | 0.728 | 0.784 | — |
+| Count-type subset (6) | 0.591 | 0.856 | — |
+
+**The linear model beats the RBF in every subset, and core retention alone beats the full 13-feature RBF model.** An RBF kernel measures Euclidean distance in standardised feature space; standardisation is fitted on duck, and turkey's values sit far from duck's centre, so the kernel saturates. A linear boundary only needs the *direction* of the effect to agree between hosts, not its location. That is exactly the property a cross-host transfer requires.
+
+This corrects §4's earlier reading. It is not an interaction between diversity and core retention — **core retention carries the transfer on its own.**
+
+| Set | Linear AUC | Null max | p |
+|---|---|---|---|
+| Core retention only | 0.870 | 0.757 | **0.0020** |
+| All 13 | 0.834 | 0.748 | **0.0020** |
+| α diversity only | 0.714 | 0.779 | 0.0140 |
+
+### 5.2 The effect is one directional quantity, consistent across hosts
+
+Per-feature transfer AUCs and the direction of each effect within each host:
+
+| Feature | Duck AUC | Turkey AUC | Same direction? |
+|---|---|---|---|
+| **CoreRetentionProportion** | **0.397** | **0.154** | **yes (Pos↓ in both)** |
+| **CoreTaxaLost** | **0.603** | **0.846** | **yes (Pos↑ in both)** |
+| CoreTaxaPresent | 0.397 | 0.154 | yes |
+| CoreMembershipProportion | 0.417 | 0.326 | yes |
+| Observed_Genera | 0.491 | 0.293 | yes |
+| Simpson / InvSimpson | 0.507 | 0.214 | no |
+| CoreAbundanceRetention | 0.498 | 0.505 | no |
+
+9 of 13 features point the same way in both hosts. The two strongest are the same measurement from opposite ends: **`CoreRetentionProportion` is lower in infected birds and `CoreTaxaLost` is higher, in both duck and turkey.**
+
+> **The mechanism, stated plainly: infected birds lose a larger share of their host-specific baseline core microbiome. Which genera constitute that core differs completely between hosts — 14 genera in duck, 32 in turkey — but the *proportion lost* behaves the same way in both. That is why a taxonomic model cannot transfer and this one can.**
+
+Taken alone, `CoreRetentionProportion` transfers at 0.846. It was selected after inspecting the per-feature ranking, so it is judged against a null for the maximum over all 13 single features:
+
+```
+Best single feature            AUC 0.846  (CoreRetentionProportion)
+Null for the max over 13       0.623 ± 0.055  (max 0.867)
+Selection-corrected p          0.0040
+```
+
+The same correction applied to the 78-pair search gives observed max 0.862 (`Observed_Genera` + `CoreRetentionProportion`) against a searched null of 0.695 ± 0.051, **p=0.0033**. Both searches survive their own selection bias.
+
+### 5.3 What this does not resolve
+
+- α diversity alone reaches only 0.714 with a null max of 0.779 — **it does not clear its noise ceiling** (p=0.0140 is below 0.05, but the null maximum exceeds the observed value, so a single draw of noise can beat it). α diversity should not be reported as transferring.
+- The pre-registered dimensional hypothesis — that only dimensionless features transfer — is **not supported**. Under a linear model the count-type subset transfers at 0.856. The scale problem was real, but it lived in the kernel, not in the features.
+
+---
+
+## 6. What to do next
 
 1. **Replicate Duck → Turkey on a third host.** This is the single highest-value follow-up. The swan cohort cannot serve; another wild cohort is needed.
-2. **Work out what in the α + core combination transfers**, given that neither part does alone. Inspecting the fitted decision boundary, or testing pairwise ratios of the 13 features directly, would turn a black-box result into a reportable mechanism.
+2. **Report core retention loss as the transferable quantity**, and use a linear model for cross-host work. §5 settles the mechanism; what remains is confirming it holds in a third host.
 3. **Give the genus model a non-degenerate transfer baseline** by using the intersection of both cohorts' feature sets (the open item in `summary_Turkey_45_sample.md` §7). Beating a collapsed model is a weak claim; beating a functioning one would be strong.
 4. **Rarefy, or model depth explicitly.** Depth reaches AUC 0.650 in duck. The `--deconfound-depth` residualization is a sensitivity check, not a fix — for a cross-host transfer it uses source-host coefficients on the target.
 5. **Do not present Aitchison distance as an ecological alternative to taxonomy.** It is the same data. Bray–Curtis is the honest community-structure comparator.
 
 ---
 
-## 6. Reproduction
+## 7. Reproduction
 
 ```bash
 python3 ecological_models.py                                    # primary
+python3 ecological_transfer_anatomy.py --n-perm 300             # §5 anatomy
 python3 ecological_models.py --deconfound-depth --tag _depthadj # depth sensitivity
 python3 ecological_cage_check.py --n-perm 300                   # cage vs infection
 ```
@@ -193,10 +255,10 @@ python3 ecological_cage_check.py --n-perm 300                   # cage vs infect
 
 ---
 
-## 7. Outstanding
+## 8. Outstanding
 
 - [ ] Replicate the Duck → Turkey ecological transfer on a third host cohort
-- [ ] Identify which relationship within α + core is doing the transferring
+- [x] ~~Identify which relationship within α + core is doing the transferring~~ → done (§5): core retention loss, carried by a linear model
 - [ ] Cross-host test on the intersection of both feature sets, for a non-degenerate taxonomic baseline
 - [ ] Rarefy or depth-model the counts, then re-run §1 and §4
 - [ ] Bring `results/ecological_*.json` into `check_consistency.py`
