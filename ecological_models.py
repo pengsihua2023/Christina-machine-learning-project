@@ -45,7 +45,8 @@ COHORTS = {
 }
 
 TABULAR_SPACES = ["alpha", "core", "pcoa_bray", "pcoa_aitch",
-                  "eco_pure", "eco_bray", "eco_all", "genus"]
+                  "eco_pure", "eco_bray", "eco_all", "genus",
+                  "genus_eco", "genus_eco_bray"]
 KERNEL_SPACES = ["dist_bray", "dist_aitch"]
 ALL_SPACES = TABULAR_SPACES + KERNEL_SPACES
 
@@ -60,11 +61,15 @@ SPACE_LABEL = {
     "eco_bray":   "纯生态 + 结构（α + 核心 + Bray）",
     "eco_all":    "α + 核心 + Aitchison（含分类学信息）",
     "genus":      "属丰度 CLR（既有模型，参照）",
+    "genus_eco":  "属丰度 + α + 核心（全合并）",
+    "genus_eco_bray": "属丰度 + α + 核心 + Bray（全合并）",
 }
 
 # 组合空间的成分。eco_pure 只含逐样本的生态摘要统计量，因此是唯一
 # 既属纯生态、又能跨宿主迁移的组合（PCoA 轴是队列内定义的，跨不过去）。
 COMPOSITE = {
+    "genus_eco": ("genus", "alpha", "core"),
+    "genus_eco_bray": ("genus", "alpha", "core", "pcoa_bray"),
     "eco_pure": ("alpha", "core"),
     "eco_bray": ("alpha", "core", "pcoa_bray"),
     "eco_all":  ("alpha", "core", "pcoa_aitch"),
@@ -259,11 +264,12 @@ def _shuffled(d, seed):
 def _transfer_matrices(space, src, dst):
     """构造跨宿主的 (Xtr, Xte)，若该特征空间无法跨队列则返回 None。"""
     if space in KERNEL_SPACES or space in ("pcoa_bray", "pcoa_aitch",
-                                            "eco_bray", "eco_all"):
+                                            "eco_bray", "eco_all",
+                                            "genus_eco_bray"):
         # 距离矩阵与 PCoA 轴都是队列内定义的，跨队列没有共同坐标系
         return None
-    if space == "eco_pure":
-        parts = [_transfer_matrices(s, src, dst) for s in COMPOSITE["eco_pure"]]
+    if space in ("eco_pure", "genus_eco"):
+        parts = [_transfer_matrices(s, src, dst) for s in COMPOSITE[space]]
         return (np.hstack([a for a, _ in parts]),
                 np.hstack([b for _, b in parts]))
     if space == "genus":
@@ -407,7 +413,7 @@ def main():
     print("  因此可比的是：α 多样性、核心保留度、二者的合并（纯生态），以及属丰度。")
     pairs = [("Duck", "Turkey"), ("Turkey", "Duck"),
              ("Duck", "Swan"), ("Turkey", "Swan")]
-    spaces = ["alpha", "core", "eco_pure", "genus"]
+    spaces = ["alpha", "core", "eco_pure", "genus", "genus_eco"]
     block = {}
     for sp in spaces:
         print(f"\n  {SPACE_LABEL[sp]}")

@@ -228,7 +228,51 @@ The same correction applied to the 78-pair search gives observed max 0.862 (`Obs
 
 ---
 
-## 6. What to do next
+## 6. Does combining everything help?
+
+The obvious next move is to concatenate the genus abundances with the ecological features and let the model use both. It does not help, and it costs both properties that made the ecological features worth having.
+
+### 6.1 Within host: no gain
+
+| Feature space | n features | Duck | n features | Turkey |
+|---|---|---|---|---|
+| Genus abundance | 70 | **0.836** | 62 | **0.972** |
+| Genus + α + core | 83 | 0.832 | 75 | 0.960 |
+| Genus + α + core + Bray | 93 | 0.831 | 85 | 0.979 |
+| *Pure ecological, for reference* | *13* | *0.613* | *13* | *0.807* |
+
+Every difference is smaller than the repeat-to-repeat standard deviation (0.012–0.025). In duck the combination is marginally *worse* than genus alone; in turkey `genus_eco` is worse and `genus_eco_bray` marginally better. **None of this is a real effect.**
+
+The reason is that the ecological features are not independent information — they are **summary statistics computed from the same abundance table**. α diversity is a function of the abundance vector; core retention is a thresholded count over it. A model that already has all 70 abundances can in principle reconstruct them. There is nothing to add.
+
+### 6.2 Cross-host: the transfer is destroyed
+
+| Duck → Turkey | AUC | Null max | p |
+|---|---|---|---|
+| **Pure ecological (α + core)** | **0.800** | 0.740 | **0.0050** |
+| Genus + α + core | **0.490** | 0.810 | 0.522 |
+| Genus abundance alone | 0.500 | — | degenerate |
+
+**Adding the genus block back drags the combination from 0.800 down to chance.** The genus features are host-specific and land far outside the training range on the target; they dominate the standardised feature space and swamp the 13 ecological columns that would otherwise have carried the transfer.
+
+### 6.3 Cage confounding: inherited in full
+
+| Feature space | Pure cage | Infection | Cage / infection | Significant |
+|---|---|---|---|---|
+| **Pure ecological (α + core)** | **0.563** | **0.784** | **0.72** | **0/3** |
+| Genus abundance | 0.908 | 0.967 | 0.94 | 3/3 |
+| Genus + α + core | 0.906 | 0.956 | **0.95** | **3/3** |
+| Genus + α + core + Bray | 0.811 | 0.962 | 0.84 | 2/3 |
+
+The combination tracks cages exactly as well as genus abundance alone (ratio 0.95, 3/3 contrasts significant). **Diluting a cage-confounded feature block with clean features does not decontaminate it.**
+
+### 6.4 The conclusion
+
+Combining is the wrong move for this problem. Genus abundance is the better within-host classifier and should be used when the question is "how well can infection be detected in this cohort". The ecological features are the better cross-host and less confounded predictor and should be used when the question is "does this hold in another host". **They answer different questions, and merging them yields a model that answers the first no better and the second not at all.**
+
+---
+
+## 7. What to do next
 
 1. **Replicate Duck → Turkey on a third host.** This is the single highest-value follow-up. The swan cohort cannot serve; another wild cohort is needed.
 2. **Report core retention loss as the transferable quantity**, and use a linear model for cross-host work. §5 settles the mechanism; what remains is confirming it holds in a third host.
@@ -238,7 +282,7 @@ The same correction applied to the 78-pair search gives observed max 0.862 (`Obs
 
 ---
 
-## 7. Reproduction
+## 8. Reproduction
 
 ```bash
 python3 ecological_models.py                                    # primary
@@ -257,7 +301,7 @@ python3 ecological_cage_check.py --n-perm 300                   # cage vs infect
 
 ---
 
-## 8. Outstanding
+## 9. Outstanding
 
 - [ ] Replicate the Duck → Turkey ecological transfer on a third host cohort
 - [x] ~~Identify which relationship within α + core is doing the transferring~~ → done (§5): core retention loss, carried by a linear model

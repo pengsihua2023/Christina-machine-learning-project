@@ -30,7 +30,8 @@ warnings.filterwarnings("ignore")
 OUT = "results"
 PROJECT = "PRJNA644054"
 SPACES = ["alpha", "core", "pcoa_bray", "pcoa_aitch",
-          "eco_pure", "eco_bray", "eco_all", "genus"]
+          "eco_pure", "eco_bray", "eco_all", "genus",
+          "genus_eco", "genus_eco_bray"]
 
 
 def cv_auc(space, d, n_splits=4, n_repeats=10, seed=0):
