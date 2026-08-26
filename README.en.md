@@ -795,6 +795,7 @@ Each entry is anchored to a measured value from this project where possible. Sec
 | **CLR transform**<br>Centered Log-Ratio | Log each abundance, subtract that sample's mean log, giving a log deviation from the sample's own average so taxa become independently comparable | *Rothia* count 12 → CLR −0.383 (§6.1) |
 | **Pseudocount** | `log(0)` is undefined, so a small constant is added first. 0.5 comes from continuity correction and stays below the smallest observable count of 1 | Sensitivity: AUC moves <0.007 across 0.1–2.0 |
 | **p/n** | Feature-to-sample ratio; indicates whether this is a high-dimensional problem | 70/260 ≈ 0.27, so no PCA needed |
+| **Genus abundance** | **Not one parameter but a whole matrix**: rows are samples, columns are bacterial taxa, cells are read counts.<br>Note that the columns of `genus_raw_counts_by_featureID.csv` are **FeatureIDs, not genus names** — the genus is looked up through `taxonomy_key.csv`, and several FeatureIDs can map to one genus | 326×275; 275 FeatureIDs → 155 genus names (55 unannotated). After filtering, 70 columns in duck and 62 in turkey |
 
 ### 10.2 Statistical testing
 
@@ -850,8 +851,23 @@ Each entry is anchored to a measured value from this project where possible. Sec
 | └ (4) Selection bias | The leak is in the act of *choosing* | Best-of-17 model, flat-CV tuning (§5.7) |
 | **Confounder** | A third variable affecting both exposure and outcome. **Not leakage** — it is genuinely available at prediction time | Sampling month: covariates alone reach AUC 0.881 (§4.2) |
 | **Stratification** | Hold the confounder fixed and compare within strata. **Only microbiome stays in the model** — this project's primary estimate | July AUC 0.965, October 0.734 (§4.4) |
+| **Cage effect** | Animals in one housing unit converge microbially, far enough that the unit itself becomes predictable from the microbiome.<br>**The unit here is an isolator holding 8 birds**, not a per-animal cage — what is shared is the environmental pool of litter, water and feed. The term follows the mouse literature.<br>Quantified by contrasts where strain, batch and infection status are all fixed and only the cage varies | Turkey cohort: pure cage AUC 0.908 (3/3 significant) against an infection effect of 0.967 — indistinguishable |
 
-### 10.6 The line between leakage and confounding
+### 10.6 Ecological feature spaces and cross-host transfer
+
+| Term | One line | Value here |
+|---|---|---|
+| **Alpha diversity** | Within-sample diversity reduced to a few numbers: richness, evenness, dominance. **Computed per sample, with no cross-sample fitting** | 6 indices; duck AUC 0.538 (p=0.333, fails its own null) |
+| **Core retention** | Define a host's "baseline core microbiome" from its **negative** individuals, then measure what share of it each sample still holds.<br>**Must be redefined inside every training fold from that fold's negatives only**, or held-out samples help define the very baseline they are scored against | Baseline core: 14 genera in duck, 32 in turkey; turkey AUC 0.799 |
+| **Bray–Curtis distance** | Compositional dissimilarity between two samples, a function of those two alone — **no cross-sample fitting, therefore leak-free by construction** | Kernel method, duck AUC 0.695 |
+| **Aitchison distance** | Euclidean distance in CLR space. **This *is* the genus abundance data in different geometry, not an ecological alternative to taxonomy** | Duck 0.848 against genus abundance 0.836 — near-tautological |
+| **PCoA**<br>Principal Coordinates Analysis | Reduces a distance matrix to a few axes. **The axes are determined by every sample in the calculation, which makes it unsupervised process leakage** (§10.5 (3)); it must be fitted in-fold and held-out samples projected in | Fitted in-fold, projected by Gower interpolation, top 10 axes |
+| **Cross-host transfer**<br>external validation | **Train on one host, predict another directly.** None of the target cohort enters training — no fine-tuning, and even the standardisation mean and variance come from the source.<br>This is the strictest validation there is (the highest evidence level under TRIPOD) and answers whether a finding survives outside its own cohort | Pure ecological, duck → turkey AUC 0.800 against a null maximum of 0.740, p=0.0050 |
+| **Degenerate** | The model gives **every** target sample the same score, the ROC collapses to the diagonal, and AUC is exactly 0.500.<br>**This is not "chance-level" but "no discrimination at all"** — the two must be reported separately | 3 of 4 genus transfer directions degenerate: the source-fitted filter puts target CLR values outside the training range and the RBF kernel underflows |
+
+> **Why transfer is far harder than cross-validation**: in cross-validation every test sample has counterparts in the training set from the same cohort, species and batch. In transfer it has none. Of the duck cohort's nine genera only *Staphylococcus* survived the turkey prevalence filter, and it pointed the opposite way — **taxonomic findings simply do not cross species**. What does cross is a dimensionless summary: duck's core is 14 genera and turkey's is 32, with almost no overlap, yet "what proportion was lost" means the same thing and moves the same way in both.
+
+### 10.7 The line between leakage and confounding
 
 > **Leaked information does not exist at prediction time** (you cannot know `CoreGroup` before deciding whether a bird is infected);
 > **confounded information does** (you obviously know what month it is).
