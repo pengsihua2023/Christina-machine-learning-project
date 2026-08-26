@@ -26,7 +26,9 @@
 
 **Aitchison distance is Euclidean distance in CLR space** — the same genus abundances the taxonomic model uses, reparameterised as a distance. Any space built on it carries the full taxonomic signal and is *not* an ecological alternative to taxonomy. It is kept in the tables as a control, labelled as such.
 
-Model held fixed at SVM-RBF throughout, so that what varies is the feature space and not the learner. Protocol: outer 5-fold × 10 repeats, inner 4-fold tuning, AUC computed per fold and averaged.
+**§1–§4 and §6 hold the model fixed at SVM-RBF**, so that what varies is the feature space and not the learner. Protocol: outer 5-fold × 10 repeats, inner 4-fold tuning, AUC computed per fold and averaged.
+
+**§5 and §7 are the exception**: §5.1 shows RBF is the wrong model for cross-host transfer (same features, 0.469 under RBF against 0.870 linear), so those sections use L2 logistic regression and say so in the table headers. Wherever this document gives two figures for the same quantity, this is why.
 
 **Calibration**: the genus reference reproduces the established results — 70 features and AUC 0.836 in duck (documented 0.835, README §4), 62 features and 0.972 in turkey. The cage contrasts in §3 reproduce `summary_Turkey_45_sample.md` §4 to three decimals. The Python core-retention implementation reproduces the collaborator's R output exactly on all 7 columns and all 326 samples.
 
@@ -131,7 +133,9 @@ Infection vs control (n=45)                         AUC 0.784   p = 0.0100
 
 Whole source cohort trains, whole target cohort tests. Distance kernels and PCoA cannot cross cohorts (their coordinate systems are defined within a cohort), so the comparable spaces are α diversity, core retention, their combination, and genus abundance. Every AUC carries a permutation null on the target labels.
 
-| Source → target | α diversity | Core retention | **Pure ecological (α + core)** | Genus abundance |
+**Every figure in this table is SVM-RBF**, for protocol consistency with §1–§3. **These are not the best estimates of what these features can transfer** — §5.1 shows RBF is the wrong model for a cross-host setting; the linear figures are in §7.1 (core retention 0.469 → **0.870**).
+
+| Source → target (**SVM-RBF**) | α diversity | Core retention | **Pure ecological (α + core)** | Genus abundance |
 |---|---|---|---|---|
 | **Duck → Turkey** | 0.375 (p=0.91) | 0.469 (p=0.62) | **0.800 (p=0.0050)** | 0.500 — **degenerate** |
 | Turkey → Duck | 0.503 (p=0.46) | 0.579 (p=0.035) | 0.549 (p=0.0945) | 0.500 — **degenerate** |
