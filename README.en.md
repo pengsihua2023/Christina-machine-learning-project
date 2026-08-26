@@ -867,6 +867,24 @@ Each entry is anchored to a measured value from this project where possible. Sec
 
 > **Why transfer is far harder than cross-validation**: in cross-validation every test sample has counterparts in the training set from the same cohort, species and batch. In transfer it has none. Of the duck cohort's nine genera only *Staphylococcus* survived the turkey prevalence filter, and it pointed the opposite way — **taxonomic findings simply do not cross species**. What does cross is a dimensionless summary: duck's core is 14 genera and turkey's is 32, with almost no overlap, yet "what proportion was lost" means the same thing and moves the same way in both.
 
+
+> **Which ecological model to use** (detail in `summary_ecological_models.md` §7)
+>
+> **Do not rank them by within-host AUC.** Within host, genus abundance reaches 0.836 (duck) and 0.972 (turkey), beating every ecological space — the best, the Bray kernel, manages only 0.695 / 0.850. So:
+>
+> - If the question is "how well can infection be detected **in this cohort**" → use **genus abundance**, not ecological features
+> - If the question is "does the finding hold **in another host**" → use **core retention with a linear model**
+>
+> **Core retention is the pick among the ecological spaces**, for three independent reasons:
+>
+> 1. **It is the only one that can transfer.** Every Bray-based space is *structurally* unable to cross cohorts (PCoA axes and kernel bandwidths are defined within one). Among the three that can: core alone 0.870 > α + core 0.834 > α alone 0.714 (whose null maximum of 0.779 exceeds the observed value, so it is not established). **Adding α makes it worse.**
+> 2. **It detects infection but not the isolator.** Cage/infection ratio 0.77 with 0/3 contrasts significant, against 0.94 and 3/3 for genus abundance.
+> 3. **The mechanism is reportable.** Direction agrees across hosts: `CoreRetentionProportion` lower in infected birds (duck 0.397, turkey 0.154), `CoreTaxaLost` higher (duck 0.603, turkey 0.846). That single feature transfers at 0.846 (selection-corrected p=0.0040).
+>
+> **One figure that invites misreading**: α diversity's cage/infection ratio of 0.67 looks better than core retention's 0.77, but **a ratio is only readable when the numerator is real signal** — α fails its permutation null in both cohorts (p=0.333 and 0.070), so its ratio means nothing.
+>
+> **Three usage rules**: (1) use a linear model rather than RBF (same features: RBF transfers at 0.469, linear at 0.870); (2) do not add α diversity; (3) **do not merge with genus abundance** — transfer falls from 0.800 to 0.490 and the cage ratio returns to 0.95.
+
 ### 10.7 The line between leakage and confounding
 
 > **Leaked information does not exist at prediction time** (you cannot know `CoreGroup` before deciding whether a bird is infected);
