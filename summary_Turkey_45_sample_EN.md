@@ -32,7 +32,11 @@ This cohort is an **experimental infection study**: controls were injected with 
 | 5 | 0 | 8 |
 | 6 | 0 | 8 |
 
-**Each isolator holds exactly one infection status.** That follows from the experimental design (controls and infected birds must be housed separately to prevent cross-infection), but the price is that **isolator effect and infection effect are statistically inseparable** — no sample exists in a cage containing both positives and negatives to break the pattern.
+> **What an isolator is**: a negative-pressure housing unit used in avian influenza work, separately ventilated to block aerosol transmission between groups. **Each isolator in this cohort holds 8 birds** (5 in isolator 2) — this is not one bird per cage; the whole group shares the same litter, water and feed. `Isolator_.` is the only spatial grouping variable in the metadata; nothing finer is recorded.
+>
+> The term "cage effect" is used below because that is the established name in the literature (from the classic observation that co-housed mice converge microbially), but note that the physical unit here is an isolator, not a cage — **what is shared is the environmental microbial pool, not the container**.
+
+**Each isolator holds exactly one infection status.** That follows from the experimental design (controls and infected birds must be housed in separate isolators to prevent cross-infection), but the price is that **isolator effect and infection effect are statistically inseparable** — no sample exists in an isolator containing both positives and negatives to break the pattern.
 
 ### 1.2 The decisive test: the cage effect is real, and strong
 

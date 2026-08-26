@@ -95,7 +95,9 @@ The last row is the internal control: the one core metric essentially uncorrelat
 
 ## 3. Ecological features are far less cage-confounded
 
-`summary_Turkey_45_sample.md` §4 established that in the genus space the pure cage effect (strain, batch and infection status all fixed, only cage varying) reaches AUC 0.908 against an infection effect of 0.967 — indistinguishable. The same three contrasts were run in every feature space:
+> **"Cage effect" here means the housing unit, which is an isolator holding 8 birds** — a negative-pressure unit whose occupants share litter, water and feed. The term follows the literature convention; the physical unit is not a per-animal cage. `Isolator_.` is the only spatial grouping recorded.
+
+`summary_Turkey_45_sample.md` §4 established that in the genus space the pure cage effect (strain, batch and infection status all fixed, only the isolator varying) reaches AUC 0.908 against an infection effect of 0.967 — indistinguishable. The same three contrasts were run in every feature space:
 
 | Feature space | Pure cage (mean of 3) | Infection | Cage / infection | Cage contrasts significant |
 |---|---|---|---|---|
