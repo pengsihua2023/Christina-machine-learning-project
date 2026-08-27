@@ -127,6 +127,27 @@ Infection vs control (n=45)                         AUC 0.784   p = 0.0100
 
 > **What this does and does not license.** It does not show that ecological features measure infection more accurately — 0.784 is well below the genus model's 0.967. It shows the lower score is *less contaminated*. Under perfect cage/infection collinearity, a feature that ignores cage-level idiosyncrasy while retaining infection signal is worth more than a higher number that cannot be attributed to anything.
 
+### 3.1 How to read "0/3", and how to write it up
+
+**"0 of 3 significant" is weak evidence on its own.** Each contrast has only 13–16 samples and very little power — **failing to detect is not the same as absence**. That column alone would not support a conclusion.
+
+It carries weight because **the same three contrasts, at the same sample sizes, through the same permutation procedure, give genus abundance 3 of 3**:
+
+```
+Isolator 3 vs 4, n=16 in both cases:
+    Genus abundance    AUC 0.919   p = 0.0066    ← detected
+    Pure ecological    AUC 0.556   p = 0.3987    ← not detected
+```
+
+Equal power with opposite outcomes locates the difference in **the feature space itself**, not in the sample size.
+
+The pure ecological space does detect infection in the same cohort (0.784, p=0.0100), which makes this a **positive control paired with a negative result** — a feature space that detected nothing at all would merely be useless; one that detects infection and not the cage is informative.
+
+> **Accurate wording for a paper.** Do not write "ecological features are unaffected by the cage effect" — that reports a non-detection as an absence. Suggested:
+>
+> "Across three pure-cage contrasts holding strain, extraction batch and infection status fixed (n=13–16), no purely ecological feature space reached significance (p = 0.25–0.55), whereas genus abundance was significant in all three (p = 0.007–0.033). Power was identical across the two, so the difference reflects a property of the feature space rather than of sample size."
+
+
 ---
 
 ## 4. Cross-host transfer: the original question, answered in one direction
