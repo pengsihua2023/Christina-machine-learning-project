@@ -583,6 +583,31 @@ Overall differential abundance: **19 of 70 features at FDR < 0.05**.
 positive group — this genus induces Th17 and IgA responses, an independent line of
 immunological support.
 
+> **The protocol has grown from three layers to four.** The three methods above all
+> test **statistical robustness**. In a cohort with collinear confounding, a fourth
+> layer is needed to test **attributability**:
+>
+> | Layer | Method | What it tests | Where it applies |
+> |---|---|---|---|
+> | ①②③ | Differential abundance · permutation importance · L1 stability selection | statistical robustness | every cohort |
+> | ④ | **Confounder screen** (here, the cage screen) | **attributability to infection** | experimental-infection cohorts only |
+>
+> The duck cohort is field surveillance with no cages, so layer ④ cannot be applied
+> and the nine genera rest on ①②③ alone. The turkey cohort (PRJNA644054) runs all
+> four: ①②③ give 4 features, and layer ④ leaves **2** — `HT002` (Pos↓) and
+> `Escherichia-Shigella` (Pos↑). See `summary_Turkey_45_sample_EN.md` §2.
+>
+> **Why layer ④ cannot be dropped**: turkey's *Negativibacillus* is the strongest
+> feature in the cohort under ①②③ (importance 0.0133, t=+5.87, stable L1 selection
+> at all three C values), yet it also differs significantly across four isolators
+> that are all positive — **statistically unimpeachable and entirely unattributable
+> to infection.**
+>
+> **The L1 penalty does not carry across cohorts.** The duck C=0.1 was chosen by
+> giving up about 0.03 of CV-AUC for sparsity; with a sixth of the sample size, the
+> same C zeroes every coefficient in turkey. Turkey uses a sensitivity axis instead
+> (C=0.2/1.0/10.0, intersected). Any new cohort should re-scan.
+
 ### 6.3 Disagreements between methods are equally informative
 
 - ***Veillonella***: ranks 2nd in permutation importance and is **positive in 100% of the
