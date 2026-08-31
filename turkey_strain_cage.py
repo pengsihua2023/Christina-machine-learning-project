@@ -173,13 +173,39 @@ def main():
         t, p = stats.ttest_ind(g1, g2, equal_var=False)
         fdr = stats.false_discovery_control(p, method="bh")
         n_sig = int((fdr < 0.05).sum())
-        rows.append({"contrast": tag, "n_sig": n_sig, "n_tested": len(fdr)})
+        # 逐菌 FDR 必须落盘：§4.5 要用它复查此前被标记的 cage_confounded 菌，
+        # 只存 n_sig 会让文档里的数字无从追溯。
+        per_taxon = {}
+        for k, fid in enumerate(clr.columns):
+            g = taxonomy.loc[fid, "Genus"] if fid in taxonomy.index else None
+            per_taxon[fid] = {"genus": None if pd.isna(g) else str(g),
+                              "t": float(t[k]), "FDR": float(fdr[k])}
+        rows.append({"contrast": tag, "n_sig": n_sig, "n_tested": len(fdr),
+                     "per_taxon": per_taxon})
         print(f"  {tag:<16} {n_sig:2d}/{len(fdr)} 个特征 FDR<0.05")
         for fid in clr.columns[fdr < 0.05][:5]:
             gname = taxonomy.loc[fid, "Genus"] if fid in taxonomy.index else "?"
             i = list(clr.columns).index(fid)
             print(f"      {str(gname):<24} t={t[i]:+.2f}  FDR={fdr[i]:.4f}")
     res["per_contrast_da"] = rows
+
+    # 每个菌在三组纯笼对比中的最小 FDR —— §4.5 判定「是否真·笼效应」的依据
+    min_fdr = {}
+    for r in rows:
+        for fid, v in r["per_taxon"].items():
+            if fid not in min_fdr or v["FDR"] < min_fdr[fid]["min_FDR"]:
+                min_fdr[fid] = {"genus": v["genus"], "min_FDR": v["FDR"],
+                                "at_contrast": r["contrast"]}
+    res["pure_cage_min_fdr_by_taxon"] = min_fdr
+
+    print("\n  各菌在三组纯笼对比中的最小 FDR（§4.5 用此复查 cage_confounded 标记）：")
+    prev = pd.read_csv(os.path.join(OUT, "turkey_biomarkers.csv"))
+    flagged = prev[prev.cage_confounded == True].FeatureID.tolist()
+    for fid in flagged:
+        if fid in min_fdr:
+            m = min_fdr[fid]
+            verdict = "真·笼效应" if m["min_FDR"] < 0.05 else "来自毒株/批次，非纯笼"
+            print(f"    {str(m['genus']):<24} min FDR {m['min_FDR']:.4f}   {verdict}")
 
     with open(os.path.join(OUT, "turkey_strain_cage.json"), "w") as f:
         json.dump(res, f, indent=2, ensure_ascii=False)

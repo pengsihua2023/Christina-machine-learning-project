@@ -155,6 +155,56 @@
 
 > **后续修正**：本节的筛查横跨两个毒株与两个批次，因此标记的其实是「笼**或**毒株**或**批次」。§4.5 用纯笼对比重查后发现，这 4 个里只有 *Faecalibacterium* 是真正的笼效应，另外 3 个（含 *Negativibacillus*）来自毒株/批次。结论不变——它们同样无法归因于感染。
 
+### 2.5 补做：与鸭队列完全同口径的三方法交集
+
+**脚本**：`turkey_biomarkers_3method.py` ｜ **结果**：`results/turkey_biomarkers_3method.json`
+
+§2.1–2.4 用的是「差异丰度 + permutation importance + 笼效应筛查」，而鸭队列九菌（README §6.2）用的是「差异丰度 + permutation importance + **L1 稳定性选择**」。**两者缺了同一块拼图，因此原本不可直接比较。** 本节补上 L1 稳定性选择。
+
+#### L1 惩罚强度无法照搬，故作为敏感性轴
+
+鸭队列用 C=0.1（18/70 特征，CV-AUC 较峰值损失约 0.03）。火鸡 n=45、62 特征，两种「对齐鸭队列」的方式互相矛盾：
+
+| 对齐方式 | 对应 C | 结果 |
+|---|---|---|
+| 对齐**稀疏度比例**（≈1/4 特征） | ≈10 | 惩罚几乎不起作用 |
+| 对齐**准则**（牺牲约 0.03 CV-AUC） | ≈0.2 | 仅剩 7 个非零系数 |
+
+既然无唯一正确取法，就把 C 当敏感性轴：**0.2 / 1.0 / 10.0 各跑 200 次 bootstrap，只有三个 C 下都达到选中频率 ≥70% 的特征才算 L1 命中**（分别命中 4 / 8 / 9 个，取交集）。这样结论不依赖这个任意选择。
+
+#### 结果：4 个，其中 2 个通过笼效应筛查
+
+| Genus | Family | Permutation importance | L1 频率（最低） | 方向 | FDR | 笼效应 |
+|---|---|---|---|---|---|---|
+| *Negativibacillus* | Ruminococcaceae | 0.0133 | 0.865 | Pos↑ | 3.84e-05 | **受污染** |
+| ***HT002*** | Lactobacillaceae | 0.0130 | 0.935 | **Pos↓** | 5.72e-03 | **通过** |
+| *Tissierella* | Family_XI | 0.0079 | 0.885 | Pos↑ | 3.75e-04 | **受污染** |
+| ***Escherichia-Shigella*** | Enterobacteriaceae | 0.0015 | 1.000 | **Pos↑** | 3.75e-04 | **通过** |
+
+三套方法各自的命中数：差异丰度 19、permutation importance 24、L1（三 C 均达标）4。**L1 是最严的一关**——这与鸭队列一致（那里 L1 也是把 19 个 FDR 显著的收敛到 9 个的那一步）。
+
+> **与 §2.3 的七菌是什么关系。** §2.3 那 7 个是「两法一致 + 通过笼效应筛查」，本节这 4 个是「三法一致」。**后者是前者的更严子集**：加了 L1 这一关之后，*Pediococcus*、未定属 Lactobacillaceae、*Incertae_Sedis*、*Weissella* 未能在三个 C 下都稳定入选。
+>
+> 两个集合都对，只是严格程度不同：**要与鸭队列比较，用本节的 4 个；要列出本队列全部候选，用 §2.3 的 7 个。**
+
+#### 跨宿主比较：属层面无重叠，科层面有一个
+
+重建鸭队列的三方法交集得到 **9 个**，与 README §6.2 记录一致（这一步是为校验重建方法是否正确）。
+
+| 层级 | 重叠 |
+|---|---|
+| 属 | **无** |
+| 科 | **Ruminococcaceae** |
+
+```
+Ruminococcaceae
+    鸭     （未注释属）          Pos↑
+    火鸡    Negativibacillus    Pos↑    ← 但受笼/毒株/批次污染
+```
+
+**方向一致（两边都是 Pos↑），这是本项目第一次出现分类学层面的跨宿主一致性。** 但必须同时说明：火鸡这一侧的 *Negativibacillus* 正是 §2.4 那个最强反例——它在同为阳性的四个隔离器之间也显著不同，§4.5 进一步显示污染源是毒株/批次。**因此这条科层面的一致性不能归因于感染，只能作为值得在第三个队列验证的线索。**
+
+
 ---
 
 ## 3. 与主队列（野鸭）九菌交集的比较
@@ -286,6 +336,7 @@ CKPA vs TKMN (n=32)   AUC 0.912   零分布 0.498 ± 0.136 (max 0.852)   p = 0.0
 python3 turkey_confounding_biomarkers.py
 python3 turkey_confounding_biomarkers.py --n-perm-imp 50 --n-rep-cv 5   # 更稳的重要性估计
 
+python3 turkey_biomarkers_3method.py             # §2.5：与鸭队列同口径的三方法交集
 python3 turkey_strain_cage.py                    # §4：毒株共线 + 纯笼效应
 python3 turkey_strain_cage.py --n-perm 500       # 更细的 p 值分辨率
 ```
@@ -293,6 +344,8 @@ python3 turkey_strain_cage.py --n-perm 500       # 更细的 p 值分辨率
 | 文件 | 内容 |
 |---|---|
 | `results/turkey_confounding_biomarkers.json` | 混杂检查全部结果 |
+| `results/turkey_biomarkers_3method.json` | 三方法交集、L1 敏感性、与鸭队列的跨宿主比较 |
+| `results/turkey_l1_scan.csv` | L1 惩罚强度扫描（非零系数个数与 CV-AUC） |
 | `results/turkey_strain_cage.json` | 毒株共线结构、三组纯笼对比、感染效应对照、逐对比差异丰度 |
 | `results/turkey_biomarkers.csv` | 62 个特征的三重证据合并表（含 `cage_confounded` 列） |
 | `results/turkey_differential_abundance.csv` | 差异丰度（t / p / FDR / 方向 / 各组 CLR 均值） |

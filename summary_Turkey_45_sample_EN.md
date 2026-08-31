@@ -155,6 +155,56 @@ Also excluded are *Tissierella* (t=+4.82, FDR=0.0004) and *Faecalibacterium* (t=
 
 > **Subsequent correction**: the screen in this section spans two strains and two batches, so what it actually flags is "cage **or** strain **or** batch". Re-checking against the pure-cage contrasts in §4.5 shows that of these four, only *Faecalibacterium* is a genuine cage effect; the other three (including *Negativibacillus*) come from strain or batch. The conclusion is unchanged — they equally cannot be attributed to infection.
 
+### 2.5 Added: the three-method intersection, exactly as run on the duck cohort
+
+**Script**: `turkey_biomarkers_3method.py` ｜ **Results**: `results/turkey_biomarkers_3method.json`
+
+§2.1–2.4 used "differential abundance + permutation importance + cage screen", whereas the duck cohort's nine genera (README §6.2) came from "differential abundance + permutation importance + **L1 stability selection**". **Each was missing a different piece, so the two were not directly comparable.** This section adds L1 stability selection.
+
+#### The L1 penalty cannot be carried over, so it is treated as a sensitivity axis
+
+The duck cohort used C=0.1 (18 of 70 features, about 0.03 of CV-AUC given up for sparsity). With n=45 and 62 features in turkey, the two ways of "matching the duck cohort" contradict each other:
+
+| Way of matching | C required | Consequence |
+|---|---|---|
+| Match the **sparsity fraction** (≈1/4 of features) | ≈10 | the penalty is barely active |
+| Match the **rule** (give up ~0.03 CV-AUC) | ≈0.2 | only 7 non-zero coefficients remain |
+
+With no single correct choice, C becomes a sensitivity axis: **200 bootstraps at each of 0.2 / 1.0 / 10.0, and a feature counts as an L1 hit only if it reaches ≥70% selection frequency at all three** (4 / 8 / 9 hits respectively; the intersection is taken). The conclusion then does not rest on an arbitrary choice.
+
+#### Result: four features, two of which pass the cage screen
+
+| Genus | Family | Permutation importance | L1 freq (lowest) | Direction | FDR | Cage |
+|---|---|---|---|---|---|---|
+| *Negativibacillus* | Ruminococcaceae | 0.0133 | 0.865 | Pos↑ | 3.84e-05 | **confounded** |
+| ***HT002*** | Lactobacillaceae | 0.0130 | 0.935 | **Pos↓** | 5.72e-03 | **passes** |
+| *Tissierella* | Family_XI | 0.0079 | 0.885 | Pos↑ | 3.75e-04 | **confounded** |
+| ***Escherichia-Shigella*** | Enterobacteriaceae | 0.0015 | 1.000 | **Pos↑** | 3.75e-04 | **passes** |
+
+Hits per method: differential abundance 19, permutation importance 24, L1 (all three C) 4. **L1 is by far the strictest gate** — as it was in the duck cohort, where it is also the step that narrowed 19 FDR-significant features to 9.
+
+> **How this relates to the seven in §2.3.** Those seven are "two methods agree + passes the cage screen"; these four are "three methods agree". **The latter is the stricter subset**: once L1 is added, *Pediococcus*, the unnamed Lactobacillaceae genus, *Incertae_Sedis* and *Weissella* fail to be selected consistently across all three C values.
+>
+> Both sets are correct at their own strictness. **Use the four here when comparing against the duck cohort; use the seven in §2.3 when listing every candidate this cohort offers.**
+
+#### Cross-host comparison: no genus overlap, one family overlap
+
+Rebuilding the duck cohort's three-method intersection gives **9 features**, matching README §6.2 — a check that the reconstruction is faithful before any comparison is drawn.
+
+| Rank | Overlap |
+|---|---|
+| Genus | **none** |
+| Family | **Ruminococcaceae** |
+
+```
+Ruminococcaceae
+    Duck     (unnamed genus)      Pos↑
+    Turkey   Negativibacillus     Pos↑    ← but cage/strain/batch confounded
+```
+
+**The direction agrees (Pos↑ on both sides), the first taxonomic cross-host consistency anywhere in this project.** But it has to be reported with its caveat: the turkey member, *Negativibacillus*, is precisely the cautionary case from §2.4 — it differs significantly across four isolators that are all positive, and §4.5 traces the contamination to strain or batch. **This family-level agreement therefore cannot be attributed to infection; it is a lead worth testing in a third cohort, nothing more.**
+
+
 ---
 
 ## 3. Comparison with the primary cohort's nine genera (wild duck)
@@ -286,6 +336,7 @@ Those seven candidates **survive a test the primary cohort has no way of applyin
 python3 turkey_confounding_biomarkers.py
 python3 turkey_confounding_biomarkers.py --n-perm-imp 50 --n-rep-cv 5   # steadier importance estimates
 
+python3 turkey_biomarkers_3method.py             # §2.5: three-method intersection, duck protocol
 python3 turkey_strain_cage.py                    # §4: strain collinearity + pure cage effect
 python3 turkey_strain_cage.py --n-perm 500       # finer p-value resolution
 ```
@@ -293,6 +344,8 @@ python3 turkey_strain_cage.py --n-perm 500       # finer p-value resolution
 | File | Contents |
 |---|---|
 | `results/turkey_confounding_biomarkers.json` | all confounding-check results |
+| `results/turkey_biomarkers_3method.json` | three-method intersection, L1 sensitivity, cross-host comparison |
+| `results/turkey_l1_scan.csv` | L1 penalty scan (non-zero coefficients and CV-AUC) |
 | `results/turkey_strain_cage.json` | strain collinearity structure, three pure-cage contrasts, infection-effect reference, per-contrast differential abundance |
 | `results/turkey_biomarkers.csv` | merged three-evidence table for all 62 features (includes the `cage_confounded` column) |
 | `results/turkey_differential_abundance.csv` | differential abundance (t / p / FDR / direction / per-group CLR means) |

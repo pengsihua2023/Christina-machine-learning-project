@@ -55,6 +55,26 @@ TKMN         0        16
       Pseudoflavonifractor     t=-9.86  FDR=0.0015
       UCG-009                  t=+5.95  FDR=0.0034
 
+  各菌在三组纯笼对比中的最小 FDR（§4.5 用此复查 cage_confounded 标记）：
+    Negativibacillus         min FDR 0.1093   来自毒株/批次，非纯笼
+    UCG-009                  min FDR 0.0034   真·笼效应
+    Tissierella              min FDR 0.1716   来自毒株/批次，非纯笼
+    Faecalibacterium         min FDR 0.0047   真·笼效应
+    Incertae_Sedis           min FDR 0.4210   来自毒株/批次，非纯笼
+    CHKCI002                 min FDR 0.5119   来自毒株/批次，非纯笼
+    Pseudoflavonifractor     min FDR 0.0015   真·笼效应
+    Caproiciproducens        min FDR 0.2320   来自毒株/批次，非纯笼
+    GCA-900066575            min FDR 0.1716   来自毒株/批次，非纯笼
+    Microbacterium           min FDR 0.1336   来自毒株/批次，非纯笼
+    Chryseobacterium         min FDR 0.4160   来自毒株/批次，非纯笼
+    Intestinimonas           min FDR 0.6304   来自毒株/批次，非纯笼
+    Lactobacillus            min FDR 0.3415   来自毒株/批次，非纯笼
+    Macrococcus              min FDR 0.3558   来自毒株/批次，非纯笼
+    CHKCI001                 min FDR 0.2320   来自毒株/批次，非纯笼
+    Merdibacter              min FDR 0.3558   来自毒株/批次，非纯笼
+    [Clostridium]_innocuum_group min FDR 0.6894   来自毒株/批次，非纯笼
+    None                     min FDR 0.2435   来自毒株/批次，非纯笼
+
 ======================================================================================
 结论：毒株效应无法检验（与笼、批次三重共线）。
 可检验的是纯笼效应——毒株/批次/感染状态全部固定后仅变笼号的对比。

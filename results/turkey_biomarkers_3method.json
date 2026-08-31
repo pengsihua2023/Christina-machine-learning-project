@@ -1,0 +1,72 @@
+{
+  "project": "PRJNA644054",
+  "n": 45,
+  "n_features": 62,
+  "l1_C_values": [
+    0.2,
+    1.0,
+    10.0
+  ],
+  "l1_rule": "三个 C 值下选中频率均 ≥0.70",
+  "n_boot": 200,
+  "n_boot_used": 200,
+  "thresholds": {
+    "FDR": 0.05,
+    "importance": 0.0,
+    "l1_freq": 0.7
+  },
+  "n_hit_da": 19,
+  "n_hit_l1": 4,
+  "n_hit_imp": 24,
+  "n_three_method": 4,
+  "n_three_method_cage_clean": 2,
+  "cross_host": {
+    "duck_n_three_method": 9,
+    "genus_overlap": [],
+    "family_overlap": [
+      "Ruminococcaceae"
+    ]
+  },
+  "biomarkers": [
+    {
+      "genus": "Negativibacillus",
+      "family": "Ruminococcaceae",
+      "feature_id": "GQ175458.1.1439",
+      "importance": 0.0133333333333333,
+      "l1_freq": 0.865,
+      "direction": "Pos↑",
+      "FDR": 3.8436160118473536e-05,
+      "cage_confounded": true
+    },
+    {
+      "genus": "HT002",
+      "family": "Lactobacillaceae",
+      "feature_id": "KX881777.1.1230",
+      "importance": 0.0129982363315696,
+      "l1_freq": 0.935,
+      "direction": "Pos↓",
+      "FDR": 0.0057159464364745,
+      "cage_confounded": false
+    },
+    {
+      "genus": "Tissierella",
+      "family": "Family_XI",
+      "feature_id": "GQ461821.1.1415",
+      "importance": 0.0079012345679012,
+      "l1_freq": 0.885,
+      "direction": "Pos↑",
+      "FDR": 0.000374961104726,
+      "cage_confounded": true
+    },
+    {
+      "genus": "Escherichia-Shigella",
+      "family": "Enterobacteriaceae",
+      "feature_id": "KT873246.1.1201",
+      "importance": 0.0015167548500881,
+      "l1_freq": 1.0,
+      "direction": "Pos↑",
+      "FDR": 0.000374961104726,
+      "cage_confounded": false
+    }
+  ]
+}
