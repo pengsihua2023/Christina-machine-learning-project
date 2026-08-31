@@ -174,11 +174,11 @@ const warn = { fill: { color: "FBEDE7" }, bold: true, color: CORAL };
      { text: "Pos↑", options: warn }, "3.8e-04", { text: "受污染", options: warn }],
     [{ text: "Escherichia-Shigella", options: { bold: true, italic: true } }, "Enterobacteriaceae", "0.0015", "1.000",
      { text: "Pos↑", options: hi }, "3.8e-04", { text: "通过", options: hi }],
-  ], { y: 1.9, colW: [3.0, 2.6, 1.4, 2.0, 1.1, 1.3, 1.6], rowH: 0.5, fontSize: 11.5 });
+  ], { y: 1.9, colW: [2.9, 2.4, 1.3, 1.9, 1.1, 1.2, 1.3], rowH: 0.5, fontSize: 11.5 });
 
   card(s, { x: 0.6, y: 4.4, w: 5.9, h: 1.45, accent: TEAL, titleSize: 14, bodySize: 11,
     title: "L1 是最严的一关",
-    body: "19 个 FDR 显著的菌，经 L1 只剩 4 个。鸭队列也是如此——L1 正是把 19 收敛到 9 的那一步。" });
+    body: "19 个菌达到 FDR<0.05，经 L1 只剩 4 个。鸭队列也是如此——L1 正是把 19 收敛到 9 的那一步。" });
   card(s, { x: 6.8, y: 4.4, w: 5.9, h: 1.45, accent: MOSS, titleSize: 14, bodySize: 11,
     title: "与 §2.3 那 7 个的关系",
     body: "这 4 个是那 7 个的更严子集。加上 L1 后，Pediococcus、未定属 Lactobacillaceae、Incertae_Sedis、Weissella 未能在三个 C 下都稳定入选。" });
