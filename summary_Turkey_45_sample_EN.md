@@ -5,7 +5,7 @@
 **Related file**: `summary_Chicken_51_sample.md` (modelling results for the merged cohort)
 **Date**: 2026-08-11
 
-> **One-sentence conclusion: isolator is perfectly collinear with infection status, and the pure cage effect — strain, batch and infection status all held fixed, only the cage varying, mean AUC 0.908 — is nearly the same magnitude as the infection effect (0.967). How much of AUC 0.930 comes from infection and how much from cage assignment cannot be separated. Seven candidate genera survive the cage screen. The strain effect cannot be tested at all, because of a three-way collinearity.**
+> **One-sentence conclusion: isolator is perfectly collinear with infection status, and the pure cage effect — strain, batch and infection status all held fixed, only the cage varying, mean AUC 0.908 — is nearly the same magnitude as the infection effect (0.967). How much of AUC 0.930 comes from infection and how much from cage assignment cannot be separated. Two candidate genera survive all four layers (differential abundance, permutation importance, L1 stability and the cage screen): *HT002* and *Escherichia-Shigella*. The strain effect cannot be tested at all, because of a three-way collinearity.**
 
 ---
 
@@ -104,101 +104,65 @@ This column is unused in the present project and therefore affects no result, bu
 
 ## 2. The taxa that drive prediction
 
-### 2.1 Method: one screen more than usual
-
-A prevalence threshold of ≥10% retains **62 features**. Three lines of evidence:
-
-| Method | Output | Result in this cohort |
-|---|---|---|
-| Differential abundance (CLR + Welch t + BH-FDR) | effect direction + FDR | **19 features at FDR<0.05** (11 Pos↑, 8 Pos↓) |
-| Permutation importance (within-fold, 3×5 folds) | contribution to the model | — |
-| **Cage-effect screen** (unique to this cohort) | is the feature cage-driven? | **18 features already differ by isolator within the positives** |
-
-**The third is something the primary cohort cannot do**: wild ducks have no cages, so there is nothing to test. The procedure is, for each genus, a one-way ANOVA across isolators **within the positives only** (BH-FDR corrected) — if a genus differs significantly across four isolators that are all positive, it is cage-driven rather than infection-driven.
-
-### 2.2 Result: 11 agree across two methods, 7 of which pass the cage screen
-
-```
-FDR<0.05 in differential abundance AND permutation importance > 0: 11
-  ├─ not cage-contaminated: 7   ← usable as candidate biomarkers
-  └─ cage-contaminated:     4   ← infection and cage-mate effects indistinguishable
-```
-
-### 2.3 The seven candidates that pass
-
-| Genus | Family | Direction | Permutation importance | t | FDR |
-|---|---|---|---|---|---|
-| *HT002* | Lactobacillaceae | **Pos↓** | 0.0130 | −3.89 | 0.0057 |
-| *Pediococcus* | Lactobacillaceae | **Pos↑** | 0.0129 | +4.32 | 0.0010 |
-| (unnamed genus) | Lactobacillaceae | **Pos↓** | 0.0064 | −4.15 | 0.0017 |
-| *Incertae_Sedis* | — | Pos↓ | 0.0022 | −2.60 | 0.0499 |
-| *Weissella* | Lactobacillaceae | **Pos↓** | 0.0020 | −3.56 | 0.0087 |
-| ***Escherichia-Shigella*** | Enterobacteriaceae | **Pos↑** | 0.0015 | **+5.64** | **0.0004** |
-| *Pseudomonas* | Pseudomonadaceae | **Pos↑** | 0.00004 | +3.49 | 0.0057 |
-
-**The pattern is clear and matches immunological expectation:**
-
-- **Three of the four Lactobacillaceae genera fall in the infected group** — *HT002*, the unnamed genus and *Weissella* are all Pos↓
-- **Opportunistic pathogens rise in the infected group** — *Escherichia-Shigella* (t=+5.64, the strongest signal in the table) and *Pseudomonas*
-
-This is the classic dysbiosis signature of **commensal depletion with opportunist expansion**.
-
-> One exception: *Pediococcus*, also a member of Lactobacillaceae, moves the other way (Pos↑). It is a fermentative lactic acid bacterium occupying a different niche from *Lactobacillus*, and is not over-interpreted here.
-
-### 2.4 The four excluded by the cage screen: a cautionary example
-
-***Negativibacillus*** (Ruminococcaceae), **ranked first**, has the highest permutation importance (0.0133) and a differential abundance of t=+5.87, FDR<0.0001 — on those two columns alone it would look like the strongest biomarker available.
-
-**But it also differs significantly across the four isolators that are all positive**, so whether it reflects infection or the shared cage environment cannot be determined.
-
-Also excluded are *Tissierella* (t=+4.82, FDR=0.0004) and *Faecalibacterium* (t=−3.51, FDR=0.0069) — **without the cage screen, all three would have been reported as solid findings.**
-
-> **Subsequent correction**: the screen in this section spans two strains and two batches, so what it actually flags is "cage **or** strain **or** batch". Re-checking against the pure-cage contrasts in §4.5 shows that of these four, only *Faecalibacterium* is a genuine cage effect; the other three (including *Negativibacillus*) come from strain or batch. The conclusion is unchanged — they equally cannot be attributed to infection.
-
-### 2.5 Added: the three-method intersection, exactly as run on the duck cohort
+### 2.1 A single protocol: the duck cohort's three methods, plus one layer unique to this cohort
 
 **Script**: `turkey_biomarkers_3method.py` ｜ **Results**: `results/turkey_biomarkers_3method.json`
 
-§2.1–2.4 used "differential abundance + permutation importance + cage screen", whereas the duck cohort's nine genera (README §6.2) came from "differential abundance + permutation importance + **L1 stability selection**". **Each was missing a different piece, so the two were not directly comparable.** This section adds L1 stability selection.
+A prevalence threshold of ≥10% retains **62 features**. Selection uses **one protocol** — the same three-method intersection as the duck cohort (README §6.2), with a cage screen layered on top:
 
-#### The L1 penalty cannot be carried over, so it is treated as a sensitivity axis
+| Layer | Method | What it tests | Hits here |
+|---|---|---|---|
+| ① | Differential abundance (CLR + Welch t + BH-FDR) | is the between-group difference real | 19 |
+| ② | Permutation importance (within-fold, 3×5 folds) | does it contribute to the model | 24 |
+| ③ | L1 stability selection (200 bootstraps) | is it **reproducibly** chosen by a sparse model | **4** |
+| ④ | **Cage screen** (unique to this cohort) | can it be **attributed to infection** rather than shared housing | **2** of the 4 pass |
 
-The duck cohort used C=0.1 (18 of 70 features, about 0.03 of CV-AUC given up for sparsity). With n=45 and 62 features in turkey, the two ways of "matching the duck cohort" contradict each other:
+Layers ①–③ match the duck cohort exactly, which is what makes the two cohorts comparable. Layer ④ is something the duck cohort cannot do — wild ducks have no cages — and works by a one-way ANOVA across isolators **within the positives only** (BH-FDR corrected).
+
+> **①②③ test statistical robustness; ④ tests attributability.** Neither substitutes for the other: a genus can be rock-solid under all three methods and still be entirely unattributable to infection. *Negativibacillus* in §2.3 is exactly that.
+
+### 2.2 The L1 penalty cannot be carried over, so it becomes a sensitivity axis
+
+The duck cohort used C=0.1 (18 of 70 features, about 0.03 of CV-AUC given up for sparsity). With n=45 and 62 features in turkey, the two ways of matching it contradict each other:
 
 | Way of matching | C required | Consequence |
 |---|---|---|
 | Match the **sparsity fraction** (≈1/4 of features) | ≈10 | the penalty is barely active |
 | Match the **rule** (give up ~0.03 CV-AUC) | ≈0.2 | only 7 non-zero coefficients remain |
 
-With no single correct choice, C becomes a sensitivity axis: **200 bootstraps at each of 0.2 / 1.0 / 10.0, and a feature counts as an L1 hit only if it reaches ≥70% selection frequency at all three** (4 / 8 / 9 hits respectively; the intersection is taken). The conclusion then does not rest on an arbitrary choice.
+With no single correct choice, C becomes a sensitivity axis: **200 bootstraps at each of 0.2 / 1.0 / 10.0, and a feature counts as an L1 hit only if it reaches ≥70% selection frequency at all three** (4 / 8 / 9 hits respectively; the intersection is taken). The conclusion then rests on no arbitrary choice.
 
-#### Result: four features, two of which pass the cage screen
+### 2.3 Result: four clear the three methods, two of those are attributable to infection
 
-| Genus | Family | Permutation importance | L1 freq (lowest) | Direction | FDR | Cage |
-|---|---|---|---|---|---|---|
-| *Negativibacillus* | Ruminococcaceae | 0.0133 | 0.865 | Pos↑ | 3.84e-05 | **confounded** |
-| ***HT002*** | Lactobacillaceae | 0.0130 | 0.935 | **Pos↓** | 5.72e-03 | **passes** |
-| *Tissierella* | Family_XI | 0.0079 | 0.885 | Pos↑ | 3.75e-04 | **confounded** |
-| ***Escherichia-Shigella*** | Enterobacteriaceae | 0.0015 | 1.000 | **Pos↑** | 3.75e-04 | **passes** |
+| Genus | Family | Permutation importance | L1 freq (lowest) | Direction | t | FDR | Cage screen |
+|---|---|---|---|---|---|---|---|
+| *Negativibacillus* | Ruminococcaceae | 0.0133 | 0.865 | Pos↑ | +5.87 | 3.84e-05 | **fails** |
+| ***HT002*** | Lactobacillaceae | 0.0130 | 0.935 | **Pos↓** | −3.89 | 5.72e-03 | **passes** |
+| *Tissierella* | Family_XI | 0.0079 | 0.885 | Pos↑ | +4.82 | 3.75e-04 | **fails** |
+| ***Escherichia-Shigella*** | Enterobacteriaceae | 0.0015 | 1.000 | **Pos↑** | +5.64 | 3.75e-04 | **passes** |
 
-Hits per method: differential abundance 19, permutation importance 24, L1 (all three C) 4. **L1 is by far the strictest gate** — as it was in the duck cohort, where it is also the step that narrowed 19 FDR-significant features to 9.
+**L1 is by far the strictest gate**: 19 genera reach FDR<0.05 and four survive L1. The duck cohort behaves the same way — L1 is the step that narrowed 19 to 9 there.
 
-> **How this relates to the seven in §2.3 — neither set contains the other.** They are two different third gates applied to the same 11 features (§2.2, differential abundance ∩ permutation importance):
->
-> ```
-> 11 (two methods agree, §2.2)
->  ├─ plus the cage screen        → 7 (§2.3)
->  └─ plus L1 stability selection → 4 (§2.5, this section)
->       intersection of the two   → 2: HT002 and Escherichia-Shigella
-> ```
->
-> Two of the four here, *Negativibacillus* and *Tissierella*, are cage-confounded and are therefore **not** among the seven; five of the seven (*Pediococcus*, the unnamed Lactobacillaceae genus, *Incertae_Sedis*, *Weissella*, *Pseudomonas*) fail L1 and are therefore not among the four.
->
-> **Both gates are worth applying, and only 2 features clear both — those are this cohort's most defensible candidates.** Use the four for the methodological comparison with the duck cohort, where the protocol has to match; use the two when arguing biological plausibility.
+**Two are reportable as candidate biomarkers**:
 
-#### Cross-host comparison: no genus overlap, one family overlap
+- ***HT002*** (Lactobacillaceae) **falls** in infected birds
+- ***Escherichia-Shigella*** (Enterobacteriaceae) **rises** in infected birds
 
-Rebuilding the duck cohort's three-method intersection gives **9 features**, matching README §6.2 — a check that the reconstruction is faithful before any comparison is drawn.
+The direction matches immunological expectation: commensal lactic acid bacteria depleted, opportunistic pathogens expanding — the classic dysbiosis pattern.
+
+### 2.4 A cautionary case: why layer ④ cannot be dropped
+
+***Negativibacillus*** has the highest permutation importance in the cohort (0.0133), differential abundance of t=+5.87 at FDR<0.0001, and stable L1 selection at all three C values (lowest 0.865) — **all three methods agree it is the strongest biomarker available.**
+
+**But it also differs significantly across the four isolators that are all positive**, so whether it reflects infection or the shared cage environment cannot be determined. The same holds for *Tissierella* (t=+4.82, FDR=3.75e-04).
+
+> **Located more precisely in §4.5**: re-checked against the pure-cage contrasts (strain, batch and infection status all fixed), *Negativibacillus* has a minimum FDR of 0.109 and *Tissierella* 0.172 — neither significant, which means the contaminating source is **strain or batch** rather than the cage as such. The conclusion is unchanged: **not attributable to infection under this design.**
+
+**Without layer ④ the reported set would be these four rather than two, half of them unattributable.**
+
+### 2.5 Comparison with the duck cohort (same protocol, therefore comparable)
+
+Rebuilding the duck three-method intersection gives **9 features**, matching README §6.2 — a check that the reconstruction is faithful before any comparison is drawn.
 
 | Rank | Overlap |
 |---|---|
@@ -208,11 +172,12 @@ Rebuilding the duck cohort's three-method intersection gives **9 features**, mat
 ```
 Ruminococcaceae
     Duck     (unnamed genus)      Pos↑
-    Turkey   Negativibacillus     Pos↑    ← but cage/strain/batch confounded
+    Turkey   Negativibacillus     Pos↑    ← but strain/batch confounded
 ```
 
-**The direction agrees (Pos↑ on both sides), the first taxonomic cross-host consistency anywhere in this project.** But it has to be reported with its caveat: the turkey member, *Negativibacillus*, is precisely the cautionary case from §2.4 — it differs significantly across four isolators that are all positive, and §4.5 traces the contamination to strain or batch. **This family-level agreement therefore cannot be attributed to infection; it is a lead worth testing in a third cohort, nothing more.**
+**The direction agrees on both sides, the first taxonomic cross-host consistency anywhere in this project.** But the turkey member is the cautionary case of §2.4, **not attributable to infection**, so it stands as a lead worth testing in a third cohort and nothing more.
 
+> **Note: earlier versions reported "seven candidates".** That set was "differential abundance ∩ permutation importance ∩ cage screen" — a non-standard combination that existed only because L1 stability selection had not yet been run. With L1 added, that reading is retired and the four-layer protocol above replaces it. The difference between the two counts is **not** a change in result but a completed protocol: five of the seven (*Pediococcus*, the unnamed Lactobacillaceae genus, *Incertae_Sedis*, *Weissella*, *Pseudomonas*) fail L1.
 
 ---
 
@@ -308,7 +273,7 @@ This also explains why **univariate differential abundance cannot see the cage e
 | *Tissierella* | 0.172 | strain/batch driven, not pure cage |
 | *Incertae_Sedis* | 0.421 | strain/batch driven, not pure cage |
 
-**The §2.4 screen was over-strict: only 1 of the 4 is a true cage effect.** But it did not err in direction — the seven candidates of §2.3 passed under the stricter standard, so they pass under the looser one as well, and **the conclusion is unchanged**.
+**The §2.4 screen was over-strict: only 1 of the 4 is a true cage effect.** But it did not err in direction — the two candidates reported in §2.3 passed under the stricter standard, so they pass under the looser one as well, and **the conclusion is unchanged**.
 
 The wording on *Negativibacillus* should be corrected accordingly: it is not contaminated by the cage effect but **by strain or batch** — and under this design it equally cannot be attributed to infection.
 
@@ -326,7 +291,7 @@ Three reasons:
 
 ### 5.2 But the cage screen is itself a valuable, independent perspective
 
-Those seven candidates **survive a test the primary cohort has no way of applying**. The combination of rising *Escherichia-Shigella* with falling Lactobacillaceae is mechanistically interpretable in particular, and is worth validating in other cohorts.
+Those two candidates (*HT002* and *Escherichia-Shigella*) **survive a test the primary cohort has no way of applying**. The combination of rising *Escherichia-Shigella* with falling Lactobacillaceae is mechanistically interpretable, and is worth validating in other cohorts.
 
 ### 5.3 Hard requirements when reporting results from this cohort
 

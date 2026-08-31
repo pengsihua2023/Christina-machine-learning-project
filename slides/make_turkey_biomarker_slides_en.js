@@ -126,7 +126,7 @@ const warn = { fill: { color: "FBEDE7" }, bold: true, color: CORAL };
      { text: "L1 stability selection", options: warn },
      { text: "Cage screen (unique to this cohort)", options: hi }],
     [{ text: "Result", options: { bold: true } }, { text: "9 biomarkers", options: { bold: true } },
-     { text: "7 candidates (§2.3 — a different gate ③)", options: { bold: true } }],
+     { text: "7 candidates (incomplete protocol, retired)", options: { bold: true } }],
   ], { y: 1.9, colW: [1.0, 5.6, 5.5], rowH: 0.5, fontSize: 11.5 });
 
   card(s, { x: 0.6, y: 4.5, w: 12.1, h: 0.95, accent: CORAL, fill: "FBEDE7", titleSize: 14, bodySize: 11.5,
@@ -181,11 +181,11 @@ const warn = { fill: { color: "FBEDE7" }, bold: true, color: CORAL };
   card(s, { x: 0.6, y: 4.4, w: 5.9, h: 1.45, accent: TEAL, titleSize: 14, bodySize: 11,
     title: "L1 is by far the strictest gate",
     body: "Nineteen genera reach FDR<0.05; four survive L1. The duck cohort behaves the same way — L1 is the step that narrowed 19 to 9 there." });
-  card(s, { x: 6.8, y: 4.4, w: 5.9, h: 1.45, accent: MOSS, titleSize: 13.5, bodySize: 10.5,
-    title: "Neither set contains the other",
-    body: "Both start from the 11 of §2.2; only the third gate differs:\n    11 ─┬─ plus cage screen → 7 (§2.3)\n         └─ plus L1          → 4 (this slide)\n            intersection → 2" });
+  card(s, { x: 6.8, y: 4.4, w: 5.9, h: 1.45, accent: MOSS, titleSize: 14, bodySize: 11,
+    title: "Why layer ④ cannot be dropped",
+    body: "Negativibacillus is the strongest feature under all three methods, yet it also differs across four isolators that are all positive. Drop the cage screen and the reported set is these four, half of them unattributable to infection." });
 
-  s.addText("Only 2 clear both gates — HT002 and Escherichia-Shigella — and those are this cohort's most defensible candidates. Use these four for the methodological comparison with the duck cohort, where the protocol has to match.", {
+  s.addText("Only 2 clear all four layers — HT002 (Pos down) and Escherichia-Shigella (Pos up) — and those are what this cohort can report. Layers ①–③ match the duck cohort, which is what makes the two comparable.", {
     x: 0.6, y: 6.0, w: 12.1, h: 0.4, margin: 0, fontFace: HEAD, fontSize: 12.5, bold: true, color: INK });
 }
 
