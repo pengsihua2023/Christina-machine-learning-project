@@ -63,7 +63,7 @@ def l1_lr(C):
                               C=C, class_weight="balanced")
 
 
-def scan_l1C(X, y, Cs=(0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0)):
+def scan_l1C(X, y, Cs=(0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 50.0)):
     """扫描惩罚强度：报告非零系数个数与 CV-AUC。"""
     cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=4, random_state=RNG)
     rows = []
