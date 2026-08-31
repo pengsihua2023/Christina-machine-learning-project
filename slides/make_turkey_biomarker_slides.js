@@ -124,7 +124,7 @@ const warn = { fill: { color: "FBEDE7" }, bold: true, color: CORAL };
      { text: "L1 稳定性选择", options: warn },
      { text: "笼效应筛查（本队列特有）", options: hi }],
     [{ text: "结果", options: { bold: true } }, { text: "9 个 biomarker", options: { bold: true } },
-     { text: "7 个候选（§2.3）", options: { bold: true } }],
+     { text: "7 个候选（§2.3，第 ③ 关不同）", options: { bold: true } }],
   ], { y: 1.9, colW: [1.0, 5.6, 5.5], rowH: 0.5, fontSize: 11.5 });
 
   card(s, { x: 0.6, y: 4.5, w: 12.1, h: 0.95, accent: CORAL, fill: "FBEDE7", titleSize: 14, bodySize: 11.5,
@@ -179,11 +179,11 @@ const warn = { fill: { color: "FBEDE7" }, bold: true, color: CORAL };
   card(s, { x: 0.6, y: 4.4, w: 5.9, h: 1.45, accent: TEAL, titleSize: 14, bodySize: 11,
     title: "L1 是最严的一关",
     body: "19 个菌达到 FDR<0.05，经 L1 只剩 4 个。鸭队列也是如此——L1 正是把 19 收敛到 9 的那一步。" });
-  card(s, { x: 6.8, y: 4.4, w: 5.9, h: 1.45, accent: MOSS, titleSize: 14, bodySize: 11,
-    title: "与 §2.3 那 7 个的关系",
-    body: "这 4 个是那 7 个的更严子集。加上 L1 后，Pediococcus、未定属 Lactobacillaceae、Incertae_Sedis、Weissella 未能在三个 C 下都稳定入选。" });
+  card(s, { x: 6.8, y: 4.4, w: 5.9, h: 1.45, accent: MOSS, titleSize: 14, bodySize: 10.5,
+    title: "与 §2.3 那 7 个不是包含关系",
+    body: "两者都从 §2.2 的 11 个出发，只是第三道关不同：\n    11 ─┬─ 过笼效应筛查 → 7 个（§2.3）\n         └─ 过 L1 稳定性 → 4 个（本页）\n            两者交集 → 2 个" });
 
-  s.addText("与鸭队列比较时用这 4 个；列本队列全部候选时用 §2.3 的 7 个 —— 两者都对，只是严格程度不同。", {
+  s.addText("同时通过两道关的只有 2 个：HT002 与 Escherichia-Shigella —— 那是本队列最可靠的候选。与鸭队列作方法学比较时用这 4 个（口径相同）。", {
     x: 0.6, y: 6.0, w: 12.1, h: 0.4, margin: 0, fontFace: HEAD, fontSize: 13, bold: true, color: INK });
 }
 

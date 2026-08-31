@@ -183,9 +183,18 @@ With no single correct choice, C becomes a sensitivity axis: **200 bootstraps at
 
 Hits per method: differential abundance 19, permutation importance 24, L1 (all three C) 4. **L1 is by far the strictest gate** — as it was in the duck cohort, where it is also the step that narrowed 19 FDR-significant features to 9.
 
-> **How this relates to the seven in §2.3.** Those seven are "two methods agree + passes the cage screen"; these four are "three methods agree". **The latter is the stricter subset**: once L1 is added, *Pediococcus*, the unnamed Lactobacillaceae genus, *Incertae_Sedis* and *Weissella* fail to be selected consistently across all three C values.
+> **How this relates to the seven in §2.3 — neither set contains the other.** They are two different third gates applied to the same 11 features (§2.2, differential abundance ∩ permutation importance):
 >
-> Both sets are correct at their own strictness. **Use the four here when comparing against the duck cohort; use the seven in §2.3 when listing every candidate this cohort offers.**
+> ```
+> 11 (two methods agree, §2.2)
+>  ├─ plus the cage screen        → 7 (§2.3)
+>  └─ plus L1 stability selection → 4 (§2.5, this section)
+>       intersection of the two   → 2: HT002 and Escherichia-Shigella
+> ```
+>
+> Two of the four here, *Negativibacillus* and *Tissierella*, are cage-confounded and are therefore **not** among the seven; five of the seven (*Pediococcus*, the unnamed Lactobacillaceae genus, *Incertae_Sedis*, *Weissella*, *Pseudomonas*) fail L1 and are therefore not among the four.
+>
+> **Both gates are worth applying, and only 2 features clear both — those are this cohort's most defensible candidates.** Use the four for the methodological comparison with the duck cohort, where the protocol has to match; use the two when arguing biological plausibility.
 
 #### Cross-host comparison: no genus overlap, one family overlap
 

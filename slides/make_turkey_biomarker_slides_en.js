@@ -126,7 +126,7 @@ const warn = { fill: { color: "FBEDE7" }, bold: true, color: CORAL };
      { text: "L1 stability selection", options: warn },
      { text: "Cage screen (unique to this cohort)", options: hi }],
     [{ text: "Result", options: { bold: true } }, { text: "9 biomarkers", options: { bold: true } },
-     { text: "7 candidates (§2.3)", options: { bold: true } }],
+     { text: "7 candidates (§2.3 — a different gate ③)", options: { bold: true } }],
   ], { y: 1.9, colW: [1.0, 5.6, 5.5], rowH: 0.5, fontSize: 11.5 });
 
   card(s, { x: 0.6, y: 4.5, w: 12.1, h: 0.95, accent: CORAL, fill: "FBEDE7", titleSize: 14, bodySize: 11.5,
@@ -181,11 +181,11 @@ const warn = { fill: { color: "FBEDE7" }, bold: true, color: CORAL };
   card(s, { x: 0.6, y: 4.4, w: 5.9, h: 1.45, accent: TEAL, titleSize: 14, bodySize: 11,
     title: "L1 is by far the strictest gate",
     body: "Nineteen genera reach FDR<0.05; four survive L1. The duck cohort behaves the same way — L1 is the step that narrowed 19 to 9 there." });
-  card(s, { x: 6.8, y: 4.4, w: 5.9, h: 1.45, accent: MOSS, titleSize: 14, bodySize: 11,
-    title: "How these relate to the seven in §2.3",
-    body: "These four are the stricter subset. Once L1 is added, Pediococcus, the unnamed Lactobacillaceae genus, Incertae_Sedis and Weissella fail to be selected consistently across all three C values." });
+  card(s, { x: 6.8, y: 4.4, w: 5.9, h: 1.45, accent: MOSS, titleSize: 13.5, bodySize: 10.5,
+    title: "Neither set contains the other",
+    body: "Both start from the 11 of §2.2; only the third gate differs:\n    11 ─┬─ plus cage screen → 7 (§2.3)\n         └─ plus L1          → 4 (this slide)\n            intersection → 2" });
 
-  s.addText("Use these four when comparing against the duck cohort; use the seven in §2.3 when listing every candidate this cohort offers — both are correct at their own strictness.", {
+  s.addText("Only 2 clear both gates — HT002 and Escherichia-Shigella — and those are this cohort's most defensible candidates. Use these four for the methodological comparison with the duck cohort, where the protocol has to match.", {
     x: 0.6, y: 6.0, w: 12.1, h: 0.4, margin: 0, fontFace: HEAD, fontSize: 12.5, bold: true, color: INK });
 }
 
